@@ -1,0 +1,27 @@
+{
+  "name": "@stock/website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --input-type=module -e \"import fs from 'fs'; fs.rmSync('.next',{recursive:true,force:true});\" && next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@stock/shared": "*",
+    "animejs": "^3.2.2",
+    "jose": "^6.2.2",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/animejs": "^3.1.13",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.5.0"
+  }
+}

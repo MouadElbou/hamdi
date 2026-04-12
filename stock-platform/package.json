@@ -1,0 +1,30 @@
+{
+  "name": "stock-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Retail platform — desktop back-office + public website + central backend",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "backend:dev": "npm run dev -w @stock/backend",
+    "desktop:dev": "npm run dev -w @stock/desktop",
+    "website:dev": "npm run dev -w @stock/website",
+    "backend:build": "npm run build -w @stock/backend",
+    "desktop:build": "npm run build -w @stock/desktop",
+    "website:build": "npm run build -w @stock/website",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "build:shared": "npm run build -w @stock/shared",
+    "build:all": "npm run build:shared && npm run backend:build && npm run desktop:build && npm run website:build"
+  },
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.1",
+    "electron": "^33.4.11",
+    "esbuild": "^0.27.4"
+  }
+}
