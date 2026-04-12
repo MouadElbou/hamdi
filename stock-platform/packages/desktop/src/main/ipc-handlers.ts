@@ -34,7 +34,7 @@ setInterval(() => {
 }, 120_000);
 
 const ALL_PAGES = [
-  'dashboard', 'purchases', 'stock', 'sales', 'maintenance',
+  'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'maintenance',
   'battery-repair', 'expenses', 'credits', 'bank', 'monthly-summary', 'zakat',
 ];
 
@@ -379,7 +379,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
   safeHandle('clients:create', (_event, data: { name: string; phone?: string }) => {
     const trimmed = data.name.trim();
-    if (!trimmed) throw new Error('Client name is required');
+    if (!trimmed) throw new Error('Le nom du client est requis');
+    validateStringLength(trimmed, 'Nom client', 200);
+    if (data.phone) validateStringLength(data.phone, 'Téléphone', 30);
     return db.transaction(() => {
       const existing = db.prepare('SELECT * FROM clients WHERE name = ? AND deleted_at IS NULL').get(trimmed) as Record<string, unknown> | undefined;
       if (existing) return existing;
@@ -648,9 +650,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
     if (params.category) { whereClauses += ' AND c.name = ?'; bindings.push(params.category); }
     if (params.search) {
-      whereClauses += ` AND (pl.id LIKE ? ESCAPE '\\' OR pl.designation LIKE ? ESCAPE '\\' OR pl.ref_number LIKE ? ESCAPE '\\' OR pl.date LIKE ? ESCAPE '\\' OR c.name LIKE ? ESCAPE '\\' OR s.code LIKE ? ESCAPE '\\' OR b.name LIKE ? ESCAPE '\\' OR CAST(pl.purchase_unit_cost AS TEXT) LIKE ? ESCAPE '\\' OR CAST(pl.initial_quantity AS TEXT) LIKE ? ESCAPE '\\')`;
+      whereClauses += ` AND (pl.id LIKE ? ESCAPE '\\' OR pl.designation LIKE ? ESCAPE '\\' OR pl.ref_number LIKE ? ESCAPE '\\' OR pl.date LIKE ? ESCAPE '\\' OR c.name LIKE ? ESCAPE '\\' OR s.code LIKE ? ESCAPE '\\' OR b.name LIKE ? ESCAPE '\\' OR CAST(pl.purchase_unit_cost AS TEXT) LIKE ? ESCAPE '\\' OR CAST(pl.initial_quantity AS TEXT) LIKE ? ESCAPE '\\' OR pl.barcode LIKE ? ESCAPE '\\')`;
       const s = `%${escapeLike(params.search)}%`;
-      bindings.push(s, s, s, s, s, s, s, s, s);
+      bindings.push(s, s, s, s, s, s, s, s, s, s);
     }
     if (params.inStockOnly) {
       whereClauses += ' AND (pl.initial_quantity - COALESCE((SELECT SUM(sl2.quantity) FROM sale_lines sl2 WHERE sl2.lot_id = pl.id AND sl2.deleted_at IS NULL), 0) + COALESCE((SELECT SUM(srl2.quantity) FROM sale_return_lines srl2 WHERE srl2.lot_id = pl.id AND srl2.deleted_at IS NULL), 0)) > 0';
@@ -756,6 +758,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       throw new Error('Le nom du client est requis pour une vente à crédit');
     }
     if (data.dueDate) validateDate(data.dueDate, 'Date d\'échéance');
+    if (data.advancePaid != null && data.advancePaid !== 0) validateAmount(data.advancePaid, 'Avance versée');
     const saleId = uuidv7();
     const refNumber = `SAL-${Date.now()}`;
     const now = new Date().toISOString();
@@ -1253,9 +1256,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     let whereClauses = 'so.deleted_at IS NULL';
     const bindings: unknown[] = [];
     if (params?.search) {
-      whereClauses += ` AND (so.id LIKE ? ESCAPE '\\' OR so.ref_number LIKE ? ESCAPE '\\' OR so.date LIKE ? ESCAPE '\\' OR so.observation LIKE ? ESCAPE '\\' OR cl.name LIKE ? ESCAPE '\\')`;
+      whereClauses += ` AND (so.id LIKE ? ESCAPE '\\' OR so.ref_number LIKE ? ESCAPE '\\' OR so.date LIKE ? ESCAPE '\\' OR so.observation LIKE ? ESCAPE '\\' OR cl.name LIKE ? ESCAPE '\\' OR so.id IN (SELECT sl_b.sale_order_id FROM sale_lines sl_b JOIN purchase_lots pl_b ON sl_b.lot_id = pl_b.id WHERE sl_b.deleted_at IS NULL AND pl_b.barcode LIKE ? ESCAPE '\\'))`;
       const s = `%${escapeLike(params.search)}%`;
-      bindings.push(s, s, s, s, s);
+      bindings.push(s, s, s, s, s, s);
     }
 
     // Category/sub-category filters require checking sale lines → lots
@@ -1463,15 +1466,17 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       throw new Error('Statut invalide');
     }
     const now = new Date().toISOString();
-    const existing = db.prepare('SELECT id, ref_number, date, observation, client_id FROM customer_orders WHERE id = ? AND deleted_at IS NULL').get(data.id) as { id: string; ref_number: string; date: string; observation: string | null; client_id: string | null } | undefined;
-    if (!existing) throw new Error(`Commande ${data.id} introuvable`);
+    return db.transaction(() => {
+      const existing = db.prepare('SELECT id, ref_number, date, observation, client_id FROM customer_orders WHERE id = ? AND deleted_at IS NULL').get(data.id) as { id: string; ref_number: string; date: string; observation: string | null; client_id: string | null } | undefined;
+      if (!existing) throw new Error(`Commande ${data.id} introuvable`);
 
-    db.prepare('UPDATE customer_orders SET status = ?, updated_at = ? WHERE id = ?').run(data.status, now, data.id);
-    addToOutbox(db, 'customer_order', data.id, 'UPDATE', {
-      id: data.id, refNumber: existing.ref_number, date: existing.date,
-      observation: existing.observation, clientId: existing.client_id, status: data.status,
-    });
-    return { success: true };
+      db.prepare('UPDATE customer_orders SET status = ?, updated_at = ? WHERE id = ?').run(data.status, now, data.id);
+      addToOutbox(db, 'customer_order', data.id, 'UPDATE', {
+        id: data.id, refNumber: existing.ref_number, date: existing.date,
+        observation: existing.observation, clientId: existing.client_id, status: data.status,
+      });
+      return { success: true };
+    })();
   });
 
   // ─── Customer Orders Delete ──────────────────────────────────────
@@ -1798,14 +1803,15 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
     // Stock value — single aggregation query (no row-level load)
     const stockResult = db.prepare(`
-      SELECT COALESCE(SUM((pl.initial_quantity - COALESCE(sold.qty, 0)) * pl.purchase_unit_cost), 0) as stockValue,
-        SUM(CASE WHEN (pl.initial_quantity - COALESCE(sold.qty, 0)) > 0 AND (pl.initial_quantity - COALESCE(sold.qty, 0)) <= 5 THEN 1 ELSE 0 END) as lowStockAlerts
+      SELECT COALESCE(SUM((pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) * pl.purchase_unit_cost), 0) as stockValue,
+        SUM(CASE WHEN (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) > 0 AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 5 THEN 1 ELSE 0 END) as lowStockAlerts
       FROM purchase_lots pl
       LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_lines WHERE deleted_at IS NULL GROUP BY lot_id) sold ON sold.lot_id = pl.id
+      LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_return_lines WHERE deleted_at IS NULL GROUP BY lot_id) ret ON ret.lot_id = pl.id
       WHERE pl.deleted_at IS NULL
     `).get() as { stockValue: number; lowStockAlerts: number };
 
-    // Monthly sales
+    // Monthly sales (subtract sale returns for accurate totals)
     const salesResult = db.prepare(`
       SELECT COALESCE(SUM(sl.quantity * sl.selling_unit_price), 0) as total,
         COALESCE(SUM((sl.selling_unit_price - pl.purchase_unit_cost) * sl.quantity), 0) as margin
@@ -1814,6 +1820,19 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       JOIN purchase_lots pl ON sl.lot_id = pl.id
       WHERE so.date >= ? AND so.date <= ? AND so.deleted_at IS NULL AND sl.deleted_at IS NULL
     `).get(monthStart, monthEnd) as { total: number; margin: number };
+
+    // Monthly sale returns (deducted from sales)
+    const returnsResult = db.prepare(`
+      SELECT COALESCE(SUM(srl.quantity * srl.selling_unit_price), 0) as total,
+        COALESCE(SUM((srl.selling_unit_price - pl.purchase_unit_cost) * srl.quantity), 0) as margin
+      FROM sale_return_lines srl
+      JOIN sale_returns sr ON srl.sale_return_id = sr.id
+      JOIN purchase_lots pl ON srl.lot_id = pl.id
+      WHERE sr.date >= ? AND sr.date <= ? AND sr.deleted_at IS NULL AND srl.deleted_at IS NULL
+    `).get(monthStart, monthEnd) as { total: number; margin: number };
+
+    const netSalesTotal = salesResult.total - returnsResult.total;
+    const netSalesMargin = salesResult.margin - returnsResult.margin;
 
     // Monthly maintenance
     const maintResult = db.prepare(`
@@ -1835,8 +1854,8 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
     const result = {
       stockValue: stockResult.stockValue,
-      monthlySales: salesResult.total,
-      monthlyMargin: salesResult.margin,
+      monthlySales: netSalesTotal,
+      monthlyMargin: netSalesMargin,
       monthlyMaintenance: maintResult.total,
       monthlyExpenses: expenseResult.total,
       lowStockAlerts: stockResult.lowStockAlerts,
@@ -1865,6 +1884,20 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       WHERE so.date >= ? AND so.date <= ? AND so.deleted_at IS NULL AND sl.deleted_at IS NULL
       GROUP BY month
     `).all(yearStart, yearEnd) as Array<{ month: number; total: number; cost: number; margin: number }>;
+
+    // Sale returns by month (to deduct from sales)
+    const returnsByMonth = db.prepare(`
+      SELECT CAST(strftime('%m', sr.date) AS INTEGER) as month,
+        COALESCE(SUM(srl.quantity * srl.selling_unit_price), 0) as total,
+        COALESCE(SUM(srl.quantity * pl.purchase_unit_cost), 0) as cost,
+        COALESCE(SUM((srl.selling_unit_price - pl.purchase_unit_cost) * srl.quantity), 0) as margin
+      FROM sale_return_lines srl
+      JOIN sale_returns sr ON srl.sale_return_id = sr.id
+      JOIN purchase_lots pl ON srl.lot_id = pl.id
+      WHERE sr.date >= ? AND sr.date <= ? AND sr.deleted_at IS NULL AND srl.deleted_at IS NULL
+      GROUP BY month
+    `).all(yearStart, yearEnd) as Array<{ month: number; total: number; cost: number; margin: number }>;
+    const returnsMap = new Map(returnsByMonth.map(r => [r.month, r]));
 
     const purchasesByMonth = db.prepare(`
       SELECT CAST(strftime('%m', date) AS INTEGER) as month,
@@ -1944,6 +1977,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     const months: Array<Record<string, number>> = [];
     for (let m = 1; m <= 12; m++) {
       const s = salesMap.get(m) || { total: 0, cost: 0, margin: 0 };
+      const r = returnsMap.get(m) || { total: 0, cost: 0, margin: 0 };
       const purchaseTotal = purchasesMap.get(m) || 0;
       const maintenanceTotal = maintMap.get(m) || 0;
       const batteryTotal = batteryMap.get(m) || 0;
@@ -1958,12 +1992,17 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const supplierCreditsReceived = sc.received;
       const supplierCreditsPaid = sc.advances + suppPayments;
 
+      // Net sales = gross sales - returns
+      const netSalesTotal = s.total - r.total;
+      const netSalesCost = s.cost - r.cost;
+      const netSalesMargin = s.margin - r.margin;
+
       months.push({
         month: m,
         purchaseTotal,
-        salesTotal: s.total,
-        salesCost: s.cost,
-        salesMargin: s.margin,
+        salesTotal: netSalesTotal,
+        salesCost: netSalesCost,
+        salesMargin: netSalesMargin,
         maintenanceTotal,
         batteryTotal,
         expenseTotal,
@@ -1971,9 +2010,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
         customerCreditsReceived,
         supplierCreditsReceived,
         supplierCreditsPaid,
-        marginRate: s.total > 0 ? Math.round(((s.total - s.cost) / s.total) * 10000) / 10000 : 0,
-        totalRevenue: s.margin + maintenanceTotal + batteryTotal,
-        profit: s.margin + maintenanceTotal + batteryTotal - expenseTotal,
+        marginRate: netSalesTotal > 0 ? Math.round(((netSalesTotal - netSalesCost) / netSalesTotal) * 10000) / 10000 : 0,
+        totalRevenue: netSalesMargin + maintenanceTotal + batteryTotal,
+        profit: netSalesMargin + maintenanceTotal + batteryTotal - expenseTotal,
       });
     }
 
@@ -1985,13 +2024,14 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('stock:low-stock-alerts', () => {
     return db.prepare(`
       SELECT pl.id, pl.designation, COALESCE(c.name, '[Supprimé]') as category,
-        (pl.initial_quantity - COALESCE(sold.qty, 0)) as remaining
+        (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) as remaining
       FROM purchase_lots pl
       LEFT JOIN categories c ON pl.category_id = c.id
       LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_lines WHERE deleted_at IS NULL GROUP BY lot_id) sold ON sold.lot_id = pl.id
+      LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_return_lines WHERE deleted_at IS NULL GROUP BY lot_id) ret ON ret.lot_id = pl.id
       WHERE pl.deleted_at IS NULL
-        AND (pl.initial_quantity - COALESCE(sold.qty, 0)) > 0
-        AND (pl.initial_quantity - COALESCE(sold.qty, 0)) <= 5
+        AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) > 0
+        AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 5
       ORDER BY remaining ASC
     `).all();
   });
@@ -2543,16 +2583,18 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     validatePassword(data.newPassword);
     const hash = bcrypt.hashSync(data.newPassword, 10);
     const now = new Date().toISOString();
-    db.prepare('UPDATE users SET password_hash = ?, must_change_password = 0, updated_at = ? WHERE id = ?').run(hash, now, data.userId);
-    const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
-    const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
-    addToOutbox(db, 'user', data.userId, 'UPDATE', {
-      username: updatedUser['username'], passwordHash: hash,
-      displayName: updatedUser['display_name'], role: updatedUser['role'],
-      isActive: !!(updatedUser['is_active'] as number), mustChangePassword: false,
-      permissions: perms,
-    });
-    return { success: true };
+    return db.transaction(() => {
+      db.prepare('UPDATE users SET password_hash = ?, must_change_password = 0, updated_at = ? WHERE id = ?').run(hash, now, data.userId);
+      const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
+      const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
+      addToOutbox(db, 'user', data.userId, 'UPDATE', {
+        username: updatedUser['username'], passwordHash: hash,
+        displayName: updatedUser['display_name'], role: updatedUser['role'],
+        isActive: !!(updatedUser['is_active'] as number), mustChangePassword: false,
+        permissions: perms,
+      });
+      return { success: true };
+    })();
   });
 
   safeHandle('users:list', () => {
@@ -2588,6 +2630,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     const username = data.username.trim().toLowerCase();
     if (!username) throw new Error('Le nom d\'utilisateur est requis');
     if (data.password.length < 8) throw new Error('Le mot de passe doit contenir au moins 8 caractères');
+    if (data.role !== 'admin' && data.role !== 'employee') throw new Error('Rôle invalide');
     validatePassword(data.password);
     const existing = db.prepare('SELECT id FROM users WHERE username = ? AND deleted_at IS NULL').get(username);
     if (existing) throw new Error('Ce nom d\'utilisateur existe déjà');
@@ -2596,19 +2639,18 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     const now = new Date().toISOString();
     const perms = data.role === 'admin' ? ALL_PAGES : (data.permissions || []);
 
-    const tx = db.transaction(() => {
+    return db.transaction(() => {
       db.prepare('INSERT INTO users (id, username, password_hash, display_name, role, employee_id, is_active, must_change_password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, 1, ?, ?)').run(id, username, hash, data.displayName.trim(), data.role, data.employeeId ?? null, now, now);
       const insertPerm = db.prepare('INSERT INTO user_permissions (id, user_id, page_key, created_at) VALUES (?, ?, ?, ?)');
       for (const page of perms) {
         insertPerm.run(uuidv7(), id, page, now);
       }
-    });
-    tx();
-    addToOutbox(db, 'user', id, 'CREATE', {
-      username, passwordHash: hash, displayName: data.displayName.trim(),
-      role: data.role, isActive: true, mustChangePassword: true, permissions: perms,
-    });
-    return { id };
+      addToOutbox(db, 'user', id, 'CREATE', {
+        username, passwordHash: hash, displayName: data.displayName.trim(),
+        role: data.role, isActive: true, mustChangePassword: true, permissions: perms,
+      });
+      return { id };
+    })();
   }, { requireAdmin: true });
 
   safeHandle('users:update', (_event, data: { id: string; displayName?: string; isActive?: boolean; role?: string; permissions?: string[] }) => {
@@ -2617,8 +2659,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       if (data.isActive === false) throw new Error('Vous ne pouvez pas désactiver votre propre compte');
       if (data.role !== undefined && data.role !== currentSession.role) throw new Error('Vous ne pouvez pas changer votre propre rôle');
     }
+    if (data.role !== undefined && data.role !== 'admin' && data.role !== 'employee') throw new Error('Rôle invalide');
     const now = new Date().toISOString();
-    const tx = db.transaction(() => {
+    return db.transaction(() => {
       const user = db.prepare('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL').get(data.id) as Record<string, unknown> | undefined;
       if (!user) throw new Error('Utilisateur non trouvé');
       const updates: string[] = [];
@@ -2639,35 +2682,36 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
           insertPerm.run(uuidv7(), data.id, page, now);
         }
       }
-    });
-    tx();
-    // Build updated user snapshot for sync
-    const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.id) as Record<string, unknown>;
-    const updatedPerms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.id) as Array<{ page_key: string }>).map(p => p.page_key);
-    addToOutbox(db, 'user', data.id, 'UPDATE', {
-      username: updatedUser['username'], passwordHash: updatedUser['password_hash'],
-      displayName: updatedUser['display_name'], role: updatedUser['role'],
-      isActive: !!(updatedUser['is_active'] as number), mustChangePassword: !!(updatedUser['must_change_password'] as number),
-      permissions: updatedPerms,
-    });
-    return { success: true };
+      // Build updated user snapshot for sync (inside transaction)
+      const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.id) as Record<string, unknown>;
+      const updatedPerms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.id) as Array<{ page_key: string }>).map(p => p.page_key);
+      addToOutbox(db, 'user', data.id, 'UPDATE', {
+        username: updatedUser['username'], passwordHash: updatedUser['password_hash'],
+        displayName: updatedUser['display_name'], role: updatedUser['role'],
+        isActive: !!(updatedUser['is_active'] as number), mustChangePassword: !!(updatedUser['must_change_password'] as number),
+        permissions: updatedPerms,
+      });
+      return { success: true };
+    })();
   }, { requireAdmin: true });
 
   safeHandle('users:reset-password', (_event, data: { userId: string; newPassword: string }) => {
     validatePassword(data.newPassword);
     const hash = bcrypt.hashSync(data.newPassword, 10);
     const now = new Date().toISOString();
-    const result = db.prepare('UPDATE users SET password_hash = ?, must_change_password = 1, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(hash, now, data.userId);
-    if (result.changes === 0) throw new Error('Utilisateur non trouvé');
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
-    const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
-    addToOutbox(db, 'user', data.userId, 'UPDATE', {
-      username: user['username'], passwordHash: hash,
-      displayName: user['display_name'], role: user['role'],
-      isActive: !!(user['is_active'] as number), mustChangePassword: true,
-      permissions: perms,
-    });
-    return { success: true };
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE users SET password_hash = ?, must_change_password = 1, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(hash, now, data.userId);
+      if (result.changes === 0) throw new Error('Utilisateur non trouvé');
+      const user = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
+      const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
+      addToOutbox(db, 'user', data.userId, 'UPDATE', {
+        username: user['username'], passwordHash: hash,
+        displayName: user['display_name'], role: user['role'],
+        isActive: !!(user['is_active'] as number), mustChangePassword: true,
+        permissions: perms,
+      });
+      return { success: true };
+    })();
   }, { requireAdmin: true });
 
   safeHandle('users:delete', (_event, id: string) => {
@@ -2676,9 +2720,11 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       throw new Error('Vous ne pouvez pas supprimer votre propre compte');
     }
     const now = new Date().toISOString();
-    const result = db.prepare('UPDATE users SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(now, now, id);
-    if (result.changes === 0) throw new Error('Utilisateur non trouvé');
-    addToOutbox(db, 'user', id, 'DELETE', {});
-    return { success: true };
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE users SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error('Utilisateur non trouvé');
+      addToOutbox(db, 'user', id, 'DELETE', {});
+      return { success: true };
+    })();
   }, { requireAdmin: true });
 }

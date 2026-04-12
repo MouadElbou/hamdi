@@ -125,6 +125,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
     }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
   };
   useEffect(load, [search, page, filterStatus]);
+  useEffect(() => () => clearTimeout(clientSearchTimer.current), []);
 
   const resetForm = () => {
     setDate(todayLocal());
@@ -322,8 +323,10 @@ export function CustomerOrdersPage(): React.JSX.Element {
               if (modalSubCategory && s.subCategory !== modalSubCategory) return false;
               return true;
             });
-            const lineTotal = line.quantity && line.sellingUnitPrice
-              ? Math.round(parseFloat(line.sellingUnitPrice) * 100) * parseInt(line.quantity)
+            const parsedPrice = parseFloat(line.sellingUnitPrice);
+            const parsedQty = parseInt(line.quantity);
+            const lineTotal = line.quantity && line.sellingUnitPrice && Number.isFinite(parsedPrice) && Number.isFinite(parsedQty)
+              ? Math.round(parsedPrice * 100) * parsedQty
               : null;
             return (
               <div key={i} className={`sale-line ${i > 0 ? 'sale-line-border' : ''}`}>
@@ -378,7 +381,9 @@ export function CustomerOrdersPage(): React.JSX.Element {
           {(() => {
             const totalAmount = lines.reduce((sum, l) => {
               if (!l.quantity || !l.sellingUnitPrice) return sum;
-              return sum + Math.round(parseFloat(l.sellingUnitPrice) * 100) * parseInt(l.quantity);
+              const p = parseFloat(l.sellingUnitPrice), q = parseInt(l.quantity);
+              if (!Number.isFinite(p) || !Number.isFinite(q)) return sum;
+              return sum + Math.round(p * 100) * q;
             }, 0);
             return totalAmount > 0 ? (
               <div className="sale-summary">

@@ -327,6 +327,8 @@ export class SyncManager {
       this.pushRetryCount = 0;
       this.pullRetryCount = 0;
       this.backoffMs = 1000;
+      // Cancel any pending retry timer from a previous failure
+      if (this.retryTimer) { clearTimeout(this.retryTimer); this.retryTimer = null; }
       console.log('[SYNC] connected —', this.status.lastSync);
     } catch (err) {
       const msg = (err as Error).message ?? 'Unknown error';
@@ -339,6 +341,8 @@ export class SyncManager {
       console.error('[SYNC] syncNow failed:', msg);
       // Always schedule a retry with exponential backoff (cap at 60s)
       this.backoffMs = Math.min(60_000, this.backoffMs * 2);
+      // Clear previous retry timer to prevent stacking
+      if (this.retryTimer) clearTimeout(this.retryTimer);
       this.retryTimer = setTimeout(() => this.syncNow().catch(e => console.error('[SYNC] Retry error:', (e as Error).message)), this.backoffMs);
     } finally {
       this.syncing = false;
@@ -362,12 +366,12 @@ export class SyncManager {
     // Sort by entity priority so reference data (categories, suppliers, boutiques) syncs before entities that reference them
     const pending = this.db.prepare(`
       SELECT *, CASE entity_type
-        WHEN 'category' THEN 0 WHEN 'supplier' THEN 0 WHEN 'boutique' THEN 0 WHEN 'client' THEN 0 WHEN 'employee' THEN 0 WHEN 'battery_tariff' THEN 0
-        WHEN 'sale_line' THEN 2 WHEN 'monthly_summary_line' THEN 2
+        WHEN 'category' THEN 0 WHEN 'sub_category' THEN 0 WHEN 'supplier' THEN 0 WHEN 'boutique' THEN 0 WHEN 'client' THEN 0 WHEN 'employee' THEN 0 WHEN 'battery_tariff' THEN 0 WHEN 'category_alias' THEN 0
+        WHEN 'sale_line' THEN 2 WHEN 'sale_return_line' THEN 2 WHEN 'customer_order_line' THEN 2 WHEN 'monthly_summary_line' THEN 2
         WHEN 'customer_credit_payment' THEN 3 WHEN 'supplier_credit_payment' THEN 3 WHEN 'salary_payment' THEN 3 WHEN 'zakat_advance' THEN 3
         ELSE 1
       END AS priority
-      FROM sync_outbox WHERE status = 'pending' ORDER BY priority ASC, created_at ASC LIMIT 50
+      FROM sync_outbox WHERE status = 'pending' ORDER BY priority ASC, created_at ASC, id ASC LIMIT 50
     `).all() as Array<Record<string, unknown>>;
     if (pending.length === 0) return;
 
@@ -400,9 +404,11 @@ export class SyncManager {
       throw new Error(`Push response mismatch: sent ${operations.length} ops, got ${result.results?.length ?? 0} results`);
     }
 
+    const VALID_STATUSES = new Set(['synced', 'conflict', 'rejected']);
     const markSynced = this.db.prepare("UPDATE sync_outbox SET status = ?, synced_at = datetime('now') WHERE id = ?");
     for (const r of result.results) {
-      markSynced.run(r.result === 'accepted' ? 'synced' : r.result, r.operationId);
+      const status = r.result === 'accepted' ? 'synced' : (VALID_STATUSES.has(r.result) ? r.result : 'rejected');
+      markSynced.run(status, r.operationId);
     }
 
     // Cleanup old synced entries (keep last 7 days)

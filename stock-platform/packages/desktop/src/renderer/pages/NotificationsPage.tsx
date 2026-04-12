@@ -30,9 +30,9 @@ export function NotificationsPage(): React.JSX.Element {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      window.api.stock.lowStockAlerts().then((r: unknown) => setLowStock(r as LowStockAlert[])).catch(() => setLowStock([])),
-      window.api.notifications.unpaidCustomerCredits().then((r: unknown) => setUnpaidCustomer(r as UnpaidCredit[])).catch(() => setUnpaidCustomer([])),
-      window.api.notifications.unpaidSupplierCredits().then((r: unknown) => setUnpaidSupplier(r as UnpaidCredit[])).catch(() => setUnpaidSupplier([])),
+      window.api.stock.lowStockAlerts().then((r: unknown) => setLowStock(Array.isArray(r) ? r as LowStockAlert[] : [])).catch(() => setLowStock([])),
+      window.api.notifications.unpaidCustomerCredits().then((r: unknown) => setUnpaidCustomer(Array.isArray(r) ? r as UnpaidCredit[] : [])).catch(() => setUnpaidCustomer([])),
+      window.api.notifications.unpaidSupplierCredits().then((r: unknown) => setUnpaidSupplier(Array.isArray(r) ? r as UnpaidCredit[] : [])).catch(() => setUnpaidSupplier([])),
     ]).finally(() => setLoading(false));
   }, []);
 

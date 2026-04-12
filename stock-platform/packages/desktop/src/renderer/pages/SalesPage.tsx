@@ -138,6 +138,7 @@ export function SalesPage(): React.JSX.Element {
     }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
   };
   useEffect(load, [search, page, filterCategory, filterSubCategory]);
+  useEffect(() => () => clearTimeout(clientSearchTimer.current), []);
 
   const resetForm = () => {
     setDate(todayLocal());
@@ -196,7 +197,9 @@ export function SalesPage(): React.JSX.Element {
     const lot = stock.find(s => s.lotId === line.lotId);
     if (!lot || !line.quantity || !line.sellingUnitPrice) return null;
     const sellCents = Math.round(parseFloat(line.sellingUnitPrice) * 100);
-    return (sellCents - lot.purchaseUnitCost) * parseInt(line.quantity);
+    const qty = parseInt(line.quantity);
+    if (!Number.isFinite(sellCents) || !Number.isFinite(qty)) return null;
+    return (sellCents - lot.purchaseUnitCost) * qty;
   };
 
   const totalFormMargin = (): number | null => {
@@ -450,8 +453,10 @@ export function SalesPage(): React.JSX.Element {
               if (modalSubCategory && s.subCategory !== modalSubCategory) return false;
               return true;
             });
-            const lineTotal = line.quantity && line.sellingUnitPrice
-              ? Math.round(parseFloat(line.sellingUnitPrice) * 100) * parseInt(line.quantity)
+            const parsedPrice = parseFloat(line.sellingUnitPrice);
+            const parsedQty = parseInt(line.quantity);
+            const lineTotal = line.quantity && line.sellingUnitPrice && Number.isFinite(parsedPrice) && Number.isFinite(parsedQty)
+              ? Math.round(parsedPrice * 100) * parsedQty
               : null;
             return (
               <div key={i} className={`sale-line ${i > 0 ? 'sale-line-border' : ''}`}>
@@ -528,7 +533,9 @@ export function SalesPage(): React.JSX.Element {
           {(() => {
             const totalAmount = lines.reduce((sum, l) => {
               if (!l.quantity || !l.sellingUnitPrice) return sum;
-              return sum + Math.round(parseFloat(l.sellingUnitPrice) * 100) * parseInt(l.quantity);
+              const p = parseFloat(l.sellingUnitPrice), q = parseInt(l.quantity);
+              if (!Number.isFinite(p) || !Number.isFinite(q)) return sum;
+              return sum + Math.round(p * 100) * q;
             }, 0);
             const margin = totalFormMargin();
             return (totalAmount > 0 || margin !== null) ? (

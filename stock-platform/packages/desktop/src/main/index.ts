@@ -195,6 +195,8 @@ app.whenReady().then(async () => {
       const safetyPath = dbPath + '.pre-restore-' + Date.now();
       getDatabase().pragma('wal_checkpoint(TRUNCATE)');
       copyFileSync(dbPath, safetyPath);
+      // Stop sync before closing DB to prevent timer firing on closed DB
+      syncManager?.stop();
       // Close and replace
       getDatabase().close();
       copyFileSync(sourcePath, dbPath);

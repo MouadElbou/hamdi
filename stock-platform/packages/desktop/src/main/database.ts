@@ -5,6 +5,7 @@
  */
 
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import Database from 'better-sqlite3';
 import { join } from 'path';
 import { v7 as uuidv7 } from 'uuid';
@@ -700,6 +701,17 @@ function runMigrations(): void {
       db.exec('DROP TABLE IF EXISTS _sync_outbox_new');
     }
   }
+
+  // Backfill 'customer-orders' permission for existing admin users who lack it
+  try {
+    const admins = db.prepare("SELECT id FROM users WHERE role = 'admin' AND deleted_at IS NULL").all() as Array<{ id: string }>;
+    for (const admin of admins) {
+      const has = db.prepare("SELECT 1 FROM user_permissions WHERE user_id = ? AND page_key = 'customer-orders'").get(admin.id);
+      if (!has) {
+        db.prepare("INSERT INTO user_permissions (id, user_id, page_key, created_at) VALUES (?, ?, 'customer-orders', datetime('now'))").run(uuidv7(), admin.id);
+      }
+    }
+  } catch { /* Safe to ignore on first run before users table exists */ }
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -762,12 +774,12 @@ function seedMasterData(): string | null {
 
     // ── Seed admin users (idempotent) ──
     const ALL_PAGES = [
-      'dashboard', 'purchases', 'stock', 'sales', 'maintenance',
+      'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'maintenance',
       'battery-repair', 'expenses', 'credits', 'bank', 'monthly-summary', 'zakat',
     ];
     const userCount = (db.prepare('SELECT COUNT(*) as c FROM users WHERE deleted_at IS NULL').get() as { c: number }).c;
     if (userCount === 0) {
-      const defaultPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || require('crypto').randomBytes(16).toString('base64url');
+      const defaultPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || randomBytes(16).toString('base64url');
       if (!process.env['ADMIN_DEFAULT_PASSWORD']) {
         generatedPassword = defaultPassword;
       }
@@ -993,6 +1005,7 @@ function backfillOutbox(): void {
       { col: 'block_price', key: 'blockPrice' }, { col: 'category_id', key: 'categoryId' },
       { col: 'supplier_id', key: 'supplierId' }, { col: 'boutique_id', key: 'boutiqueId' },
       { col: 'sub_category_id', key: 'subCategoryId' }, { col: 'selling_price', key: 'sellingPrice' },
+      { col: 'barcode', key: 'barcode' },
     ]},
     { entityType: 'sale_order', table: 'sale_orders', cols: [
       { col: 'ref_number', key: 'refNumber' }, { col: 'date', key: 'date' },
@@ -1068,6 +1081,24 @@ function backfillOutbox(): void {
     { entityType: 'zakat_advance', table: 'zakat_advances', cols: [
       { col: 'date', key: 'date' }, { col: 'amount', key: 'amount' },
       { col: 'year', key: 'year' }, { col: 'note', key: 'note' },
+    ]},
+    { entityType: 'sale_return', table: 'sale_returns', cols: [
+      { col: 'ref_number', key: 'refNumber' }, { col: 'date', key: 'date' },
+      { col: 'observation', key: 'observation' }, { col: 'sale_order_id', key: 'saleOrderId' },
+    ]},
+    { entityType: 'sale_return_line', table: 'sale_return_lines', cols: [
+      { col: 'selling_unit_price', key: 'sellingUnitPrice' }, { col: 'quantity', key: 'quantity' },
+      { col: 'sale_return_id', key: 'saleReturnId' }, { col: 'sale_line_id', key: 'saleLineId' },
+      { col: 'lot_id', key: 'lotId' },
+    ]},
+    { entityType: 'customer_order', table: 'customer_orders', cols: [
+      { col: 'ref_number', key: 'refNumber' }, { col: 'date', key: 'date' },
+      { col: 'observation', key: 'observation' }, { col: 'client_id', key: 'clientId' },
+      { col: 'status', key: 'status' },
+    ]},
+    { entityType: 'customer_order_line', table: 'customer_order_lines', cols: [
+      { col: 'customer_order_id', key: 'customerOrderId' }, { col: 'lot_id', key: 'lotId' },
+      { col: 'quantity', key: 'quantity' }, { col: 'selling_unit_price', key: 'sellingUnitPrice' },
     ]},
   ];
 

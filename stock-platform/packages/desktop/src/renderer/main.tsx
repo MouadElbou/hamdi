@@ -362,6 +362,8 @@ if (!window.api && import.meta.env.DEV) {
         if (cc) { cc.total_payments += data.amount as number; cc.remainingBalance -= data.amount as number; }
         return Promise.resolve({ id });
       },
+      deletePayment: () => Promise.resolve({ success: true }),
+      history: () => Promise.resolve([]),
     },
     supplierCredits: {
       list: () => Promise.resolve({ items: MOCK.supplierCredits, total: MOCK.supplierCredits.length }),
@@ -392,6 +394,8 @@ if (!window.api && import.meta.env.DEV) {
         if (sc) { sc.total_payments += data.amount as number; sc.remainingBalance -= data.amount as number; }
         return Promise.resolve({ id });
       },
+      deletePayment: () => Promise.resolve({ success: true }),
+      history: () => Promise.resolve([]),
     },
     bankMovements: {
       list: () => Promise.resolve({ items: MOCK.bankMovements, total: MOCK.bankMovements.length }),
@@ -509,6 +513,7 @@ if (!window.api && import.meta.env.DEV) {
         advances: [],
       }),
       saveAdvance: () => Promise.resolve({ id: 'new' }),
+      deleteAdvance: () => Promise.resolve({ ok: true }),
     },
     auth: {
       login: (data: Record<string, unknown>) => {
@@ -559,6 +564,9 @@ if (!window.api && import.meta.env.DEV) {
     sync: {
       status: () => Promise.resolve({ connected: false, pendingOps: 0, lastSync: null }),
       trigger: () => Promise.resolve({ connected: false, pendingOps: 0, lastSync: null }),
+      listConflicts: () => Promise.resolve([]),
+      dismissConflict: () => Promise.resolve({ dismissed: true }),
+      retryConflict: () => Promise.resolve({ retried: true }),
     },
     notifications: {
       unpaidCustomerCredits: () => Promise.resolve([]),
