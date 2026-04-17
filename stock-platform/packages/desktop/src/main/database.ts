@@ -5,7 +5,6 @@
  */
 
 import bcrypt from 'bcryptjs';
-import { randomBytes } from 'crypto';
 import Database from 'better-sqlite3';
 import { join } from 'path';
 import { v7 as uuidv7 } from 'uuid';
@@ -798,10 +797,8 @@ function seedMasterData(): string | null {
     ];
     const userCount = (db.prepare('SELECT COUNT(*) as c FROM users WHERE deleted_at IS NULL').get() as { c: number }).c;
     if (userCount === 0) {
-      const defaultPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || randomBytes(16).toString('base64url');
-      if (!process.env['ADMIN_DEFAULT_PASSWORD']) {
-        generatedPassword = defaultPassword;
-      }
+      const defaultPassword = process.env['ADMIN_DEFAULT_PASSWORD'] || 'admin';
+      generatedPassword = defaultPassword;
       const defaultHash = bcrypt.hashSync(defaultPassword, 10);
       const insertUser = db.prepare('INSERT OR IGNORE INTO users (id, username, password_hash, display_name, role, is_active, must_change_password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, 1, datetime(\'now\'), datetime(\'now\'))');
       const insertPerm = db.prepare('INSERT INTO user_permissions (id, user_id, page_key, created_at) VALUES (?, ?, ?, datetime(\'now\'))');

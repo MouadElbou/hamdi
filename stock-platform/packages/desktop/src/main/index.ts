@@ -293,9 +293,9 @@ app.whenReady().then(async () => {
       app.once('browser-window-created', () => {
         dialog.showMessageBox({
           type: 'info',
-          title: 'Mot de passe administrateur initial',
-          message: 'Les comptes administrateurs ont été créés.',
-          detail: `Le mot de passe initial a été enregistré dans :\n${credentialsPath}\n\nSupprimez ce fichier après l'avoir consulté.`,
+          title: 'Comptes administrateurs créés',
+          message: 'Connexion initiale',
+          detail: `Utilisateurs : hicham / samir\nMot de passe : ${generatedPassword}\n\nVous devrez changer ce mot de passe à la première connexion.\n\n(Sauvegardé aussi dans : ${credentialsPath})`,
           buttons: ['OK'],
         });
       });
