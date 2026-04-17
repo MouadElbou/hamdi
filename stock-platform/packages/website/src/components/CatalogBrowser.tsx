@@ -1,22 +1,38 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import anime from 'animejs/lib/anime.es.js';
 import { useCart } from '@/lib/cart';
 import { getApiBase, type CatalogItem } from '@/lib/api';
 import { SearchIcon, PackageIcon, AlertCircleIcon, ShoppingCartIcon, FilterIcon, XIcon, ChevronDownIcon } from '@/components/icons';
-import { getCategoryIcon } from './ProductCard';
 import { CATEGORIES } from './CategoryGrid';
+
+const PRODUCT_IMAGES = [
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuA57OODCL4L3FTpse15bPqQmDkb_Ltmck95vcSytgFWSmZbNT9xbOsTJ-8a_xA8jsfKdSwM6yJZr0YnPRNg4qUit9k56ifgC5WpQ_XoZfpJTvqHN_kP-4rZ_kvAkCNUTrqsEf1gg1gi3SJ66UQ-mMGwoF7Q0pSaTPs86bP1HVRgiPda-LfOF4QR6gQSsHeowq1uwmQcTdvQnpp9TwA48KCTj-LrMP0GmiZq5FGgIy0aTN1tJECAgPNL2Kh_p0Z5mnw-SMjjc070yPA',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuD7fmrhpXXa8mGwOPoc1db9asX36JucoNC1Ajcnw1y_lbQtiPVQZ0R0yK19ltQDuwDf0-2zGq__RAK6JfcDUmGhU0NzR27LX9xV1okDROkOlL36MZDwraiM87B0h1aRHdmI4h3VYmwccXtEpx76LOYj1X9dq8fAIKB2YCKHWGMAGn1lqN1poy_TWCG9n9mQDDCjnOV7GH9EupYouQhFfjzqrI9U2oEzoG1im26TOYx6uFJXd5vP_f4FC7NxWafWXV84zOuPRmuaq6w',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuAtbHbKYC0fEoj9ak5HDmRIywOJqNZHW3_XDjBHQlcqaKj20IJ5S_aTITrNm64XMMAGE19TovXPsSg0gFaTfUFPpxloqgP7uk4Zke531UzNLCx4_aeUQNVjb8DYJZCi9vtgHc9pffpObrwLeCRzhO6AHLuoS-68m6THQPu2B9xWb2qh_Jvs8a8xM1RnNOhLZF9fFbNu1oNvZDjdnMRdmTE77HOTKtXh5fDOjK8QU08DOeTgpn4lu0WSebpG1mRDtTPF1QIFlOyiN4o',
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuBjGlFOTG1L7rsAC03id6Aqyl4Gg1UZRbykXy_65sc25TAr_qvLUZzhl6EJPK2rpvun60uUvrkVn9pja9kjF8C0rzQ_VseSgg7CdK0LU74RqS6zMkU7Zxd2cYDm-Em47vCUdWA8Mwgx2XgJ2MpyZZ4BnjnCrpoueCxgCHyu9zUYZ7H9JAMJvfJJakhyMTHksCovrelmilowsiU9VQ8bpzmA3hsBfN6CVf-H3tPnJAgRJjPUEI0C0-AxB4XHMA1jAtHfXJzJrcsZuok',
+];
+
+function hashString(s: string): number {
+  let hash = 0;
+  for (let i = 0; i < s.length; i++) {
+    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function getProductImage(lotId: string): string {
+  return PRODUCT_IMAGES[hashString(lotId) % PRODUCT_IMAGES.length] ?? PRODUCT_IMAGES[0]!;
+}
 
 function SkeletonGrid() {
   return (
-    <div className="catalog-skeleton">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-x-8 md:gap-y-12">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="catalog-skeleton-card">
-          <div className="skeleton skeleton-image" />
-          <div className="skeleton skeleton-text" />
-          <div className="skeleton skeleton-text short" />
-          <div className="skeleton skeleton-price" />
+        <div key={i} className="animate-pulse">
+          <div className="aspect-square bg-surface-container-low rounded-xl mb-6"></div>
+          <div className="h-5 bg-surface-container-low rounded w-3/4 mb-2"></div>
+          <div className="h-5 bg-surface-container-low rounded w-1/2"></div>
         </div>
       ))}
     </div>
@@ -148,14 +164,15 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
     if (mq && mq.matches) return;
     const cards = gridRef.current.querySelectorAll('.catalog-product-card');
     if (!cards.length) return;
-    cards.forEach((c) => (c as HTMLElement).style.opacity = '0');
-    anime({
-      targets: Array.from(cards),
-      opacity: [0, 1],
-      translateY: [12, 0],
-      duration: 250,
-      easing: 'easeOutQuint',
-      delay: anime.stagger(30),
+    cards.forEach((c, i) => {
+      const el = c as HTMLElement;
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(12px)';
+      el.style.transition = `opacity .25s ease ${i * 30}ms, transform .25s ease ${i * 30}ms`;
+      requestAnimationFrame(() => {
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
     });
   }, [loading, filteredAndSorted]);
 
@@ -184,7 +201,7 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
 
       {/* Categories */}
       <div className="filter-group">
-        <h4 className="filter-group-title">Catégorie</h4>
+        <h4 className="filter-group-title">Categorie</h4>
         <div className="filter-checkbox-list">
           {CATEGORIES.map(({ label, value }) => (
             <label key={value} className="filter-checkbox">
@@ -211,7 +228,7 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
             onChange={(e) => setPriceMin(e.target.value)}
             min="0"
           />
-          <span className="price-separator">—</span>
+          <span className="price-separator">--</span>
           <input
             type="number"
             placeholder="Max"
@@ -225,7 +242,7 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
       {/* Clear */}
       {hasFilters && (
         <button className="filter-clear-btn" onClick={clearFilters}>
-          Réinitialiser les filtres
+          Reinitialiser les filtres
         </button>
       )}
     </aside>
@@ -258,7 +275,7 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
               <select id="sort-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                 <option value="default">Pertinence</option>
                 <option value="price-asc">Prix croissant</option>
-                <option value="price-desc">Prix décroissant</option>
+                <option value="price-desc">Prix decroissant</option>
                 <option value="name">Nom A-Z</option>
               </select>
               <ChevronDownIcon size={16} />
@@ -278,35 +295,30 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
         ) : filteredAndSorted.length === 0 ? (
           <div className="catalog-state">
             <div className="catalog-state-icon"><PackageIcon size={36} /></div>
-            <h3>Aucun produit trouvé</h3>
-            <p>Essayez de modifier vos critères de recherche.</p>
+            <h3>Aucun produit trouve</h3>
+            <p>Essayez de modifier vos criteres de recherche.</p>
           </div>
         ) : (
-          <div className="product-grid" ref={gridRef}>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-x-8 md:gap-y-12" ref={gridRef}>
             {filteredAndSorted.map((item) => {
-              const CatIcon = getCategoryIcon(item.category);
               return (
-                <div key={item.lotId} className="product-card catalog-product-card">
-                  <div className="catalog-card-image">
-                    <CatIcon size={40} />
-                  </div>
-                  <div className="catalog-card-body">
-                    <span className="category-tag">{item.category}</span>
-                    <div className="designation">{item.designation}</div>
-                    <div className="meta">
-                      {item.boutique} · {item.supplier}
-                    </div>
-                    <div className={`stock-badge ${item.remainingQuantity <= 3 ? 'low-stock' : 'in-stock'}`}>
-                      {item.remainingQuantity <= 3 ? `Plus que ${item.remainingQuantity}` : 'En stock'}
-                    </div>
-                    <div className="catalog-card-bottom">
-                      {item.targetResalePrice ? (
-                        <div className="price">{formatPrice(item.targetResalePrice)}</div>
-                      ) : (
-                        <div className="price price-demand-text">Sur demande</div>
-                      )}
+                <div key={item.lotId} className="group catalog-product-card">
+                  {/* Image area matching ProductCard style */}
+                  <div className="relative aspect-square bg-surface-container-low rounded-xl overflow-hidden mb-6 ghost-border p-8 flex items-center justify-center">
+                    <img
+                      src={getProductImage(item.lotId)}
+                      alt={item.designation}
+                      loading="lazy"
+                      className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                    {/* Glassmorphism overlay on hover */}
+                    <div className="absolute inset-0 bg-on-surface/40 glass-effect opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                      <button className="bg-white text-primary px-6 py-3 rounded-full font-headline font-bold text-sm">
+                        Quick View
+                      </button>
                       <button
-                        className="catalog-add-btn"
+                        className="bg-primary text-on-primary p-3 rounded-full hover:scale-110 transition-transform"
                         onClick={() => addItem({
                           lotId: item.lotId,
                           designation: item.designation,
@@ -318,7 +330,23 @@ export function CatalogBrowser({ initialCategory = '' }: CatalogBrowserProps): R
                         <ShoppingCartIcon size={16} />
                       </button>
                     </div>
+
+                    {/* Stock badge */}
+                    {item.remainingQuantity <= 3 && (
+                      <span className="absolute top-3 right-3 z-20 bg-error/10 text-error text-xs font-bold px-2 py-1 rounded-lg font-label">
+                        Plus que {item.remainingQuantity}
+                      </span>
+                    )}
                   </div>
+
+                  {/* Info below image */}
+                  <span className="inline-block text-xs font-label text-on-surface-variant/60 uppercase tracking-widest mb-1">{item.category}</span>
+                  <h3 className="font-headline font-bold text-lg text-on-surface tracking-tight line-clamp-2">{item.designation}</h3>
+                  {item.targetResalePrice ? (
+                    <p className="font-headline text-primary font-bold text-lg mt-1 tracking-tight">{formatPrice(item.targetResalePrice)}</p>
+                  ) : (
+                    <p className="font-headline text-on-surface-variant font-bold text-lg mt-1">Sur demande</p>
+                  )}
                 </div>
               );
             })}

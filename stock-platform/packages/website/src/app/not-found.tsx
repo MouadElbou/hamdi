@@ -1,27 +1,21 @@
 import Link from 'next/link';
+import { SearchIcon } from '@/components/icons';
 
 export default function NotFoundPage() {
   return (
-    <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-      <h1>404 — Page introuvable</h1>
-      <p style={{ color: '#666', marginTop: '1rem' }}>
-        La page que vous cherchez n&apos;existe pas.
-      </p>
-      <Link
-        href="/"
-        style={{
-          display: 'inline-block',
-          marginTop: '2rem',
-          padding: '0.75rem 1.5rem',
-          background: '#2563eb',
-          color: '#fff',
-          borderRadius: '0.375rem',
-          textDecoration: 'none',
-          fontSize: '1rem',
-        }}
-      >
-        Retour au catalogue
-      </Link>
+    <div className="main-area">
+      <div className="container" style={{ textAlign: 'center', paddingTop: '4rem', paddingBottom: '4rem' }}>
+        <div className="catalog-state-icon" style={{ margin: '0 auto 1.5rem' }}>
+          <SearchIcon size={28} />
+        </div>
+        <h1 className="page-title" style={{ marginBottom: '.5rem' }}>404 — Page introuvable</h1>
+        <p style={{ color: 'var(--slate)', fontSize: '.9rem', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+          La page que vous cherchez n&apos;existe pas ou a ete deplacee.
+        </p>
+        <Link href="/" className="btn btn-primary">
+          Retour a l&apos;accueil
+        </Link>
+      </div>
     </div>
   );
 }

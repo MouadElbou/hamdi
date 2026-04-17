@@ -6,7 +6,7 @@ import { useCart } from '@/lib/cart';
 import { buildWhatsAppURL } from '@/lib/api';
 import { ShoppingCartIcon, Trash2Icon, PhoneIcon, PlusIcon, MinusIcon, ArrowLeftIcon } from '@/components/icons';
 
-const STORE_PHONE = process.env['NEXT_PUBLIC_STORE_PHONE'] ?? '';
+const STORE_PHONE = process.env['NEXT_PUBLIC_STORE_PHONE'] ?? '212536690306';
 
 export function CartView(): React.JSX.Element {
   const { items, removeItem, updateQuantity, clearCart, totalItems } = useCart();

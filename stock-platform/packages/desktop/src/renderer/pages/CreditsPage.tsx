@@ -36,6 +36,7 @@ export function CreditsPage(): React.JSX.Element {
   const [suppCredits, setSuppCredits] = useState<SupplierCredit[]>([]);
   const [totalSupp, setTotalSupp] = useState(0);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [page, setPage] = useState(1);
   const [showCustForm, setShowCustForm] = useState(false);
   const [showSuppForm, setShowSuppForm] = useState(false);
@@ -103,20 +104,24 @@ export function CreditsPage(): React.JSX.Element {
   const closeSuppForm = () => { setShowSuppForm(false); setEditingSuppId(null); resetSuppForm(); };
 
   const load = () => {
-    window.api.customerCredits.list({ search: search || undefined, page, limit: PAGE_SIZE }).then((r: unknown) => {
+    window.api.customerCredits.list({ search: debouncedSearch || undefined, page, limit: PAGE_SIZE }).then((r: unknown) => {
       const data = r as { items: CustomerCredit[]; total: number };
       setCustCredits(data.items || []);
       setTotalCust(data.total || 0);
     }).catch(() => addToast('Erreur lors du chargement des crédits clients', 'error'));
-    window.api.supplierCredits.list({ search: search || undefined, page, limit: PAGE_SIZE }).then((r: unknown) => {
+    window.api.supplierCredits.list({ search: debouncedSearch || undefined, page, limit: PAGE_SIZE }).then((r: unknown) => {
       const data = r as { items: SupplierCredit[]; total: number };
       setSuppCredits(data.items || []);
       setTotalSupp(data.total || 0);
     }).catch(() => addToast('Erreur lors du chargement des crédits fournisseurs', 'error'));
   };
   useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+  useEffect(() => {
     load();
-  }, [search, page]);
+  }, [debouncedSearch, page]);
 
   const handleCustSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,32 +176,32 @@ export function CreditsPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDeleteCust = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer ce credit client ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.customerCredits.delete(id);
       load();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
   const handleDeleteSupp = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer ce credit fournisseur ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.supplierCredits.delete(id);
       load();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
@@ -218,7 +223,7 @@ export function CreditsPage(): React.JSX.Element {
 
   const handleSuppPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting || !payingSupp) return;
+    if (submitting || !payingSupp || !payForm.amount) return;
     setSubmitting(true);
     try {
     await window.api.supplierCredits.addPayment({ creditId: payingSupp, date: payForm.date, amount: parseCents(payForm.amount, 'Montant') });
@@ -233,30 +238,30 @@ export function CreditsPage(): React.JSX.Element {
   };
 
   const handleDeleteCustPayment = async (paymentId: string) => {
-    if (deleting) return;
+    if (deletingIds.has(paymentId)) return;
     if (!await confirm('Supprimer ce paiement ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(paymentId));
     try {
       await window.api.customerCredits.deletePayment(paymentId);
       load();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(paymentId); return next; });
     }
   };
 
   const handleDeleteSuppPayment = async (paymentId: string) => {
-    if (deleting) return;
+    if (deletingIds.has(paymentId)) return;
     if (!await confirm('Supprimer ce paiement ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(paymentId));
     try {
       await window.api.supplierCredits.deletePayment(paymentId);
       load();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(paymentId); return next; });
     }
   };
 
@@ -308,7 +313,7 @@ export function CreditsPage(): React.JSX.Element {
                       clearTimeout(clientSearchTimer.current);
                       if (v.length >= 2) {
                         clientSearchTimer.current = window.setTimeout(() => {
-                          window.api.clients.search(v).then((r: unknown) => setClientSuggestions(r as Array<{ id: string; name: string }>)).catch(err => console.error('[Load]', err));
+                          window.api.clients.search(v).then((r: unknown) => setClientSuggestions(r as Array<{ id: string; name: string }>)).catch(() => {});
                         }, 300);
                       } else {
                         setClientSuggestions([]);

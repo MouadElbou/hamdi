@@ -19,7 +19,11 @@ const updateUserSchema = z.object({
   role: z.enum(['admin', 'employee']).optional(),
   isActive: z.boolean().optional(),
   permissions: z.array(z.string().max(50)).optional(),
-  resetPassword: z.string().min(6).max(200).optional(),
+  resetPassword: z.string().min(8).max(200)
+    .regex(/[A-Z]/, 'Must contain uppercase')
+    .regex(/[a-z]/, 'Must contain lowercase')
+    .regex(/[0-9]/, 'Must contain digit')
+    .optional(),
 });
 
 /** Middleware: verify JWT and require admin role */

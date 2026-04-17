@@ -385,6 +385,9 @@ model Expense {
 model CustomerCredit {
   id              String                  @id
   date            DateTime                @db.Date
+  // TODO(tech-debt): customerName is a denormalized string instead of a FK to Client.
+  // Migration path: 1) add nullable clientId FK, 2) backfill by matching customerName→Client.name,
+  // 3) resolve ambiguous/missing matches manually, 4) drop customerName column.
   customerName    String                  @db.VarChar(200)
   designation     String                  @db.VarChar(500)
   quantity        Int

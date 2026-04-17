@@ -1,10 +1,12 @@
 import { app, BrowserWindow, shell, dialog, session } from 'electron';
 import { join } from 'path';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync, writeFileSync } from 'fs';
 import Database from 'better-sqlite3';
 import { initDatabase, getDatabase } from './database.js';
 import { registerIpcHandlers, clearSession, getCurrentSession } from './ipc-handlers.js';
 import { SyncManager } from './sync-manager.js';
+import { loadRuntimeConfig, reloadRuntimeConfig, getConfigFilePath, getUpdateFeedUrl } from './runtime-config.js';
+import { initAutoUpdater, checkForUpdatesNow, quitAndInstall } from './auto-updater.js';
 
 let mainWindow: BrowserWindow | null = null;
 let syncManager: SyncManager | null = null;
@@ -19,7 +21,7 @@ if (!app.requestSingleInstanceLock()) {
 const BACKUP_RETENTION_DAYS = parseInt(process.env['BACKUP_RETENTION_DAYS'] ?? '7', 10) || 7;
 
 // ─── Auto-backup: daily on startup, keep last 7 days ──────────────
-function runAutoBackup(dbFilePath: string, userDataPath: string): void {
+async function runAutoBackup(_dbFilePath: string, userDataPath: string): Promise<void> {
   try {
     const backupDir = join(userDataPath, 'backups');
     mkdirSync(backupDir, { recursive: true });
@@ -33,9 +35,8 @@ function runAutoBackup(dbFilePath: string, userDataPath: string): void {
       return;
     }
 
-    // Checkpoint WAL then copy
-    getDatabase().pragma('wal_checkpoint(TRUNCATE)');
-    copyFileSync(dbFilePath, todayBackup);
+    // Use SQLite online backup API for crash-safe backup
+    await getDatabase().backup(todayBackup);
     console.log('[BACKUP] Daily backup created:', todayBackup);
 
     // Prune old backups beyond retention window
@@ -60,11 +61,20 @@ function runAutoBackup(dbFilePath: string, userDataPath: string): void {
 // ─── Crash handlers (I-19) ────────────────────────────────────────
 process.on('uncaughtException', (error) => {
   console.error('[CRASH] Uncaught exception:', error.message, error.stack);
+  try {
+    getDatabase().pragma('wal_checkpoint(TRUNCATE)');
+    getDatabase().close();
+  } catch { /* DB may not be initialized yet */ }
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason) => {
   console.error('[CRASH] Unhandled rejection:', reason);
+  try {
+    getDatabase().pragma('wal_checkpoint(TRUNCATE)');
+    getDatabase().close();
+  } catch { /* DB may not be initialized yet */ }
+  process.exit(1);
 });
 
 function createWindow(): void {
@@ -119,22 +129,31 @@ function createWindow(): void {
     mainWindow = null;
   });
 
-  // DH-3: Set CSP headers on all responses in the renderer
+  // DH-3: Set CSP and security headers on all responses in the renderer
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const isDev = process.env['NODE_ENV'] !== 'production';
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          process.env['NODE_ENV'] === 'production'
-            ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'"
-            : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:5173",
+          isDev
+            ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:5173"
+            : "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'",
         ],
+        'X-Content-Type-Options': ['nosniff'],
+        'X-Frame-Options': ['DENY'],
+        'X-XSS-Protection': ['1; mode=block'],
+        ...(isDev ? {} : { 'Strict-Transport-Security': ['max-age=31536000; includeSubDomains'] }),
       },
     });
   });
 }
 
 app.whenReady().then(async () => {
+  // Load runtime config from userData/.env (editable after install)
+  loadRuntimeConfig();
+  console.log('[INIT] Runtime config loaded from', getConfigFilePath());
+
   // Initialize local SQLite database (graceful if native module missing)
   let dbAvailable = false;
   try {
@@ -160,9 +179,10 @@ app.whenReady().then(async () => {
         filters: [{ name: 'SQLite Database', extensions: ['db'] }],
       });
       if (!filePath) return { cancelled: true };
-      // Checkpoint WAL before backup
-      getDatabase().pragma('wal_checkpoint(TRUNCATE)');
-      copyFileSync(dbPath, filePath);
+      // Use SQLite online backup API for crash-safe backup
+      await getDatabase().backup(filePath);
+      // Audit log
+      try { getDatabase().prepare("INSERT INTO audit_log (user_id, username, action, detail) VALUES (?, ?, 'BACKUP_CREATE', ?)").run(session?.userId, session?.username, filePath); } catch { /* table may not exist */ }
       return { success: true, path: filePath };
     });
 
@@ -176,7 +196,7 @@ app.whenReady().then(async () => {
         properties: ['openFile'],
       });
       if (!filePaths || filePaths.length === 0) return { cancelled: true };
-      const sourcePath = filePaths[0];
+      const sourcePath = filePaths[0]!;
       if (!existsSync(sourcePath)) throw new Error('Fichier de sauvegarde introuvable');
       // Validate the file is a valid SQLite database with expected tables
       try {
@@ -199,28 +219,83 @@ app.whenReady().then(async () => {
       syncManager?.stop();
       // Close and replace
       getDatabase().close();
-      copyFileSync(sourcePath, dbPath);
+      copyFileSync(sourcePath, dbPath!);
       // Restart app to reload with new DB
       app.relaunch();
       app.exit(0);
       return { success: true };
     });
+
+    // ─── Runtime config IPC (edit .env after install) ─────────────
+    ipcMain.handle('config:get-path', () => getConfigFilePath());
+    ipcMain.handle('config:open-file', async () => {
+      const sess = getCurrentSession();
+      if (!sess || sess.role !== 'admin') throw new Error('Accès réservé aux administrateurs');
+      const p = getConfigFilePath();
+      if (!existsSync(p)) reloadRuntimeConfig();
+      shell.showItemInFolder(p);
+      return { path: p };
+    });
+    ipcMain.handle('config:reload', () => {
+      const sess = getCurrentSession();
+      if (!sess || sess.role !== 'admin') throw new Error('Accès réservé aux administrateurs');
+      reloadRuntimeConfig();
+      return { success: true };
+    });
+
+    // ─── Auto-updater IPC ─────────────────────────────────────────
+    ipcMain.handle('updater:check', async () => {
+      const sess = getCurrentSession();
+      if (!sess || sess.role !== 'admin') throw new Error('Accès réservé aux administrateurs');
+      return await checkForUpdatesNow();
+    });
+    ipcMain.handle('updater:install', () => {
+      const sess = getCurrentSession();
+      if (!sess || sess.role !== 'admin') throw new Error('Accès réservé aux administrateurs');
+      quitAndInstall();
+    });
+
     syncManager.start();
 
     // Run automatic daily backup
     runAutoBackup(dbPath, userDataPath);
 
+    // Initialize auto-updater (only when feed URL configured and running packaged app)
+    if (getUpdateFeedUrl() && app.isPackaged) {
+      try {
+        initAutoUpdater(() => mainWindow);
+        console.log('[INIT] Auto-updater initialized');
+      } catch (err) {
+        console.error('[INIT] Auto-updater init failed:', (err as Error).message);
+      }
+    } else {
+      console.log('[INIT] Auto-updater disabled (no UPDATE_FEED_URL or not packaged)');
+    }
+
     dbAvailable = true;
     console.log('[INIT] App fully initialized with database');
 
-    // Show generated admin password in a dialog on first launch
+    // Save generated admin password to a secure file (not a visible dialog)
     if (generatedPassword) {
+      const credentialsPath = join(userDataPath, 'INITIAL_CREDENTIALS.txt');
+      writeFileSync(credentialsPath, [
+        'Stock Platform — Initial Admin Credentials',
+        '============================================',
+        '',
+        'Utilisateurs : hicham / samir',
+        `Mot de passe : ${generatedPassword}`,
+        '',
+        'Vous devrez changer ce mot de passe a la premiere connexion.',
+        'IMPORTANT: Supprimez ce fichier apres avoir note le mot de passe.',
+        '',
+        `Fichier cree le : ${new Date().toISOString()}`,
+      ].join('\n'), 'utf-8');
       app.once('browser-window-created', () => {
         dialog.showMessageBox({
           type: 'info',
           title: 'Mot de passe administrateur initial',
           message: 'Les comptes administrateurs ont été créés.',
-          detail: `Utilisateurs : hicham / samir\nMot de passe : ${generatedPassword}\n\nVous devrez le changer à la première connexion.`,
+          detail: `Le mot de passe initial a été enregistré dans :\n${credentialsPath}\n\nSupprimez ce fichier après l'avoir consulté.`,
           buttons: ['OK'],
         });
       });
@@ -254,13 +329,27 @@ app.on('window-all-closed', () => {
   }
 });
 
-// ─── Graceful shutdown: close database cleanly ────────────────────
-app.on('before-quit', () => {
-  syncManager?.stop();
-  try {
-    getDatabase().pragma('wal_checkpoint(TRUNCATE)');
-    getDatabase().close();
-  } catch { /* DB may already be closed (restore flow) */ }
+// ─── Graceful shutdown: wait for sync, then close database cleanly ─
+app.on('before-quit', async (event) => {
+  if (syncManager) {
+    event.preventDefault();
+    try {
+      await syncManager.stopGracefully(5000);
+    } catch (err) {
+      console.error('[SHUTDOWN] Error during graceful sync stop:', (err as Error).message);
+    }
+    syncManager = null;
+    try {
+      getDatabase().pragma('wal_checkpoint(TRUNCATE)');
+      getDatabase().close();
+    } catch { /* DB may already be closed (restore flow) */ }
+    app.quit();
+  } else {
+    try {
+      getDatabase().pragma('wal_checkpoint(TRUNCATE)');
+      getDatabase().close();
+    } catch { /* DB may already be closed */ }
+  }
 });
 
 // ─── Focus existing window on second-instance launch ──────────────

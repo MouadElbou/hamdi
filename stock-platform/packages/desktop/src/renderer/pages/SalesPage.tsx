@@ -89,7 +89,7 @@ export function SalesPage(): React.JSX.Element {
         window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
           const data = r as { items: StockItem[] };
           setStock(data.items || []);
-        }).catch(() => {});
+        }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
         return;
       }
       // Modal is open — check if lot already in lines
@@ -126,16 +126,18 @@ export function SalesPage(): React.JSX.Element {
   useBarcodeScanner(handleBarcodeScan);
 
 
+  const loadStock = () => {
+    window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
+      const data = r as { items: StockItem[] };
+      setStock(data.items || []);
+    }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
+  };
   const load = () => {
     window.api.sales.list({ search: search || undefined, page, limit: PAGE_SIZE, category: filterCategory || undefined, subCategory: filterSubCategory || undefined }).then((r: unknown) => {
       const data = r as { items: SaleOrder[]; total: number };
       setOrders(data.items || []);
       setTotalOrders(data.total || 0);
     }).catch(() => addToast('Erreur lors du chargement des ventes', 'error'));
-    window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
-      const data = r as { items: StockItem[] };
-      setStock(data.items || []);
-    }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
   };
   useEffect(load, [search, page, filterCategory, filterSubCategory]);
   useEffect(() => () => clearTimeout(clientSearchTimer.current), []);
@@ -153,7 +155,7 @@ export function SalesPage(): React.JSX.Element {
     setModalSubCategory('');
   };
 
-  const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); };
+  const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); loadStock(); };
   const openEdit = (o: SaleOrder) => {
     setDate(o.date);
     setObservation(o.observation || '');
@@ -170,6 +172,7 @@ export function SalesPage(): React.JSX.Element {
     setDueDate('');
     setEditingId(o.id);
     setShowForm(true);
+    loadStock();
   };
   const closeForm = () => { setShowForm(false); setEditingId(null); resetForm(); };
 
@@ -218,6 +221,18 @@ export function SalesPage(): React.JSX.Element {
     const validLines = lines.filter(l => l.lotId && l.quantity && l.sellingUnitPrice);
     if (validLines.length === 0) return;
 
+    // Validate quantities against available stock
+    for (const l of validLines) {
+      const lot = stock.find(s => s.lotId === l.lotId);
+      if (lot) {
+        const qty = parseInt(l.quantity);
+        if (qty > lot.remainingQuantity) {
+          addToast(`Quantité (${qty}) dépasse le stock disponible (${lot.remainingQuantity}) pour ${lot.designation}`, 'error');
+          return;
+        }
+      }
+    }
+
     if (paymentType === 'credit' && !clientName.trim()) {
       addToast('Le nom du client est requis pour un paiement à crédit', 'error');
       return;
@@ -258,19 +273,19 @@ export function SalesPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDelete = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     const ok = await confirm('Supprimer cette vente ? Cette action est irreversible.');
     if (!ok) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.sales.delete(id);
       load();
     } catch {
       addToast('Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
@@ -381,7 +396,7 @@ export function SalesPage(): React.JSX.Element {
                 clearTimeout(clientSearchTimer.current);
                 if (v.length >= 2) {
                   clientSearchTimer.current = window.setTimeout(() => {
-                    window.api.clients.search(v).then((r: unknown) => setClientSuggestions(r as Array<{ id: string; name: string }>)).catch(err => console.error('[Load]', err));
+                    window.api.clients.search(v).then((r: unknown) => setClientSuggestions(r as Array<{ id: string; name: string }>)).catch(() => {});
                   }, 300);
                 } else {
                   setClientSuggestions([]);
@@ -480,7 +495,7 @@ export function SalesPage(): React.JSX.Element {
                       required
                       options={filteredStock.map(s => ({
                         value: s.lotId,
-                        label: `${s.designation} (${s.category}) — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
+                        label: `${s.designation} (${s.category})${s.barcode ? ` [${s.barcode}]` : ''} — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
                       }))}
                     />
                   </div>

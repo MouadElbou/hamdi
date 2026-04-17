@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist/preload",
-    "rootDir": "./src/preload",
+    "rootDir": "./src",
     "composite": true
   },
-  "include": ["src/preload"]
+  "include": ["src/preload", "src/shared"]
 }

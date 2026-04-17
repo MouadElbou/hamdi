@@ -39,11 +39,17 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
         role: user.role,
         permissions: user.permissions.map((p) => p.pageKey),
       },
-      { expiresIn: '24h' },
+      { expiresIn: '1h' },
+    );
+
+    const refreshToken = app.jwt.sign(
+      { sub: user.id, type: 'refresh' } as unknown as { sub: string; role: 'admin' | 'employee'; permissions: string[] },
+      { expiresIn: '7d' },
     );
 
     return {
       token,
+      refreshToken,
       user: {
         id: user.id,
         username: user.username,
@@ -53,6 +59,35 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
         permissions: user.permissions.map((p) => p.pageKey),
       },
     };
+  });
+
+  // POST /api/auth/refresh — exchange refresh token for new access token (M13)
+  app.post('/refresh', async (request, reply) => {
+    const { refreshToken } = z.object({ refreshToken: z.string() }).parse(request.body);
+    try {
+      const payload = app.jwt.verify<{ sub: string; type: string }>(refreshToken);
+      if (payload.type !== 'refresh') {
+        return reply.unauthorized('Invalid token type');
+      }
+      const user = await app.prisma.user.findUnique({
+        where: { id: payload.sub },
+        include: { permissions: true },
+      });
+      if (!user || !user.isActive || user.deletedAt) {
+        return reply.unauthorized('User inactive');
+      }
+      const token = app.jwt.sign(
+        {
+          sub: user.id,
+          role: user.role,
+          permissions: user.permissions.map((p) => p.pageKey),
+        },
+        { expiresIn: '1h' },
+      );
+      return { token };
+    } catch {
+      return reply.unauthorized('Invalid or expired refresh token');
+    }
   });
 
   // GET /api/auth/me — validate token & return current user

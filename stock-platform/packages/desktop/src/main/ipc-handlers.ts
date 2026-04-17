@@ -9,14 +9,57 @@ import bcrypt from 'bcryptjs';
 import { getDatabase } from './database.js';
 import { addToOutbox, SyncManager } from './sync-manager.js';
 
-let currentSession: { userId: string; username: string; role: string; permissions: string[] } | null = null;
+const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes — matches renderer timeout
+
+let currentSession: { userId: string; username: string; role: string; permissions: string[]; lastActivity: number } | null = null;
+let sessionTimer: ReturnType<typeof setTimeout> | null = null;
+
+function refreshSessionActivity(): void {
+  if (!currentSession) return;
+  currentSession.lastActivity = Date.now();
+  if (sessionTimer) clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(() => {
+    console.log('[AUTH] Session expired due to inactivity');
+    currentSession = null;
+    sessionTimer = null;
+  }, SESSION_TIMEOUT_MS);
+}
 
 export function clearSession(): void {
   currentSession = null;
+  if (sessionTimer) { clearTimeout(sessionTimer); sessionTimer = null; }
 }
 
 export function getCurrentSession() {
+  if (currentSession && (Date.now() - currentSession.lastActivity) > SESSION_TIMEOUT_MS) {
+    clearSession();
+    return null;
+  }
   return currentSession;
+}
+
+// ─── Audit logging ────────────────────────────────────────────────
+let lastAuditPrune = 0;
+const AUDIT_PRUNE_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function auditLog(action: string, detail?: string): void {
+  try {
+    const db = getDatabase();
+    db.prepare('INSERT INTO audit_log (user_id, username, action, detail) VALUES (?, ?, ?, ?)').run(
+      currentSession?.userId ?? null,
+      currentSession?.username ?? null,
+      action,
+      detail ?? null,
+    );
+    // Prune entries older than 90 days (at most once per 24h)
+    const now = Date.now();
+    if (now - lastAuditPrune > AUDIT_PRUNE_INTERVAL_MS) {
+      lastAuditPrune = now;
+      db.prepare("DELETE FROM audit_log WHERE timestamp < datetime('now', '-90 days')").run();
+    }
+  } catch (err) {
+    console.error('[AUDIT] Failed to write audit log:', (err as Error).message);
+  }
 }
 
 // ─── Login rate limiting ───────────────────────────────────────────
@@ -119,12 +162,12 @@ const CHANNEL_PERMISSION_MAP: Record<string, string> = {
 /** Wrap handler in try-catch with logging + auth check + permission enforcement */
 function safeHandle(
   channel: string,
-  handler: (...args: unknown[]) => unknown,
+  handler: (...args: any[]) => any,
   opts?: { requireAdmin?: boolean; skipAuth?: boolean },
 ): void {
   ipcMain.handle(channel, async (...args: unknown[]) => {
     try {
-      if (!opts?.skipAuth && !currentSession) {
+      if (!opts?.skipAuth && !getCurrentSession()) {
         throw new Error('Non authentifié');
       }
       if (opts?.requireAdmin && currentSession?.role !== 'admin') {
@@ -132,11 +175,13 @@ function safeHandle(
       }
       // Page-level permission enforcement (admins bypass)
       if (!opts?.skipAuth && !opts?.requireAdmin && currentSession && currentSession.role !== 'admin') {
-        const requiredPerm = CHANNEL_PERMISSION_MAP[channel.split(':')[0]];
+        const requiredPerm = CHANNEL_PERMISSION_MAP[channel.split(':')[0]!];
         if (requiredPerm && !currentSession.permissions.includes(requiredPerm)) {
           throw new Error('Accès non autorisé à cette fonctionnalité');
         }
       }
+      // Refresh session activity on every authenticated call
+      if (!opts?.skipAuth) refreshSessionActivity();
       return await Promise.resolve(handler(...args));
     } catch (err) {
       console.error(`[${channel}] Error:`, (err as Error).message);
@@ -157,7 +202,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('sync:trigger', async () => {
     await syncManager?.syncNow();
     return syncManager?.getStatus();
-  }, { skipAuth: true });
+  });
 
   // ─── Sync Conflict Management ─────────────────────────────────────
 
@@ -168,7 +213,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
        WHERE status IN ('conflict', 'rejected')
        ORDER BY created_at DESC`
     ).all();
-  }, { skipAuth: true });
+  });
 
   safeHandle('sync:dismiss-conflict', (...args: unknown[]) => {
     const outboxId = args[1] as string;
@@ -176,7 +221,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       `UPDATE sync_outbox SET status = 'dismissed' WHERE id = ? AND status IN ('conflict', 'rejected')`
     ).run(outboxId);
     return { dismissed: result.changes > 0 };
-  }, { skipAuth: true });
+  });
 
   safeHandle('sync:retry-conflict', async (...args: unknown[]) => {
     const outboxId = args[1] as string;
@@ -196,7 +241,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     // Trigger immediate sync attempt
     await syncManager?.syncNow();
     return { retried: true };
-  }, { skipAuth: true });
+  });
 
   // ─── Master Data ─────────────────────────────────────────────────
 
@@ -1170,6 +1215,18 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('sales:delete', (_event, id: string) => {
     const now = new Date().toISOString();
     const transaction = db.transaction(() => {
+      // Soft-delete associated sale returns and their lines first
+      const returns = db.prepare('SELECT id FROM sale_returns WHERE sale_order_id = ? AND deleted_at IS NULL').all(id) as Array<{ id: string }>;
+      for (const ret of returns) {
+        const retLines = db.prepare('SELECT id FROM sale_return_lines WHERE sale_return_id = ? AND deleted_at IS NULL').all(ret.id) as Array<{ id: string }>;
+        db.prepare('UPDATE sale_return_lines SET deleted_at = ?, updated_at = ? WHERE sale_return_id = ? AND deleted_at IS NULL').run(now, now, ret.id);
+        for (const rl of retLines) {
+          addToOutbox(db, 'sale_return_line', rl.id, 'DELETE', { id: rl.id });
+        }
+        db.prepare('UPDATE sale_returns SET deleted_at = ?, updated_at = ? WHERE id = ?').run(now, now, ret.id);
+        addToOutbox(db, 'sale_return', ret.id, 'DELETE', { id: ret.id });
+      }
+      // Soft-delete sale lines
       const oldLines = db.prepare('SELECT id FROM sale_lines WHERE sale_order_id = ? AND deleted_at IS NULL').all(id) as Array<{ id: string }>;
       db.prepare('UPDATE sale_lines SET deleted_at = ?, updated_at = ? WHERE sale_order_id = ? AND deleted_at IS NULL').run(now, now, id);
       for (const oldLine of oldLines) {
@@ -1333,7 +1390,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       }));
       const totalAmount = lines.reduce((sum, l) => sum + (l['quantity'] as number) * (l['selling_unit_price'] as number), 0);
       const totalMargin = lines.reduce((sum, l) => sum + ((l['selling_unit_price'] as number) - (l['purchase_unit_cost'] as number)) * (l['quantity'] as number), 0);
-      const totalReturned = linesWithReturns.reduce((sum, l) => sum + (l.returned_quantity as number) * (l['selling_unit_price'] as number), 0);
+      const totalReturned = linesWithReturns.reduce((sum, l) => sum + (l.returned_quantity as number) * ((l as any)['selling_unit_price'] as number), 0);
       return { ...order, lines: linesWithReturns, totalAmount, totalMargin, totalReturned };
     });
 
@@ -2557,7 +2614,9 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     loginAttempts.delete(username);
 
     const permissions = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(user['id'] as string) as Array<{ page_key: string }>).map(p => p.page_key);
-    currentSession = { userId: user['id'] as string, username: user['username'] as string, role: user['role'] as string, permissions };
+    currentSession = { userId: user['id'] as string, username: user['username'] as string, role: user['role'] as string, permissions, lastActivity: Date.now() };
+    refreshSessionActivity();
+    auditLog('LOGIN', `User "${username}" logged in`);
     return {
       user: { id: user['id'], username: user['username'], displayName: user['display_name'], role: user['role'], employeeId: user['employee_id'] },
       permissions,
@@ -2566,7 +2625,8 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   }, { skipAuth: true });
 
   safeHandle('auth:logout', () => {
-    currentSession = null;
+    auditLog('LOGOUT', `User "${currentSession?.username}" logged out`);
+    clearSession();
     return { success: true };
   }, { skipAuth: true });
 
@@ -2588,11 +2648,12 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
       const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.userId, 'UPDATE', {
-        username: updatedUser['username'], passwordHash: hash,
+        username: updatedUser['username'],
         displayName: updatedUser['display_name'], role: updatedUser['role'],
         isActive: !!(updatedUser['is_active'] as number), mustChangePassword: false,
         permissions: perms,
       });
+      auditLog('PASSWORD_CHANGE', `Password changed for user "${updatedUser['username']}"`);
       return { success: true };
     })();
   });
@@ -2646,9 +2707,10 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
         insertPerm.run(uuidv7(), id, page, now);
       }
       addToOutbox(db, 'user', id, 'CREATE', {
-        username, passwordHash: hash, displayName: data.displayName.trim(),
+        username, displayName: data.displayName.trim(),
         role: data.role, isActive: true, mustChangePassword: true, permissions: perms,
       });
+      auditLog('USER_CREATE', `Created user "${username}" (role: ${data.role})`);
       return { id };
     })();
   }, { requireAdmin: true });
@@ -2686,11 +2748,12 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.id) as Record<string, unknown>;
       const updatedPerms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.id) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.id, 'UPDATE', {
-        username: updatedUser['username'], passwordHash: updatedUser['password_hash'],
+        username: updatedUser['username'],
         displayName: updatedUser['display_name'], role: updatedUser['role'],
         isActive: !!(updatedUser['is_active'] as number), mustChangePassword: !!(updatedUser['must_change_password'] as number),
         permissions: updatedPerms,
       });
+      auditLog('USER_UPDATE', `Updated user "${updatedUser['username']}"`);
       return { success: true };
     })();
   }, { requireAdmin: true });
@@ -2705,7 +2768,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const user = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
       const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.userId, 'UPDATE', {
-        username: user['username'], passwordHash: hash,
+        username: user['username'],
         displayName: user['display_name'], role: user['role'],
         isActive: !!(user['is_active'] as number), mustChangePassword: true,
         permissions: perms,

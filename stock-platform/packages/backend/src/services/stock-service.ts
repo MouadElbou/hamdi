@@ -126,32 +126,34 @@ export class StockService {
     };
   }
 
-  /** Summary grouped by category */
+  /** Summary grouped by category — SQL aggregation (C7) */
   async computeSummaryByCategory(): Promise<{ summary: StockSummaryByCategory[]; grandTotal: number }> {
-    const lots = await this.prisma.purchaseLot.findMany({
-      where: { deletedAt: null },
-      include: {
-        category: true,
-        saleLines: { where: { deletedAt: null }, select: { quantity: true } },
-      },
-    });
+    const rows = await this.prisma.$queryRaw<
+      { category: string; totalLots: bigint; totalRemaining: bigint; totalValue: bigint }[]
+    >`
+      SELECT c."name" AS category,
+             COUNT(*)::bigint AS "totalLots",
+             SUM(pl."initialQuantity" - COALESCE(sold.qty, 0))::bigint AS "totalRemaining",
+             SUM((pl."initialQuantity" - COALESCE(sold.qty, 0)) * pl."purchaseUnitCost")::bigint AS "totalValue"
+      FROM purchase_lots pl
+      JOIN categories c ON c."id" = pl."categoryId"
+      LEFT JOIN (
+        SELECT sl."lotId", SUM(sl."quantity") AS qty
+        FROM sale_lines sl WHERE sl."deletedAt" IS NULL
+        GROUP BY sl."lotId"
+      ) sold ON sold."lotId" = pl."id"
+      WHERE pl."deletedAt" IS NULL
+        AND (pl."initialQuantity" - COALESCE(sold.qty, 0)) > 0
+      GROUP BY c."name"
+      ORDER BY SUM((pl."initialQuantity" - COALESCE(sold.qty, 0)) * pl."purchaseUnitCost") DESC
+    `;
 
-    const map = new Map<string, StockSummaryByCategory>();
-
-    for (const lot of lots) {
-      const soldQty = lot.saleLines.reduce((s: number, l: { quantity: number }) => s + l.quantity, 0);
-      const remaining = remainingQuantity(lot.initialQuantity, soldQty);
-      if (remaining <= 0) continue;
-
-      const key = lot.category.name;
-      const entry = map.get(key) ?? { category: key, totalLots: 0, totalRemaining: 0, totalValue: 0 };
-      entry.totalLots += 1;
-      entry.totalRemaining += remaining;
-      entry.totalValue += stockValue(remaining, lot.purchaseUnitCost);
-      map.set(key, entry);
-    }
-
-    const summary = Array.from(map.values()).sort((a, b) => b.totalValue - a.totalValue);
+    const summary: StockSummaryByCategory[] = rows.map((r) => ({
+      category: r.category,
+      totalLots: Number(r.totalLots),
+      totalRemaining: Number(r.totalRemaining),
+      totalValue: Number(r.totalValue),
+    }));
     const grandTotal = summary.reduce((s, c) => s + c.totalValue, 0);
 
     return { summary, grandTotal };

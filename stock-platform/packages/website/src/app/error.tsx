@@ -1,5 +1,7 @@
 'use client';
 
+import { AlertCircleIcon } from '@/components/icons';
+
 export default function ErrorPage({
   reset,
 }: {
@@ -7,26 +9,19 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   return (
-    <div style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-      <h1>Une erreur est survenue</h1>
-      <p style={{ color: '#666', marginTop: '1rem' }}>
-        Quelque chose s&apos;est mal passé. Veuillez réessayer.
-      </p>
-      <button
-        onClick={() => reset()}
-        style={{
-          marginTop: '2rem',
-          padding: '0.75rem 1.5rem',
-          background: '#2563eb',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '0.375rem',
-          cursor: 'pointer',
-          fontSize: '1rem',
-        }}
-      >
-        Réessayer
-      </button>
+    <div className="main-area">
+      <div className="container" style={{ textAlign: 'center', paddingTop: '4rem', paddingBottom: '4rem' }}>
+        <div className="catalog-state-icon" style={{ margin: '0 auto 1.5rem', background: 'var(--red-bg)', color: 'var(--red)' }}>
+          <AlertCircleIcon size={28} />
+        </div>
+        <h1 className="page-title" style={{ marginBottom: '.5rem' }}>Une erreur est survenue</h1>
+        <p style={{ color: 'var(--slate)', fontSize: '.9rem', maxWidth: '400px', margin: '0 auto 2rem' }}>
+          Quelque chose s&apos;est mal passe. Veuillez reessayer.
+        </p>
+        <button onClick={() => reset()} className="btn btn-primary">
+          Reessayer
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { ProductCard } from './ProductCard';
-import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from '@/components/icons';
 
 interface StockItem {
   lotId: string;
@@ -22,55 +21,28 @@ interface ProductSectionProps {
   showArrows?: boolean;
 }
 
-export function ProductSection({ id, label, title, items, layout = 'row', showArrows }: ProductSectionProps): React.JSX.Element {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const isFlashSale = id === 'offres';
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-    const amount = 300;
-    scrollRef.current.scrollBy({ left: dir === 'left' ? -amount : amount, behavior: 'smooth' });
-  };
-
+export function ProductSection({ id, title, items }: ProductSectionProps): React.JSX.Element {
   return (
-    <section className={`section-wrapper ${isFlashSale ? 'flash-sale-section' : ''}`} id={id}>
-      <div className="container">
-        <div className="section-header">
-          <div className="section-header-left">
-            <span className="section-label">
-              {isFlashSale && <StarIcon size={14} />}
-              {label}
-            </span>
-            <h2 className="section-title">{title}</h2>
-          </div>
-          {showArrows !== false && (
-            <div className="section-arrows">
-              <button className="arrow-btn" onClick={() => scroll('left')} aria-label="Défiler à gauche">
-                <ChevronLeftIcon size={20} />
-              </button>
-              <button className="arrow-btn" onClick={() => scroll('right')} aria-label="Défiler à droite">
-                <ChevronRightIcon size={20} />
-              </button>
-            </div>
-          )}
+    <section className="py-24 bg-surface" id={id}>
+      <div className="max-w-screen-2xl mx-auto px-8">
+        <div className="mb-16">
+          <h2 className="text-4xl font-black font-headline text-on-surface tracking-tight">{title.toUpperCase()}</h2>
+          <p className="text-on-surface-variant font-body mt-2">Les dernieres avancees en ingenierie de precision.</p>
         </div>
 
-        {layout === 'row' ? (
-          <div className="products-row" ref={scrollRef}>
-            {items.map((item) => (
-              <ProductCard key={item.lotId} {...item} />
-            ))}
-          </div>
-        ) : (
-          <div className="products-grid">
-            {items.map((item) => (
-              <ProductCard key={item.lotId} {...item} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+          {items.slice(0, 8).map((item) => (
+            <ProductCard key={item.lotId} {...item} />
+          ))}
+        </div>
 
-        <div className="view-all-wrapper">
-          <a href="/catalogue" className="btn btn-secondary">Voir tous les produits</a>
+        <div className="mt-12 text-center">
+          <a
+            href="/catalogue"
+            className="inline-block primary-gradient text-on-primary px-8 py-4 rounded-xl font-headline font-bold text-sm uppercase tracking-tight shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
+          >
+            Voir tous les produits
+          </a>
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface ModalProps {
@@ -12,6 +12,7 @@ interface ModalProps {
 export function Modal({ open, onClose, title, children, width }: ModalProps): React.JSX.Element | null {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
 
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -56,7 +57,7 @@ export function Modal({ open, onClose, title, children, width }: ModalProps): Re
 
   return createPortal(
     <div className="modal-overlay" ref={overlayRef} onClick={e => { if (e.target === overlayRef.current) onClose(); }}>
-      <div className="modal-panel" ref={panelRef} role="dialog" aria-modal="true" aria-labelledby="modal-title" style={width ? { maxWidth: width } : undefined}>
+      <div className="modal-panel" ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} style={width ? { maxWidth: width } : undefined}>
         <div className="modal-header">
           <div className="modal-header-left">
             <div className="modal-icon">
@@ -64,7 +65,7 @@ export function Modal({ open, onClose, title, children, width }: ModalProps): Re
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </div>
-            <h3 className="modal-title" id="modal-title">{title}</h3>
+            <h3 className="modal-title" id={titleId}>{title}</h3>
           </div>
           <button className="modal-close" onClick={onClose} type="button" aria-label="Fermer">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>

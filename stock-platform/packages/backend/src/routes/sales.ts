@@ -2,6 +2,15 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 
+function httpError(statusCode: number, message: string): Error {
+  return Object.assign(new Error(message), { statusCode });
+}
+
+const PaginationQuery = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
 const CreateSaleSchema = z.object({
   date: z.string().date(),
   observation: z.string().nullable().optional(),
@@ -16,14 +25,21 @@ const CreateSaleSchema = z.object({
   })).min(1),
 });
 
+const UpdateSaleSchema = z.object({
+  date: z.string().date().optional(),
+  observation: z.string().nullable().optional(),
+  clientName: z.string().trim().min(1).optional(),
+  version: z.number().int(),
+});
+
 export async function saleRoutes(app: FastifyInstance) {
   const prisma = app.prisma;
 
   // List sales
   app.get('/', async (request) => {
-    const { page = '1', limit = '50' } = request.query as Record<string, string | undefined>;
-    const pageNum = Math.max(1, parseInt(page ?? '1', 10) || 1);
-    const take = Math.min(parseInt(limit ?? '50', 10) || 50, 200);
+    const query = PaginationQuery.parse(request.query);
+    const pageNum = query.page;
+    const take = query.limit;
     const skip = (pageNum - 1) * take;
 
     const where = { deletedAt: null };
@@ -78,7 +94,7 @@ export async function saleRoutes(app: FastifyInstance) {
           where: { id: line.lotId, deletedAt: null },
         });
         if (!lot) {
-          throw Object.assign(new Error(`Lot ${line.lotId} not found`), { statusCode: 404 });
+          throw httpError(404, `Lot ${line.lotId} not found`);
         }
 
         // Compute sold quantity for this lot
@@ -90,10 +106,7 @@ export async function saleRoutes(app: FastifyInstance) {
         const available = lot.initialQuantity - soldQty;
 
         if (line.quantity > available) {
-          throw Object.assign(
-            new Error(`Insufficient stock for lot ${line.lotId}: requested ${line.quantity}, available ${available}`),
-            { statusCode: 400 },
-          );
+          throw httpError(400, `Insufficient stock for lot ${line.lotId}: requested ${line.quantity}, available ${available}`);
         }
       }
 
@@ -113,7 +126,7 @@ export async function saleRoutes(app: FastifyInstance) {
       const order = await tx.saleOrder.create({
         data: {
           id: saleId,
-          refNumber: `SAL-${Date.now()}`,
+          refNumber: `SAL-${uuidv7().replace(/-/g, '').slice(-8).toUpperCase()}`,
           date: new Date(body.date),
           observation: body.observation ?? null,
           clientId,
@@ -145,7 +158,7 @@ export async function saleRoutes(app: FastifyInstance) {
           data: {
             id: uuidv7(),
             date: new Date(body.date),
-            customerName: body.clientName?.trim().toUpperCase() ?? '',
+            customerName: body.clientName?.trim().toUpperCase() ?? '', // TODO(tech-debt): replace with clientId FK
             designation: `Vente ${order.refNumber}`,
             quantity: 1,
             unitPrice: totalAmount,
@@ -160,6 +173,60 @@ export async function saleRoutes(app: FastifyInstance) {
     }, { isolationLevel: 'Serializable' });
 
     return reply.code(201).send(result);
+  });
+
+  // Update sale (H6 — non-line fields, with version check)
+  app.patch<{ Params: { id: string } }>('/:id', async (request, _reply) => {
+    const body = UpdateSaleSchema.parse(request.body);
+    const { id } = request.params;
+
+    const sale = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
+      const current = await tx.saleOrder.findFirst({
+        where: { id, deletedAt: null },
+      });
+      if (!current) {
+        throw httpError(404, 'Sale not found');
+      }
+      if (current.version !== body.version) {
+        throw httpError(409, 'Version mismatch — pull latest before updating');
+      }
+
+      // Auto-create/find client if clientName changes
+      let clientId = current.clientId;
+      if (body.clientName !== undefined) {
+        if (body.clientName) {
+          const trimmed = body.clientName.trim().toUpperCase();
+          let client = await tx.client.findFirst({ where: { name: trimmed, deletedAt: null } });
+          if (!client) {
+            client = await tx.client.create({ data: { id: uuidv7(), name: trimmed } });
+          }
+          clientId = client.id;
+        } else {
+          clientId = null;
+        }
+      }
+
+      return tx.saleOrder.update({
+        where: { id },
+        data: {
+          ...(body.date !== undefined && { date: new Date(body.date) }),
+          ...(body.observation !== undefined && { observation: body.observation }),
+          clientId,
+          version: { increment: 1 },
+        },
+        include: {
+          client: true,
+          lines: {
+            where: { deletedAt: null },
+            include: {
+              lot: { include: { category: true, supplier: true, boutique: true } },
+            },
+          },
+        },
+      });
+    }, { isolationLevel: 'Serializable' });
+
+    return sale;
   });
 
   // Soft delete sale (returns stock)

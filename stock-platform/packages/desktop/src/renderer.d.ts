@@ -149,6 +149,16 @@ interface DesktopAPI {
     create: () => Promise<{ success?: boolean; cancelled?: boolean; path?: string }>;
     restore: () => Promise<{ success?: boolean; cancelled?: boolean }>;
   };
+  config: {
+    getPath: () => Promise<string>;
+    openFile: () => Promise<{ path: string }>;
+    reload: () => Promise<{ success: boolean }>;
+  };
+  updater: {
+    check: () => Promise<{ checked: boolean; reason?: string }>;
+    install: () => Promise<void>;
+    onEvent: (callback: (payload: { event: string; payload?: unknown }) => void) => () => void;
+  };
   dashboard: {
     stats: () => Promise<unknown>;
   };

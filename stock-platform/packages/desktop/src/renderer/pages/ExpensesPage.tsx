@@ -110,18 +110,18 @@ export function ExpensesPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDelete = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer cette depense ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.expenses.delete(id);
       loadExpenses();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
@@ -159,16 +159,16 @@ export function ExpensesPage(): React.JSX.Element {
   };
 
   const handleDeleteEmp = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer cet employe ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.employees.delete(id);
       loadEmployees();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
@@ -201,16 +201,16 @@ export function ExpensesPage(): React.JSX.Element {
   };
 
   const handleDeletePay = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer ce paiement ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.salaryPayments.delete(id);
       loadEmployees();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 

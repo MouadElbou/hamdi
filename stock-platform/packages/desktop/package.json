@@ -20,15 +20,12 @@
       "output": "release"
     },
     "files": [
-      "dist/**/*",
-      "node_modules/**/*",
-      "!node_modules/.cache"
+      "dist/**/*"
     ],
     "win": {
       "target": [
         "nsis"
-      ],
-      "icon": "resources/icon.ico"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -44,6 +41,13 @@
           "**/*.node"
         ]
       }
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "MouadElbou",
+        "repo": "hamdi"
+      }
     ]
   },
   "dependencies": {
@@ -53,6 +57,7 @@
     "@stock/shared": "*",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.7.0",
+    "electron-updater": "^6.8.3",
     "uuid": "^11.0.0"
   },
   "devDependencies": {

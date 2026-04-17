@@ -583,6 +583,16 @@ if (!window.api && import.meta.env.DEV) {
       create: () => Promise.resolve({ cancelled: true }),
       restore: () => Promise.resolve({ cancelled: true }),
     },
+    config: {
+      getPath: () => Promise.resolve('(dev) .env not available'),
+      openFile: () => Promise.resolve({ path: '(dev)' }),
+      reload: () => Promise.resolve({ success: true }),
+    },
+    updater: {
+      check: () => Promise.resolve({ checked: false, reason: 'dev mode' }),
+      install: () => Promise.resolve(),
+      onEvent: () => () => undefined,
+    },
   };
   (window as unknown as Record<string, unknown>).api = api;
 }

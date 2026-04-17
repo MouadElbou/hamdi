@@ -595,6 +595,20 @@ function createTables(): void {
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
+
+    -- ─── Audit Log ──────────────────────────────────────────────────
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+      user_id TEXT,
+      username TEXT,
+      action TEXT NOT NULL,
+      detail TEXT,
+      ip TEXT
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_audit_log_timestamp ON audit_log(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_audit_log_action ON audit_log(action);
   `);
 
   // ── Migrations for existing databases ──
@@ -619,8 +633,12 @@ function runMigrations(): void {
   const addCol = (table: string, col: string, def: string) => {
     try {
       db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${def}`);
-    } catch {
-      // Column already exists — safe to ignore
+    } catch (err) {
+      const msg = (err instanceof Error) ? err.message : String(err);
+      // Only ignore "duplicate column" errors — rethrow anything else (disk full, corruption, etc.)
+      if (!msg.includes('duplicate column') && !msg.includes('already exists')) {
+        throw err;
+      }
     }
   };
 
@@ -673,32 +691,33 @@ function runMigrations(): void {
   }
 
   // C4: Recreate sync_outbox to add 'dismissed' to CHECK constraint
-  // SQLite doesn't support ALTER CHECK, so we recreate the table
+  // SQLite doesn't support ALTER CHECK, so we recreate the table inside a transaction
   const outboxCols = db.prepare("PRAGMA table_info(sync_outbox)").all() as Array<{ name: string }>;
   if (outboxCols.length > 0) {
-    // Check if 'dismissed' is already supported by trying a test
     try {
-      db.exec(`
-        CREATE TABLE IF NOT EXISTS _sync_outbox_new (
-          id TEXT PRIMARY KEY,
-          entity_type TEXT NOT NULL,
-          entity_id TEXT NOT NULL,
-          operation TEXT NOT NULL CHECK(operation IN ('CREATE', 'UPDATE', 'DELETE')),
-          payload TEXT NOT NULL,
-          version INTEGER NOT NULL,
-          created_at TEXT NOT NULL DEFAULT (datetime('now')),
-          synced_at TEXT,
-          status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'synced', 'conflict', 'rejected', 'dismissed'))
-        );
-        INSERT OR IGNORE INTO _sync_outbox_new SELECT * FROM sync_outbox;
-        DROP TABLE sync_outbox;
-        ALTER TABLE _sync_outbox_new RENAME TO sync_outbox;
-        CREATE INDEX IF NOT EXISTS idx_sync_outbox_status ON sync_outbox(status, created_at);
-        CREATE INDEX IF NOT EXISTS idx_sync_outbox_entity ON sync_outbox(entity_id);
-      `);
+      db.transaction(() => {
+        db.exec(`
+          CREATE TABLE IF NOT EXISTS _sync_outbox_new (
+            id TEXT PRIMARY KEY,
+            entity_type TEXT NOT NULL,
+            entity_id TEXT NOT NULL,
+            operation TEXT NOT NULL CHECK(operation IN ('CREATE', 'UPDATE', 'DELETE')),
+            payload TEXT NOT NULL,
+            version INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            synced_at TEXT,
+            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'synced', 'conflict', 'rejected', 'dismissed'))
+          );
+        `);
+        db.exec(`INSERT OR IGNORE INTO _sync_outbox_new SELECT * FROM sync_outbox;`);
+        db.exec(`DROP TABLE sync_outbox;`);
+        db.exec(`ALTER TABLE _sync_outbox_new RENAME TO sync_outbox;`);
+        db.exec(`CREATE INDEX IF NOT EXISTS idx_sync_outbox_status ON sync_outbox(status, created_at);`);
+        db.exec(`CREATE INDEX IF NOT EXISTS idx_sync_outbox_entity ON sync_outbox(entity_id);`);
+      })();
     } catch {
       // Table already has the right constraint or migration already ran
-      db.exec('DROP TABLE IF EXISTS _sync_outbox_new');
+      try { db.exec('DROP TABLE IF EXISTS _sync_outbox_new'); } catch { /* safe to ignore */ }
     }
   }
 
@@ -874,7 +893,7 @@ function seedSampleData(): void {
       const orderId = uuidv7();
       insertOrder.run(orderId, `SAL-${Date.now()}-${orderId.slice(-4)}`, sale.date, sale.obs || null, now, now);
       for (const line of sale.lines) {
-        insertLine.run(uuidv7(), line.price, line.qty, orderId, line.lot.id, now, now);
+        insertLine.run(uuidv7(), line.price, line.qty, orderId, line.lot!.id, now, now);
       }
     }
 

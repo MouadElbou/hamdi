@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PRECISION TECH | High-Performance Electronics</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;800;900&amp;family=Work+Sans:wght@300;400;500;600&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#fcf8ff",
+                    "tertiary-container": "#2a1ff6",
+                    "on-tertiary-fixed-variant": "#1c00eb",
+                    "tertiary-fixed": "#e1e0ff",
+                    "on-error-container": "#93000a",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#babfff",
+                    "surface": "#fcf8ff",
+                    "error": "#ba1a1a",
+                    "primary": "#0014bd",
+                    "on-secondary-fixed-variant": "#004e5d",
+                    "secondary-fixed-dim": "#46d7f9",
+                    "surface-bright": "#fcf8ff",
+                    "inverse-surface": "#1000a9",
+                    "inverse-on-surface": "#f2efff",
+                    "tertiary": "#1500c5",
+                    "on-surface": "#06006c",
+                    "on-secondary-fixed": "#001f26",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-container-high": "#e8e6ff",
+                    "primary-fixed-dim": "#bdc2ff",
+                    "secondary": "#00687b",
+                    "outline": "#757687",
+                    "on-surface-variant": "#454655",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eeecff",
+                    "secondary-fixed": "#aeecff",
+                    "secondary-container": "#4eddff",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#000767",
+                    "on-tertiary-container": "#bdbeff",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "inverse-primary": "#bdc2ff",
+                    "on-secondary-container": "#005f70",
+                    "on-secondary": "#ffffff",
+                    "surface-variant": "#e1e0ff",
+                    "on-error": "#ffffff",
+                    "on-background": "#06006c",
+                    "surface-container-highest": "#e1e0ff",
+                    "outline-variant": "#c5c5d8",
+                    "on-primary-fixed-variant": "#1b2bca",
+                    "surface-dim": "#d7d6ff",
+                    "surface-tint": "#3b4ae2",
+                    "on-tertiary-fixed": "#07006c",
+                    "primary-container": "#2a39d4",
+                    "primary-fixed": "#e0e0ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Lexend"],
+                    "body": ["Work Sans"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-effect {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .primary-gradient {
+            background: linear-gradient(to bottom, #0014bd, #2a39d4);
+        }
+        .ghost-border {
+            border: 1px solid rgba(197, 197, 216, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-black text-blue-800 dark:text-blue-300 tracking-tighter font-headline">PRECISION TECH</div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="font-headline font-bold uppercase tracking-tight text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-1" href="#">Laptops</a>
+<a class="font-headline font-bold uppercase tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Desktops</a>
+<a class="font-headline font-bold uppercase tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Accessories</a>
+<a class="font-headline font-bold uppercase tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Workstations</a>
+<a class="font-headline font-bold uppercase tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Gaming</a>
+<a class="font-headline font-bold uppercase tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors" href="#">Deals</a>
+</div>
+<div class="flex items-center space-x-6">
+<button class="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button class="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800 h-[1px] w-full absolute bottom-0"></div>
+</nav>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative h-[870px] flex items-center overflow-hidden bg-surface">
+<div class="max-w-screen-2xl mx-auto px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+<div class="z-10 space-y-8">
+<span class="font-label font-semibold text-primary uppercase tracking-[0.2em]">Next Generation Performance</span>
+<h1 class="text-6xl md:text-8xl font-black font-headline text-on-surface leading-[0.9] tracking-tighter">
+                        ELITE <br/>PRECISION <br/><span class="text-primary-container">PRO X1</span>
+</h1>
+<p class="text-on-surface-variant text-lg max-w-md font-body">
+                        Engineered for curators and creators. Experience the architectural precision of our most powerful workstation ever conceived.
+                    </p>
+<div class="pt-4">
+<button class="primary-gradient text-on-primary px-10 py-5 rounded-xl font-headline font-bold text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+                            Shop Now
+                        </button>
+</div>
+</div>
+<div class="relative group">
+<div class="absolute -inset-10 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
+<img alt="Premium Laptop" class="relative z-10 w-full h-auto transform -rotate-6 group-hover:rotate-0 transition-transform duration-700 drop-shadow-2xl" data-alt="Close-up of a sleek, silver premium laptop floating against a minimalist soft blue background with professional studio lighting and sharp details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsQSdMnk-LC9Y_JGZpPEagJW1hoAvaK0Ng-sBvNxx8f5kCvWaEVTMhoHNt2aihygYO96JiJi3rlzObPPOMG4VhfAO7_mnK2ZHYKIvEvS73ferdAit4beLcpPlVJ3UgDWjzuynqo1GJkV5UhmdZd4KYIzKZUQ0fqm3oJS8heDgbqXGAuTYLlBKt7RJeop8M4fhLxw31f4KCMQX3PXvwpmQn9CU4bdjKqBn0pVSdOrVgR_u4bvOw4Hs6TtqlHqR8GMRWZjQ2ieq5sBU"/>
+</div>
+</div>
+</section>
+<!-- Featured Categories -->
+<section class="py-24 bg-surface-container-low">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="flex justify-between items-end mb-16">
+<div>
+<h2 class="text-4xl font-black font-headline text-on-surface tracking-tight">FEATURED COLLECTIONS</h2>
+<div class="h-1.5 w-24 bg-primary mt-4"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Category Card 1 -->
+<div class="group relative aspect-[4/5] bg-surface-container-lowest overflow-hidden rounded-xl cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Professional workstation setup with multiple monitors and high-end peripherals in a clean, modern home office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7OWO6URuBYa_xw_zmJx_mGScnKxhBXgx2PrQTvAFr5CU6EPiTh0pbmQKtD4mTpX-q8X77n1sK2OnTU7o0mC5vgBfJMSGlqcFzXdjdlk_zJ5EI8HPkmDpRSqLp97paj7eB5MOjyq9I94PTR8KzchJRG_l8RYYux_mNLQ6w5IE5EP6nKpeKTiRz9Po7FeNDnAg8_KI6O7adSGUaM-YIwTjIcSMVTK01DCQJaPyukNtpLMAJh28TKUVZPatAYS9yWiawYacLaw4Nj60"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8">
+<h3 class="text-white text-3xl font-black font-headline tracking-tight">WORKSTATIONS</h3>
+<p class="text-white/80 font-label tracking-widest mt-2 uppercase">Unmatched Power</p>
+</div>
+</div>
+<!-- Category Card 2 -->
+<div class="group relative aspect-[4/5] bg-surface-container-lowest overflow-hidden rounded-xl cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Sleek modern laptop on a white desk with soft daylight, highlighting the thin profile and metallic finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALXxgtuzUVd_0yHhk-2SzXYv-GGmzK1FQOWNCpyjDZDPeqCH7uv2ynk0Z1tKvybdtV6seVP4LuhiJmThYT5AkbGutTSiW3ItdlbPlyGyeJGZp0scgBDooMH1k9PBjknBVnz6J-wDC0q_90IEEwmbJCb-92HF2Smr5v6mlG0zXARbYrMnAbT98Wr-eIYyoCG7vi0g-QNLNP2oICioqUwrc-Vck-jLT4ejcTrJFHU4bNkb59hzDxGUehSjw1mPIPA4laxvhjIcR_cx0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8">
+<h3 class="text-white text-3xl font-black font-headline tracking-tight">LAPTOPS</h3>
+<p class="text-white/80 font-label tracking-widest mt-2 uppercase">Portable Precision</p>
+</div>
+</div>
+<!-- Category Card 3 -->
+<div class="group relative aspect-[4/5] bg-surface-container-lowest overflow-hidden rounded-xl cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="Selection of high-end mechanical keyboards and studio headphones arranged artistically on a dark surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFIfnlS_NdipNnO0bOpvh77ZgM3aNoOthF88jX2HPSKKc43BatJHQGaQ3R7OnBNVOt0uElZhz5fobEJqiCRGWlO3wEmCIIx17bKrNeR0288TnZL34txbbhdW26aUZqFOFnjq8qK5bwCLOzz09lDgVh9xVIovVVbvAUjDPJLhf7UDpq8gUyNOPzjcXSoTDhe3tDuQwuEQZv7t31s4zmHMc5wIrhjAI3sICZIbKGeYMU28I0gVzLwAnZEzHmOUnBt1SHXC4R-NGFYtE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-8 left-8">
+<h3 class="text-white text-3xl font-black font-headline tracking-tight">ACCESSORIES</h3>
+<p class="text-white/80 font-label tracking-widest mt-2 uppercase">Refined Workflow</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- New Arrivals Section -->
+<section class="py-24 bg-surface">
+<div class="max-w-screen-2xl mx-auto px-8">
+<div class="mb-16">
+<h2 class="text-4xl font-black font-headline text-on-surface tracking-tight">NEW ARRIVALS</h2>
+<p class="text-on-surface-variant font-body mt-2">The latest advancements in precision engineering.</p>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+<!-- Product Card 1 -->
+<div class="group">
+<div class="relative aspect-square bg-surface-container-low rounded-xl overflow-hidden mb-6 ghost-border p-8 flex items-center justify-center">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" data-alt="Minimalist top view of a dark grey high-performance laptop showing its premium aluminum texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA57OODCL4L3FTpse15bPqQmDkb_Ltmck95vcSytgFWSmZbNT9xbOsTJ-8a_xA8jsfKdSwM6yJZr0YnPRNg4qUit9k56ifgC5WpQ_XoZfpJTvqHN_kP-4rZ_kvAkCNUTrqsEf1gg1gi3SJ66UQ-mMGwoF7Q0pSaTPs86bP1HVRgiPda-LfOF4QR6gQSsHeowq1uwmQcTdvQnpp9TwA48KCTj-LrMP0GmiZq5FGgIy0aTN1tJECAgPNL2Kh_p0Z5mnw-SMjjc070yPA"/>
+<div class="absolute inset-0 bg-on-surface/40 glass-effect opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="bg-white text-primary px-6 py-3 rounded-full font-headline font-bold text-sm">Quick View</button>
+</div>
+</div>
+<h3 class="font-headline font-bold text-xl text-on-surface tracking-tight">Precision DeskStation S9</h3>
+<p class="font-label text-primary font-bold text-lg mt-1">$2,499.00</p>
+</div>
+<!-- Product Card 2 -->
+<div class="group">
+<div class="relative aspect-square bg-surface-container-low rounded-xl overflow-hidden mb-6 ghost-border p-8 flex items-center justify-center">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" data-alt="Mechanical keyboard with low profile keys and customizable RGB lighting under subtle blue hues" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7fmrhpXXa8mGwOPoc1db9asX36JucoNC1Ajcnw1y_lbQtiPVQZ0R0yK19ltQDuwDf0-2zGq__RAK6JfcDUmGhU0NzR27LX9xV1okDROkOlL36MZDwraiM87B0h1aRHdmI4h3VYmwccXtEpx76LOYj1X9dq8fAIKB2YCKHWGMAGn1lqN1poy_TWCG9n9mQDDCjnOV7GH9EupYouQhFfjzqrI9U2oEzoG1im26TOYx6uFJXd5vP_f4FC7NxWafWXV84zOuPRmuaq6w"/>
+<div class="absolute inset-0 bg-on-surface/40 glass-effect opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="bg-white text-primary px-6 py-3 rounded-full font-headline font-bold text-sm">Quick View</button>
+</div>
+</div>
+<h3 class="font-headline font-bold text-xl text-on-surface tracking-tight">Matrix Keyflow Pro</h3>
+<p class="font-label text-primary font-bold text-lg mt-1">$189.00</p>
+</div>
+<!-- Product Card 3 -->
+<div class="group">
+<div class="relative aspect-square bg-surface-container-low rounded-xl overflow-hidden mb-6 ghost-border p-8 flex items-center justify-center">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" data-alt="High-resolution tablet with a stylus, displaying complex architectural drawings in vibrant colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtbHbKYC0fEoj9ak5HDmRIywOJqNZHW3_XDjBHQlcqaKj20IJ5S_aTITrNm64XMMAGE19TovXPsSg0gFaTfUFPpxloqgP7uk4Zke531UzNLCx4_aeUQNVjb8DYJZCi9vtgHc9pffpObrwLeCRzhO6AHLuoS-68m6THQPu2B9xWb2qh_Jvs8a8xM1RnNOhLZF9fFbNu1oNvZDjdnMRdmTE77HOTKtXh5fDOjK8QU08DOeTgpn4lu0WSebpG1mRDtTPF1QIFlOyiN4o"/>
+<div class="absolute inset-0 bg-on-surface/40 glass-effect opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="bg-white text-primary px-6 py-3 rounded-full font-headline font-bold text-sm">Quick View</button>
+</div>
+</div>
+<h3 class="font-headline font-bold text-xl text-on-surface tracking-tight">Precision Pad Ultra</h3>
+<p class="font-label text-primary font-bold text-lg mt-1">$1,199.00</p>
+</div>
+<!-- Product Card 4 -->
+<div class="group">
+<div class="relative aspect-square bg-surface-container-low rounded-xl overflow-hidden mb-6 ghost-border p-8 flex items-center justify-center">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" data-alt="Premium over-ear noise-cancelling headphones in matte black finish with soft leather ear pads" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjGlFOTG1L7rsAC03id6Aqyl4Gg1UZRbykXy_65sc25TAr_qvLUZzhl6EJPK2rpvun60uUvrkVn9pja9kjF8C0rzQ_VseSgg7CdK0LU74RqS6zMkU7Zxd2cYDm-Em47vCUdWA8Mwgx2XgJ2MpyZZ4BnjnCrpoueCxgCHyu9zUYZ7H9JAMJvfJJakhyMTHksCovrelmilowsiU9VQ8bpzmA3hsBfN6CVf-H3tPnJAgRJjPUEI0C0-AxB4XHMA1jAtHfXJzJrcsZuok"/>
+<div class="absolute inset-0 bg-on-surface/40 glass-effect opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<button class="bg-white text-primary px-6 py-3 rounded-full font-headline font-bold text-sm">Quick View</button>
+</div>
+</div>
+<h3 class="font-headline font-bold text-xl text-on-surface tracking-tight">Sonic Aura Studio</h3>
+<p class="font-label text-primary font-bold text-lg mt-1">$450.00</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / Bento Section -->
+<section class="py-24 px-8 max-w-screen-2xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-8 bg-primary-container rounded-xl p-12 text-on-primary flex flex-col justify-center">
+<h2 class="text-4xl font-black font-headline tracking-tighter mb-4 uppercase">Join the Inner Circle</h2>
+<p class="text-on-primary-container text-lg max-w-md mb-8">Get exclusive access to pre-launch hardware and technical whitepapers from the PRECISION team.</p>
+<div class="flex max-w-md gap-4">
+<input class="bg-white/10 border-white/20 rounded-xl px-6 py-4 flex-grow font-label text-white placeholder:text-white/40 focus:ring-2 focus:ring-white outline-none" placeholder="Enter your email" type="email"/>
+<button class="bg-white text-primary px-8 py-4 rounded-xl font-headline font-bold uppercase tracking-tight hover:bg-on-primary-container transition-colors">Submit</button>
+</div>
+</div>
+<div class="md:col-span-4 bg-tertiary-container rounded-xl p-12 text-white relative overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-[120px] opacity-20 absolute -right-10 -bottom-10" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+<div class="text-center">
+<p class="font-label text-on-tertiary-container uppercase tracking-widest mb-2">Support</p>
+<h3 class="text-3xl font-black font-headline">24/7 PRO <br/>ASSIST</h3>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 w-full py-16 px-8 border-t border-slate-200 dark:border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+<div class="space-y-6">
+<div class="text-xl font-black text-blue-800 dark:text-blue-300 font-headline">PRECISION TECH</div>
+<p class="font-work-sans text-sm tracking-wide text-slate-500">The premier destination for high-end technical architecture and professional grade electronics.</p>
+</div>
+<div class="space-y-4">
+<h4 class="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Company</h4>
+<ul class="space-y-2 font-work-sans text-sm tracking-wide">
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">About Us</a></li>
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Contact Support</a></li>
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Support</h4>
+<ul class="space-y-2 font-work-sans text-sm tracking-wide">
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Shipping Policy</a></li>
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Track Order</a></li>
+<li><a class="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h4 class="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Follow Us</h4>
+<div class="flex space-x-4">
+<span class="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">share</span>
+<span class="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">language</span>
+<span class="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">alternate_email</span>
+</div>
+<p class="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-400">© 2024 PRECISION TECH. ALL RIGHTS RESERVED.</p>
+</div>
+</div>
+</footer>
+</body></html>

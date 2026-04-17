@@ -11,6 +11,7 @@ import { BankPage } from './pages/BankPage.js';
 import { MonthlySummaryPage } from './pages/MonthlySummaryPage.js';
 import { ZakatPage } from './pages/ZakatPage.js';
 import { AdminUsersPage } from './pages/AdminUsersPage.js';
+import { SettingsPage } from './pages/SettingsPage.js';
 import { NotificationsPage } from './pages/NotificationsPage.js';
 import { CustomerOrdersPage } from './pages/CustomerOrdersPage.js';
 import { LoginPage } from './pages/LoginPage.js';
@@ -21,7 +22,7 @@ import { ReferenceDataProvider } from './components/ReferenceDataContext.js';
 import { AuthProvider, useAuth } from './components/AuthContext.js';
 import './styles.css';
 
-type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users';
+type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'settings';
 
 /* ── Icon components (18×18, stroke-based) ── */
 const icons: Record<Page, React.ReactNode> = {
@@ -103,6 +104,12 @@ const icons: Record<Page, React.ReactNode> = {
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   ),
+  settings: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  ),
 };
 
 interface NavSection {
@@ -163,6 +170,7 @@ const PAGE_MAP: Record<Page, React.ComponentType> = {
   'monthly-summary': MonthlySummaryPage,
   zakat: ZakatPage,
   'admin-users': AdminUsersPage,
+  settings: SettingsPage,
 };
 
 function AppInner(): React.JSX.Element {
@@ -186,7 +194,8 @@ function AppInner(): React.JSX.Element {
 
   // If user navigated to a page they no longer have access to, redirect to dashboard
   React.useEffect(() => {
-    if (currentPage !== 'admin-users' && !hasPermission(currentPage)) {
+    const adminOnly = currentPage === 'admin-users' || currentPage === 'settings';
+    if (adminOnly ? !isAdmin : !hasPermission(currentPage)) {
       setCurrentPage('dashboard');
     }
   }, [currentPage, hasPermission]);
@@ -245,6 +254,16 @@ function AppInner(): React.JSX.Element {
                     Utilisateurs
                   </button>
                 </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'settings' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('settings')}
+                    {...(currentPage === 'settings' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons.settings}
+                    Paramètres
+                  </button>
+                </li>
               </ul>
             </div>
           )}
@@ -280,15 +299,17 @@ function AppInner(): React.JSX.Element {
           </svg>
         </button>
         <div className="page-enter" key={currentPage}>
-          {currentPage === 'dashboard' ? <Dashboard onNavigate={(p: string) => setCurrentPage(p as Page)} /> : <PageComponent />}
+          <PageErrorBoundary>
+            {currentPage === 'dashboard' ? <Dashboard onNavigate={(p: string) => setCurrentPage(p as Page)} /> : <PageComponent />}
+          </PageErrorBoundary>
         </div>
       </main>
     </div>
   );
 }
 
-class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
-  constructor(props: { children: React.ReactNode }) {
+class ErrorBoundary extends Component<{ children: React.ReactNode; fallbackMinHeight?: string }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: React.ReactNode; fallbackMinHeight?: string }) {
     super(props);
     this.state = { hasError: false, error: null };
   }
@@ -301,7 +322,7 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: 16, padding: 32, textAlign: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: this.props.fallbackMinHeight ?? '100vh', gap: 16, padding: 32, textAlign: 'center' }}>
           <h2>Quelque chose s&apos;est mal passé</h2>
           <p style={{ color: '#888', maxWidth: 500 }}>{this.state.error?.message}</p>
           <button className="btn btn-primary" onClick={() => this.setState({ hasError: false, error: null })}>Réessayer</button>
@@ -310,6 +331,11 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     }
     return this.props.children;
   }
+}
+
+/** Per-page error boundary — catches page crashes without taking down the whole app */
+function PageErrorBoundary({ children }: { children: React.ReactNode }): React.JSX.Element {
+  return <ErrorBoundary fallbackMinHeight="400px">{children}</ErrorBoundary>;
 }
 
 function AuthGate(): React.JSX.Element {

@@ -5,23 +5,28 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
 import {
-  ShoppingCartIcon,
   MenuIcon,
   XIcon,
   PhoneIcon,
-  MapPinIcon,
   HomeIcon,
   PackageIcon,
-  SearchIcon,
   ArrowUpIcon,
+  ShoppingCartIcon,
 } from '@/components/icons';
+
+/* -- Nav links ---- */
+const NAV_LINKS = [
+  { label: 'Accueil', href: '/' },
+  { label: 'Catalogue', href: '/catalogue' },
+  { label: 'A propos', href: '/a-propos' },
+  { label: 'Contact', href: '/contact' },
+];
 
 export function LayoutShell({ children }: { children: React.ReactNode }): React.JSX.Element {
   const pathname = usePathname();
   const { totalItems } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showScroll, setShowScroll] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
@@ -33,20 +38,15 @@ export function LayoutShell({ children }: { children: React.ReactNode }): React.
   useEffect(() => {
     const onScroll = () => {
       setShowScroll(window.scrollY > 400);
-      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Admin routes bypass the shell
   if (pathname.startsWith('/admin')) {
     return <>{children}</>;
   }
-
-  const isActive = (href: string) => {
-    if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
-  };
 
   return (
     <>
@@ -54,78 +54,67 @@ export function LayoutShell({ children }: { children: React.ReactNode }): React.
         Passer au contenu principal
       </a>
 
-      <header className={`site-header ${scrolled ? 'scrolled' : ''}`}>
-        {/* ── Top bar ── */}
-        <div className="header-top">
-          <div className="container header-top-inner">
-            <div className="header-top-contacts">
-              <a href="tel:+212536690306">
-                <PhoneIcon size={14} /> +212 536 69 03 06
-              </a>
-              <span>
-                <MapPinIcon size={14} /> Souk Mlilia n°914, Oujda
-              </span>
-            </div>
-            <div className="header-top-right">
-              <Link href="/admin">Espace Admin</Link>
-            </div>
-          </div>
-        </div>
+      {/* -- Fixed glass-effect nav bar (matches example.html) -- */}
+      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
+        <div className="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden flex items-center justify-center p-2 text-blue-700 hover:opacity-80 transition-opacity"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Ouvrir le menu"
+            aria-expanded={mobileOpen}
+          >
+            <MenuIcon size={24} />
+          </button>
 
-        {/* ── Main header ── */}
-        <div className="header-main">
-          <div className="container header-main-inner">
-            <Link href="/" className="logo">
-              <span className="logo-mark" aria-hidden="true" />
-              Hamdi <span>PC</span>
-              <span className="logo-sub">L&apos;informatique depuis 1997</span>
+          {/* Brand */}
+          <Link href="/" className="text-2xl font-black text-blue-800 tracking-tighter font-headline">
+            HAMDI PC
+          </Link>
+
+          {/* Center nav links (desktop) */}
+          <div className="hidden md:flex items-center space-x-8">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`font-headline font-bold uppercase tracking-tight transition-colors ${
+                    isActive
+                      ? 'text-blue-700 border-b-2 border-blue-700 pb-1'
+                      : 'text-slate-600 hover:text-blue-600'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Right icons */}
+          <div className="flex items-center space-x-6">
+            <button className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
+              <span className="material-symbols-outlined">favorite</span>
+            </button>
+            <Link href="/cart" className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700 relative" aria-label={`Panier (${totalItems} articles)`}>
+              <span className="material-symbols-outlined">shopping_cart</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-error text-on-error rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">
+                  {totalItems}
+                </span>
+              )}
             </Link>
-
-            <nav className="header-nav" aria-label="Navigation principale">
-              <Link href="/" className={isActive('/') && pathname === '/' ? 'active' : ''}>
-                Accueil
-              </Link>
-              <Link href="/catalogue" className={isActive('/catalogue') ? 'active' : ''}>
-                Catalogue
-              </Link>
-              <Link href="/a-propos" className={isActive('/a-propos') ? 'active' : ''}>
-                À propos
-              </Link>
-              <Link href="/contact" className={isActive('/contact') ? 'active' : ''}>
-                Contact
-              </Link>
-            </nav>
-
-            <div className="header-actions">
-              <div className="header-search">
-                <SearchIcon size={16} />
-                <input
-                  type="text"
-                  placeholder="Rechercher un produit..."
-                  readOnly
-                  onClick={() => {
-                    window.location.href = '/catalogue';
-                  }}
-                />
-              </div>
-              <Link href="/cart" className="icon-btn" aria-label={`Panier (${totalItems} articles)`}>
-                <ShoppingCartIcon size={20} />
-                {totalItems > 0 && <span className="badge">{totalItems}</span>}
-              </Link>
-              <button
-                className="mobile-menu-btn"
-                onClick={() => setMobileOpen(true)}
-                aria-label="Ouvrir le menu"
-                aria-expanded={mobileOpen}
-              >
-                <MenuIcon size={24} />
-              </button>
-            </div>
+            <Link href="/admin" className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
+              <span className="material-symbols-outlined">person</span>
+            </Link>
           </div>
         </div>
-      </header>
+        {/* Subtle 1px separator */}
+        <div className="bg-slate-100 h-[1px] w-full absolute bottom-0"></div>
+      </nav>
 
-      {/* ── Mobile drawer ── */}
+      {/* -- Mobile overlay + drawer -- */}
       <div
         className={`mobile-nav-overlay ${mobileOpen ? 'open' : ''}`}
         onClick={() => setMobileOpen(false)}
@@ -138,87 +127,84 @@ export function LayoutShell({ children }: { children: React.ReactNode }): React.
         aria-modal={mobileOpen}
       >
         <div className="mobile-nav-header">
-          <h2>Menu</h2>
-          <button className="mobile-close-btn" onClick={() => setMobileOpen(false)} aria-label="Fermer le menu">
-            <XIcon size={20} />
+          <Link href="/" className="text-xl font-black text-white tracking-tighter font-headline" onClick={() => setMobileOpen(false)}>
+            HAMDI PC
+          </Link>
+          <button className="text-white/50 hover:text-white p-2" onClick={() => setMobileOpen(false)} aria-label="Fermer le menu">
+            <XIcon size={22} />
           </button>
         </div>
         <div className="mobile-nav-links">
-          <Link href="/" className={isActive('/') && pathname === '/' ? 'active' : ''}>
-            <HomeIcon size={20} /> Accueil
-          </Link>
-          <Link href="/catalogue" className={isActive('/catalogue') ? 'active' : ''}>
-            <PackageIcon size={20} /> Catalogue
-          </Link>
-          <Link href="/a-propos" className={isActive('/a-propos') ? 'active' : ''}>
-            <PackageIcon size={20} /> À propos
-          </Link>
-          <Link href="/contact" className={isActive('/contact') ? 'active' : ''}>
-            <PhoneIcon size={20} /> Contact
-          </Link>
-          <Link href="/cart" className={isActive('/cart') ? 'active' : ''}>
-            <ShoppingCartIcon size={20} /> Panier {totalItems > 0 && `(${totalItems})`}
+          {NAV_LINKS.map((link) => (
+            <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
+              {link.label === 'Accueil' && <HomeIcon size={18} />}
+              {link.label === 'Catalogue' && <PackageIcon size={18} />}
+              {link.label === 'Contact' && <PhoneIcon size={18} />}
+              {link.label}
+            </Link>
+          ))}
+          <Link href="/cart" onClick={() => setMobileOpen(false)}>
+            <ShoppingCartIcon size={18} /> Panier {totalItems > 0 && `(${totalItems})`}
           </Link>
         </div>
         <div className="mobile-nav-contact">
-          <a href="tel:+212536690306"><PhoneIcon size={16} /> +212 536 69 03 06</a>
+          <a href="tel:+212536690306"><PhoneIcon size={14} /> +212 536 69 03 06</a>
           <a href="https://wa.me/212622265053" target="_blank" rel="noopener noreferrer">WhatsApp: +212 622 26 50 53</a>
+          <a href="https://wa.me/212672532998" target="_blank" rel="noopener noreferrer">WhatsApp: +212 672 53 29 98</a>
         </div>
       </nav>
 
-      <main id="main-content">{children}</main>
+      <main id="main-content" className="pt-20">{children}</main>
 
-      {/* ── Footer ── */}
-      <footer className="site-footer" id="contact">
-        <div className="footer-main">
-          <div className="container footer-grid">
-            <div className="footer-col">
-              <div className="footer-brand">
-                <span className="logo-mark" aria-hidden="true" />
-                <span className="footer-brand-name">Hamdi <span>PC</span></span>
-              </div>
-              <p>L&apos;informatique depuis 1997. Vente de matériel informatique, téléphones, accessoires et composants à Oujda.</p>
-            </div>
-            <div className="footer-col">
-              <h4>Navigation</h4>
-              <Link href="/">Accueil</Link>
-              <Link href="/catalogue">Catalogue</Link>
-              <Link href="/a-propos">À propos</Link>
-              <Link href="/contact">Contact</Link>
-              <Link href="/cart">Panier</Link>
-            </div>
-            <div className="footer-col">
-              <h4>Contact</h4>
-              <div className="footer-contact-item">
-                <PhoneIcon size={16} />
-                <span>+212 536 69 03 06</span>
-              </div>
-              <div className="footer-contact-item">
-                <PhoneIcon size={16} />
-                <span>WhatsApp: +212 622 26 50 53</span>
-              </div>
-              <div className="footer-contact-item">
-                <PhoneIcon size={16} />
-                <span>WhatsApp: +212 672 53 29 98</span>
-              </div>
-            </div>
-            <div className="footer-col">
-              <h4>Adresse</h4>
-              <div className="footer-contact-item">
-                <MapPinIcon size={16} />
-                <span>Souk Mlilia n°914, Oujda, Maroc</span>
-              </div>
-            </div>
+      {/* -- Footer (matches example.html: bg-slate-50, border-t, 4-col grid) -- */}
+      <footer className="bg-slate-50 w-full py-16 px-8 border-t border-slate-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+          {/* Col 1: Brand + description */}
+          <div className="space-y-6">
+            <div className="text-xl font-black text-blue-800 font-headline">HAMDI PC</div>
+            <p className="text-sm tracking-wide text-slate-500">
+              Votre partenaire informatique depuis 1997. Vente de materiel
+              informatique, telephones, accessoires et composants. Un large
+              choix de produits neufs et d&apos;occasion aux meilleurs prix a Oujda.
+            </p>
           </div>
-        </div>
-        <div className="footer-bottom">
-          <div className="container">
-            <p>&copy; {new Date().getFullYear()} Hamdi PC — Tous droits réservés.</p>
+
+          {/* Col 2: Company */}
+          <div className="space-y-4">
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Entreprise</h4>
+            <ul className="space-y-2 text-sm tracking-wide">
+              <li><Link className="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="/a-propos">A propos</Link></li>
+              <li><Link className="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="/contact">Contactez-nous</Link></li>
+              <li><span className="text-slate-500">Conditions de service</span></li>
+            </ul>
+          </div>
+
+          {/* Col 3: Support */}
+          <div className="space-y-4">
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Support</h4>
+            <ul className="space-y-2 text-sm tracking-wide">
+              <li><span className="text-slate-500">Politique de livraison</span></li>
+              <li><span className="text-slate-500">Suivi de commande</span></li>
+              <li><span className="text-slate-500">Politique de confidentialite</span></li>
+            </ul>
+          </div>
+
+          {/* Col 4: Social */}
+          <div className="space-y-6">
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Suivez-nous</h4>
+            <div className="flex space-x-4">
+              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">share</span>
+              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">language</span>
+              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">alternate_email</span>
+            </div>
+            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-400">
+              &copy; {new Date().getFullYear()} HAMDI PC. TOUS DROITS RESERVES.
+            </p>
           </div>
         </div>
       </footer>
 
-      {/* ── Scroll to top ── */}
+      {/* -- Scroll to top -- */}
       <button
         className={`scroll-top-btn ${showScroll ? 'visible' : ''}`}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

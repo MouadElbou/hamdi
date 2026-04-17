@@ -70,18 +70,18 @@ export function BankPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDelete = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer ce mouvement ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.bankMovements.delete(id);
       load();
     } catch (err) {
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 

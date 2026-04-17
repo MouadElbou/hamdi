@@ -64,18 +64,18 @@ export class ImportService {
       }
     }
 
-    // Record anomalies
-    for (const anomaly of anomalies) {
-      await this.prisma.importAnomaly.create({
-        data: {
-          entityType: anomaly.entityType,
-          entityId: anomaly.entityId,
-          anomalyType: anomaly.anomalyType,
-          rawValue: anomaly.rawValue,
-          canonicalValue: anomaly.canonicalValue,
-          description: anomaly.description,
+    // Record anomalies (M5: batch insert)
+    if (anomalies.length > 0) {
+      await this.prisma.importAnomaly.createMany({
+        data: anomalies.map((a) => ({
+          entityType: a.entityType,
+          entityId: a.entityId,
+          anomalyType: a.anomalyType,
+          rawValue: a.rawValue,
+          canonicalValue: a.canonicalValue,
+          description: a.description,
           importBatchId: batch.id,
-        },
+        })),
       });
     }
 

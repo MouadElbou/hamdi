@@ -10,6 +10,11 @@ import {
   validateISODate,
   validateNotZeroPlaceholder,
   validatePurchase,
+  validateSaleLine,
+  validateMaintenance,
+  validateExpense,
+  validateCustomerCredit,
+  validateBankMovement,
 } from '../src/validation.js';
 
 describe('normalizeBoutique', () => {
@@ -177,5 +182,211 @@ describe('validatePurchase', () => {
   it('fails for negative cost', () => {
     const result = validatePurchase({ ...validPurchase, purchaseUnitCost: -100 });
     expect(result.valid).toBe(false);
+  });
+
+  it('passes with null targetResalePrice', () => {
+    const result = validatePurchase({ ...validPurchase, targetResalePrice: null });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails for invalid category', () => {
+    const result = validatePurchase({ ...validPurchase, category: 'NONEXISTENT' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('fails for invalid supplier', () => {
+    const result = validatePurchase({ ...validPurchase, supplier: 'ZZZZ' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('fails for invalid boutique', () => {
+    const result = validatePurchase({ ...validPurchase, boutique: 'NOWHERE' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('fails for designation "0"', () => {
+    const result = validatePurchase({ ...validPurchase, designation: '0' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('collects multiple errors at once', () => {
+    const result = validatePurchase({
+      ...validPurchase,
+      date: '',
+      initialQuantity: 0,
+      purchaseUnitCost: -1,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('validateSaleLine', () => {
+  it('passes for valid sale line', () => {
+    const result = validateSaleLine({
+      lotId: 'lot-1',
+      quantity: 5,
+      sellingUnitPrice: 2000,
+      availableStock: 10,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails when quantity exceeds available stock', () => {
+    const result = validateSaleLine({
+      lotId: 'lot-1',
+      quantity: 15,
+      sellingUnitPrice: 2000,
+      availableStock: 10,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('exceeds available stock');
+  });
+
+  it('fails for zero quantity', () => {
+    const result = validateSaleLine({
+      lotId: 'lot-1',
+      quantity: 0,
+      sellingUnitPrice: 2000,
+      availableStock: 10,
+    });
+    expect(result.valid).toBe(false);
+  });
+
+  it('fails for empty lotId', () => {
+    const result = validateSaleLine({
+      lotId: '',
+      quantity: 5,
+      sellingUnitPrice: 2000,
+      availableStock: 10,
+    });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('validateMaintenance', () => {
+  it('passes for valid input', () => {
+    const result = validateMaintenance({
+      date: '2024-06-15',
+      designation: 'INSTALL',
+      price: 5000,
+      boutique: 'MLILIYA',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails for zero price', () => {
+    const result = validateMaintenance({
+      date: '2024-06-15',
+      designation: 'INSTALL',
+      price: 0,
+      boutique: 'MLILIYA',
+    });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('validateExpense', () => {
+  it('passes for valid expense', () => {
+    const result = validateExpense({
+      date: '2024-06-15',
+      designation: 'LOYER',
+      amount: 30000,
+      boutique: 'MLILIYA',
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails for designation "0"', () => {
+    const result = validateExpense({
+      date: '2024-06-15',
+      designation: '0',
+      amount: 30000,
+      boutique: 'MLILIYA',
+    });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('validateCustomerCredit', () => {
+  it('passes for valid credit', () => {
+    const result = validateCustomerCredit({
+      date: '2024-06-15',
+      customerName: 'ABDO BENTAJ',
+      designation: 'Laptop HP',
+      quantity: 1,
+      unitPrice: 50000,
+      advancePaid: 20000,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails when advance exceeds total', () => {
+    const result = validateCustomerCredit({
+      date: '2024-06-15',
+      customerName: 'ABDO BENTAJ',
+      designation: 'Laptop HP',
+      quantity: 1,
+      unitPrice: 50000,
+      advancePaid: 60000,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('exceeds total');
+  });
+
+  it('passes with zero advance', () => {
+    const result = validateCustomerCredit({
+      date: '2024-06-15',
+      customerName: 'ABDO BENTAJ',
+      designation: 'Laptop HP',
+      quantity: 2,
+      unitPrice: 30000,
+      advancePaid: 0,
+    });
+    expect(result.valid).toBe(true);
+  });
+});
+
+describe('validateBankMovement', () => {
+  it('passes for valid deposit', () => {
+    const result = validateBankMovement({
+      date: '2024-06-15',
+      description: 'Deposit',
+      amountIn: 50000,
+      amountOut: 0,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('passes for valid withdrawal', () => {
+    const result = validateBankMovement({
+      date: '2024-06-15',
+      description: 'Withdrawal',
+      amountIn: 0,
+      amountOut: 20000,
+    });
+    expect(result.valid).toBe(true);
+  });
+
+  it('fails when both amountIn and amountOut are non-zero', () => {
+    const result = validateBankMovement({
+      date: '2024-06-15',
+      description: 'Invalid',
+      amountIn: 10000,
+      amountOut: 5000,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('not both');
+  });
+
+  it('fails when both amounts are zero', () => {
+    const result = validateBankMovement({
+      date: '2024-06-15',
+      description: 'Zero',
+      amountIn: 0,
+      amountOut: 0,
+    });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('at least one');
   });
 });

@@ -2,6 +2,21 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 
+function httpError(statusCode: number, message: string): Error {
+  return Object.assign(new Error(message), { statusCode });
+}
+
+const PaginationQuery = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+const PurchaseFilterQuery = PaginationQuery.extend({
+  category: z.string().optional(),
+  supplier: z.string().optional(),
+  boutique: z.string().optional(),
+});
+
 const CreatePurchaseSchema = z.object({
   date: z.string().date(),
   category: z.string().trim().min(1),
@@ -29,15 +44,15 @@ export async function purchaseRoutes(app: FastifyInstance) {
 
   // List purchases with pagination
   app.get('/', async (request) => {
-    const { page = '1', limit = '50', category, supplier, boutique } = request.query as Record<string, string | undefined>;
-    const pageNum = Math.max(1, parseInt(page ?? '1', 10) || 1);
-    const take = Math.min(parseInt(limit ?? '50', 10) || 50, 200);
+    const query = PurchaseFilterQuery.parse(request.query);
+    const pageNum = query.page;
+    const take = query.limit;
     const skip = (pageNum - 1) * take;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (category) where['category'] = { name: category };
-    if (supplier) where['supplier'] = { code: supplier };
-    if (boutique) where['boutique'] = { name: boutique };
+    if (query.category) where['category'] = { name: query.category };
+    if (query.supplier) where['supplier'] = { code: query.supplier };
+    if (query.boutique) where['boutique'] = { name: query.boutique };
 
     const [items, total] = await Promise.all([
       prisma.purchaseLot.findMany({
@@ -68,7 +83,8 @@ export async function purchaseRoutes(app: FastifyInstance) {
     const body = CreatePurchaseSchema.parse(request.body);
 
     const id = uuidv7();
-    const refNumber = `PUR-${Date.now()}-${id.slice(0, 6)}`;
+    const refSuffix = uuidv7().replace(/-/g, '').slice(-8).toUpperCase();
+    const refNumber = `PUR-${refSuffix}`;
 
     // Wrap all FK resolution + lot create in a transaction to prevent race conditions
     const lot = await prisma.$transaction(async (tx) => {
@@ -78,14 +94,10 @@ export async function purchaseRoutes(app: FastifyInstance) {
       ]);
 
       if (!category) {
-        const err = new Error(`Category '${body.category}' not found`);
-        (err as any).statusCode = 400;
-        throw err;
+        throw httpError(400, `Category '${body.category}' not found`);
       }
       if (!boutique) {
-        const err = new Error(`Boutique '${body.boutique}' not found`);
-        (err as any).statusCode = 400;
-        throw err;
+        throw httpError(400, `Boutique '${body.boutique}' not found`);
       }
 
       let supplier = body.supplier
@@ -154,9 +166,7 @@ export async function purchaseRoutes(app: FastifyInstance) {
     const lot = await prisma.$transaction(async (tx) => {
       const current = await tx.purchaseLot.findUnique({ where: { id } });
       if (!current || current.version !== body.version) {
-        const err = new Error('Version mismatch — pull latest before updating');
-        (err as any).statusCode = 409;
-        throw err;
+        throw httpError(409, 'Version mismatch — pull latest before updating');
       }
 
       return tx.purchaseLot.update({

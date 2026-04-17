@@ -10,13 +10,15 @@ export const metadata: Metadata = {
 export default function CataloguePage() {
   return (
     <section className="catalog-page">
-      <div className="container">
-        <div className="catalog-page-header">
+      <div className="catalog-page-header">
+        <div className="container">
           <h1 className="catalog-page-title">Notre Catalogue</h1>
           <p className="catalog-page-subtitle">
             Parcourez notre sélection complète de produits informatiques, téléphones et accessoires.
           </p>
         </div>
+      </div>
+      <div className="container">
         <Suspense fallback={<div style={{ minHeight: '400px' }} />}>
           <CatalogPageWrapper />
         </Suspense>

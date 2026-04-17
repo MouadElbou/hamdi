@@ -21,6 +21,18 @@ describe('purchaseTotalAmount', () => {
   it('returns 0 for zero quantity', () => {
     expect(purchaseTotalAmount(0, 1500)).toBe(0);
   });
+
+  it('returns 0 for zero unit cost', () => {
+    expect(purchaseTotalAmount(10, 0)).toBe(0);
+  });
+
+  it('handles large numbers without overflow', () => {
+    expect(purchaseTotalAmount(100000, 999999)).toBe(99999900000);
+  });
+
+  it('handles single unit', () => {
+    expect(purchaseTotalAmount(1, 1)).toBe(1);
+  });
 });
 
 describe('remainingQuantity', () => {
@@ -31,11 +43,27 @@ describe('remainingQuantity', () => {
   it('returns 0 when fully sold', () => {
     expect(remainingQuantity(5, 5)).toBe(0);
   });
+
+  it('returns negative when oversold (data error)', () => {
+    expect(remainingQuantity(5, 8)).toBe(-3);
+  });
+
+  it('returns initial when nothing sold', () => {
+    expect(remainingQuantity(100, 0)).toBe(100);
+  });
 });
 
 describe('stockValue', () => {
   it('multiplies remaining by cost', () => {
     expect(stockValue(7, 1500)).toBe(10500);
+  });
+
+  it('returns 0 when no remaining stock', () => {
+    expect(stockValue(0, 1500)).toBe(0);
+  });
+
+  it('handles large stock values', () => {
+    expect(stockValue(50000, 10000)).toBe(500000000);
   });
 });
 
@@ -52,6 +80,14 @@ describe('saleMargin', () => {
 
   it('returns negative margin when sold below cost', () => {
     expect(saleMargin(1000, 1500, 2)).toBe(-1000);
+  });
+
+  it('returns 0 margin when sold at cost', () => {
+    expect(saleMargin(1500, 1500, 10)).toBe(0);
+  });
+
+  it('returns 0 margin for zero quantity', () => {
+    expect(saleMargin(2000, 1500, 0)).toBe(0);
   });
 });
 
@@ -168,5 +204,46 @@ describe('computeZakat', () => {
   it('computes zakatRemaining = due - advances', () => {
     const result = computeZakat(input);
     expect(result.zakatRemaining).toBe(47500); // 57500 - 10000
+  });
+
+  it('clamps zakatDue to 0 when deductions exceed assets', () => {
+    const negativeBase = {
+      closingStockValue: 100000,
+      closingBankBalance: 50000,
+      closingCash: 10000,
+      creditDeduction: 500000, // far exceeds assets
+      zakatAdvances: 0,
+    };
+    const result = computeZakat(negativeBase);
+    expect(result.zakatBase).toBe(-340000);
+    expect(result.zakatDue).toBe(0); // clamped to 0
+  });
+
+  it('handles all-zero inputs', () => {
+    const zero = {
+      closingStockValue: 0,
+      closingBankBalance: 0,
+      closingCash: 0,
+      creditDeduction: 0,
+      zakatAdvances: 0,
+    };
+    const result = computeZakat(zero);
+    expect(result.totalAssets).toBe(0);
+    expect(result.zakatBase).toBe(0);
+    expect(result.zakatDue).toBe(0);
+    expect(result.zakatRemaining).toBe(0);
+  });
+
+  it('allows negative zakatRemaining when advances exceed due', () => {
+    const overpaid = {
+      closingStockValue: 100000,
+      closingBankBalance: 0,
+      closingCash: 0,
+      creditDeduction: 0,
+      zakatAdvances: 50000, // exceeds 2500 due
+    };
+    const result = computeZakat(overpaid);
+    expect(result.zakatDue).toBe(2500);
+    expect(result.zakatRemaining).toBe(-47500); // overpaid
   });
 });

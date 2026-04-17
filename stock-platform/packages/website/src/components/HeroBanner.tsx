@@ -1,98 +1,36 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowRightIcon, MonitorIcon } from '@/components/icons';
-
-const SLIDES = [
-  {
-    eyebrow: 'Bienvenue chez Hamdi PC',
-    title: <>L&apos;informatique depuis <span className="accent">1997</span></>,
-    desc: 'Votre magasin de confiance pour le matériel informatique, les téléphones et les accessoires à Oujda.',
-    cta: 'Voir le catalogue',
-    ctaHref: '/catalogue',
-  },
-  {
-    eyebrow: 'Commandez facilement',
-    title: <>Commandez par <span className="accent">WhatsApp</span></>,
-    desc: 'Ajoutez vos produits au panier et envoyez votre commande directement par WhatsApp. Simple et rapide.',
-    cta: 'Découvrir',
-    ctaHref: '/catalogue',
-  },
-  {
-    eyebrow: 'Livraison nationale',
-    title: <>Livraison partout au <span className="accent">Maroc</span></>,
-    desc: 'Nous livrons vos commandes dans tout le Maroc. Passez votre commande en ligne ou en magasin.',
-    cta: 'Parcourir les produits',
-    ctaHref: '/catalogue',
-  },
-];
+import React from 'react';
 
 export function HeroBanner(): React.JSX.Element {
-  const [current, setCurrent] = useState(0);
-
-  const next = useCallback(() => {
-    setCurrent((c) => (c + 1) % SLIDES.length);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(next, 5000);
-    return () => clearInterval(timer);
-  }, [next]);
-
-  const slide = SLIDES[current];
-  if (!slide) return <></>;
-
   return (
-    <section className="hero-section" aria-roledescription="carousel" aria-label="Bannière principale">
-      <div className="hero-carousel">
-        {SLIDES.map((s, i) => (
-          <div key={i} className={`hero-slide ${i === current ? 'active' : ''}`} aria-hidden={i !== current}>
-            <div className="hero-slide-content">
-              <div className="hero-slide-eyebrow">{s.eyebrow}</div>
-              <h1 className="hero-slide-title">{s.title}</h1>
-              <p className="hero-slide-desc">{s.desc}</p>
-              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                <a href={s.ctaHref} className="hero-slide-cta">
-                  {s.cta} <ArrowRightIcon size={16} />
-                </a>
-                <a href="/a-propos" className="hero-slide-cta-outline">
-                  En savoir plus
-                </a>
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* Static stats — outside slide loop */}
-        <div className="hero-stats" style={{ position: 'absolute', bottom: '3rem', left: '3rem', zIndex: 3 }}>
-          <div className="hero-stat-item">
-            <div className="hero-stat-val">27+</div>
-            <div className="hero-stat-label">Années d&apos;expérience</div>
-          </div>
-          <div className="hero-stat-item">
-            <div className="hero-stat-val">5000+</div>
-            <div className="hero-stat-label">Produits disponibles</div>
-          </div>
-          <div className="hero-stat-item">
-            <div className="hero-stat-val">100%</div>
-            <div className="hero-stat-label">Satisfaction client</div>
+    <section className="relative h-[870px] flex items-center overflow-hidden bg-surface">
+      <div className="max-w-screen-2xl mx-auto px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="z-10 space-y-8">
+          <span className="font-label font-semibold text-primary uppercase tracking-[0.2em]">Performance Nouvelle Generation</span>
+          <h1 className="text-6xl md:text-8xl font-black font-headline text-on-surface leading-[0.9] tracking-tighter">
+            ELITE <br/>PRECISION <br/><span className="text-primary-container">PRO X1</span>
+          </h1>
+          <p className="text-on-surface-variant text-lg max-w-md font-body">
+            Concu pour les createurs et professionnels. Decouvrez la precision architecturale de notre station de travail la plus puissante jamais concue.
+          </p>
+          <div className="pt-4">
+            <a
+              href="/catalogue"
+              className="primary-gradient text-on-primary px-10 py-5 rounded-xl font-headline font-bold text-lg shadow-xl shadow-primary/20 hover:scale-105 transition-transform inline-block"
+            >
+              Voir le catalogue
+            </a>
           </div>
         </div>
-
-        {/* Right decorative panel */}
-        <div className="hero-right-panel" aria-hidden="true">
-          <div className="hero-product">
-            <div className="hero-product-icon">
-              <MonitorIcon size={64} />
-            </div>
-            <span className="hero-product-label">Matériel Informatique</span>
-            <span className="hero-product-tag">Depuis 1997</span>
-          </div>
+        <div className="relative group">
+          <div className="absolute -inset-10 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
+          <img
+            alt="Premium Laptop"
+            className="relative z-10 w-full h-auto transform -rotate-6 group-hover:rotate-0 transition-transform duration-700 drop-shadow-2xl"
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsQSdMnk-LC9Y_JGZpPEagJW1hoAvaK0Ng-sBvNxx8f5kCvWaEVTMhoHNt2aihygYO96JiJi3rlzObPPOMG4VhfAO7_mnK2ZHYKIvEvS73ferdAit4beLcpPlVJ3UgDWjzuynqo1GJkV5UhmdZd4KYIzKZUQ0fqm3oJS8heDgbqXGAuTYLlBKt7RJeop8M4fhLxw31f4KCMQX3PXvwpmQn9CU4bdjKqBn0pVSdOrVgR_u4bvOw4Hs6TtqlHqR8GMRWZjQ2ieq5sBU"
+          />
         </div>
-      </div>
-
-      <div className="hero-live" aria-live="polite" aria-atomic="true">
-        {slide.eyebrow}
       </div>
     </section>
   );

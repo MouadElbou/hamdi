@@ -85,7 +85,7 @@ const ENTITY_ALLOWED_FIELDS: Record<string, Set<string>> = {
   category: new Set(['name']),
   sub_category: new Set(['name', 'categoryId']),
   category_alias: new Set(['rawValue', 'categoryId']),
-  user: new Set(['username', 'passwordHash', 'displayName', 'role', 'isActive', 'mustChangePassword']),
+  user: new Set(['username', 'displayName', 'role', 'isActive', 'mustChangePassword']),
 };
 
 // C5: All entities now use soft-delete (deletedAt added to Supplier, Boutique, Category)

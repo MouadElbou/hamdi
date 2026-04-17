@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
@@ -20,6 +21,7 @@ import { employeeRoutes } from './routes/employees.js';
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/users.js';
 import { referenceDataRoutes } from './routes/reference-data.js';
+import { customerOrderRoutes } from './routes/customer-orders.js';
 
 // ─── Environment validation ────────────────────────────────────────
 if (!process.env['DATABASE_URL']) {
@@ -27,7 +29,7 @@ if (!process.env['DATABASE_URL']) {
   process.exit(1);
 }
 
-const API_KEY = process.env['API_KEY'] ?? '';
+let API_KEY = process.env['API_KEY'] ?? '';
 const JWT_SECRET = process.env['JWT_SECRET'] ?? '';
 const CORS_ORIGINS = process.env['CORS_ORIGINS']
   ? process.env['CORS_ORIGINS'].split(',')
@@ -35,7 +37,7 @@ const CORS_ORIGINS = process.env['CORS_ORIGINS']
 
 const prisma = new PrismaClient();
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, bodyLimit: 1_048_576 }); // 1MB global
 
 // ─── CORS (B-C2) — whitelist in production ─────────────────────────
 await app.register(cors, {
@@ -53,8 +55,14 @@ if (!API_KEY && process.env['NODE_ENV'] === 'production') {
   console.error('FATAL: API_KEY environment variable is required in production');
   process.exit(1);
 }
+// H19: Auto-generate dev API key instead of disabling auth
+if (!API_KEY && process.env['NODE_ENV'] !== 'production') {
+  API_KEY = randomBytes(32).toString('hex');
+  console.log(`[DEV] Auto-generated API_KEY: ${API_KEY}`);
+}
+
 await app.register(fastifyJwt, {
-  secret: JWT_SECRET || 'dev-jwt-secret-change-in-production',
+  secret: JWT_SECRET || randomBytes(32).toString('hex'),
 });
 
 // ─── Rate limiting (B-C4) ──────────────────────────────────────────
@@ -67,6 +75,17 @@ const rateLimitCleanup = setInterval(() => {
   const now = Date.now();
   for (const [ip, state] of rateLimitState) {
     if (state.resetAt <= now) rateLimitState.delete(ip);
+  }
+}, 60_000);
+
+// M12: Login-specific rate limiting (5 attempts per minute per IP)
+const LOGIN_RATE_LIMIT_MAX = 5;
+const LOGIN_RATE_LIMIT_WINDOW_MS = 60_000;
+const loginRateLimitState = new Map<string, { count: number; resetAt: number }>();
+const loginRateLimitCleanup = setInterval(() => {
+  const now = Date.now();
+  for (const [ip, state] of loginRateLimitState) {
+    if (state.resetAt <= now) loginRateLimitState.delete(ip);
   }
 }, 60_000);
 
@@ -104,8 +123,24 @@ app.addHook('onRequest', async (request, reply) => {
     }
     return;
   }
-  // Skip auth for login endpoint
-  if (request.method === 'POST' && request.url === '/api/auth/login') return;
+  // M12: Login endpoint — apply stricter rate limit and skip further auth
+  if (request.method === 'POST' && request.url === '/api/auth/refresh') return;
+  // M12: Login endpoint — apply stricter rate limit and skip further auth
+  if (request.method === 'POST' && request.url === '/api/auth/login') {
+    const ip = request.ip;
+    const now = Date.now();
+    const state = loginRateLimitState.get(ip);
+    if (!state || state.resetAt <= now) {
+      loginRateLimitState.set(ip, { count: 1, resetAt: now + LOGIN_RATE_LIMIT_WINDOW_MS });
+    } else {
+      state.count++;
+      if (state.count > LOGIN_RATE_LIMIT_MAX) {
+        reply.header('Retry-After', Math.ceil((state.resetAt - now) / 1000));
+        return reply.tooManyRequests('Too many login attempts. Try again later.');
+      }
+    }
+    return; // Skip further auth for login
+  }
 
   // Try JWT first (for admin panel)
   const authHeader = request.headers['authorization'];
@@ -120,21 +155,16 @@ app.addHook('onRequest', async (request, reply) => {
         return reply.unauthorized('Token invalide ou expiré');
       }
     }
-    // Otherwise treat as API key — timing-safe comparison
-    if (API_KEY && token.length === API_KEY.length) {
-      const a = Buffer.from(token);
-      const b = Buffer.from(API_KEY);
+    // L7: Timing-safe comparison with padding to prevent key length leakage
+    if (API_KEY) {
       const { timingSafeEqual } = await import('node:crypto');
-      if (timingSafeEqual(a, b)) return;
+      const maxLen = Math.max(token.length, API_KEY.length);
+      const a = Buffer.alloc(maxLen);
+      const b = Buffer.alloc(maxLen);
+      Buffer.from(token).copy(a);
+      Buffer.from(API_KEY).copy(b);
+      if (timingSafeEqual(a, b) && token.length === API_KEY.length) return;
     }
-  }
-
-  if (!API_KEY) {
-    if (process.env['NODE_ENV'] === 'production') {
-      app.log.error('API_KEY environment variable is required in production');
-      return reply.unauthorized('Server misconfigured: authentication not set up');
-    }
-    return; // Allow unauthenticated in dev
   }
 
   return reply.unauthorized('Invalid or missing authentication');
@@ -170,12 +200,13 @@ await app.register(supplierCreditRoutes, { prefix: '/api/supplier-credits' });
 await app.register(bankMovementRoutes, { prefix: '/api/bank-movements' });
 await app.register(monthlySummaryRoutes, { prefix: '/api/monthly-summary' });
 await app.register(zakatRoutes, { prefix: '/api/zakat' });
-await app.register(syncRoutes, { prefix: '/api/sync' });
+await app.register(syncRoutes, { prefix: '/api/sync', bodyLimit: 5_242_880 }); // 5MB for sync
 await app.register(clientRoutes, { prefix: '/api/clients' });
 await app.register(employeeRoutes, { prefix: '/api/employees' });
 await app.register(authRoutes, { prefix: '/api/auth' });
 await app.register(userRoutes, { prefix: '/api/users' });
 await app.register(referenceDataRoutes, { prefix: '/api/reference' });
+await app.register(customerOrderRoutes, { prefix: '/api/customer-orders' });
 
 // Health check — verifies DB connectivity
 app.get('/api/health', async (_request, reply) => {
@@ -191,6 +222,7 @@ app.get('/api/health', async (_request, reply) => {
 let syncCleanup: ReturnType<typeof setInterval> | undefined;
 const shutdown = async () => {
   clearInterval(rateLimitCleanup);
+  clearInterval(loginRateLimitCleanup);
   if (syncCleanup) clearInterval(syncCleanup);
   await app.close();
   await prisma.$disconnect();

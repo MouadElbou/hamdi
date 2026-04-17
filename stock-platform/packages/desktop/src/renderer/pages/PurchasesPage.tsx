@@ -114,11 +114,11 @@ export function PurchasesPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDelete = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     if (!await confirm('Supprimer cet achat ?')) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.purchases.delete(id);
       load();
@@ -126,7 +126,7 @@ export function PurchasesPage(): React.JSX.Element {
       console.error('[Delete]', err);
       addToast((err as Error).message || 'Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 

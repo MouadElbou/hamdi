@@ -6,12 +6,12 @@ const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('admin-token');
+  const match = document.cookie.match(/(?:^|;\s*)admin_token=([^;]*)/);
+  return match?.[1] ? decodeURIComponent(match[1]) : null;
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem('admin-token', token);
-  // Also set a cookie so Next.js middleware can verify the token server-side.
+  // Store token in cookie only (no localStorage) — cookie is read by Next.js middleware server-side.
   // Only add Secure flag on HTTPS — on HTTP (localhost) the browser silently drops Secure cookies,
   // which would cause the middleware to never find the token and redirect-loop to /admin/login.
   const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
@@ -19,7 +19,6 @@ export function setToken(token: string): void {
 }
 
 export function clearToken(): void {
-  localStorage.removeItem('admin-token');
   const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `admin_token=; path=/; max-age=0; SameSite=Strict${secure}`;
 }

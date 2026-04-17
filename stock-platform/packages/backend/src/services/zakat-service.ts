@@ -6,6 +6,7 @@
 
 import type { PrismaClient } from '@prisma/client';
 import { computeZakat, type ZakatInputs } from '@stock/shared';
+import { v7 as uuidv7 } from 'uuid';
 import { StockService } from './stock-service.js';
 
 export class ZakatService {
@@ -49,7 +50,7 @@ export class ZakatService {
   async recordAdvance(snapshotId: string, amount: number, date: Date) {
     return this.prisma.zakatAdvance.create({
       data: {
-        id: (await import('uuid')).v7(),
+        id: uuidv7(),
         zakatSnapshotId: snapshotId,
         amount,
         date,

@@ -6,14 +6,16 @@
 
 import type Database from 'better-sqlite3';
 import { v7 as uuidv7 } from 'uuid';
+import { getSyncServerUrl, getSyncApiKey } from './runtime-config.js';
 
 const SYNC_INTERVAL_MS = 30_000; // 30 seconds
-const SERVER_URL = process.env['SYNC_SERVER_URL'] ?? 'http://localhost:3001';
-const SYNC_API_KEY = process.env['SYNC_API_KEY'] ?? 'dev-api-key'; // Must match backend API_KEY; change in production
 
-// Enforce HTTPS in production
-if (process.env['NODE_ENV'] === 'production' && SERVER_URL.startsWith('http://') && !SERVER_URL.includes('localhost')) {
-  console.warn('[SYNC] WARNING: Sync server URL is not HTTPS. Set SYNC_SERVER_URL to an https:// URL for production.');
+// SQL identifier whitelist regex — only allow alphanumeric and underscores
+const SAFE_IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
+function assertSafeIdentifier(name: string, context: string): void {
+  if (!SAFE_IDENTIFIER.test(name)) {
+    throw new Error(`[SYNC] Unsafe SQL identifier in ${context}: "${name}"`);
+  }
 }
 
 interface SyncStatus {
@@ -203,7 +205,6 @@ const ENTITY_COLUMNS: Record<string, ColDef[]> = {
   ],
   user: [
     { key: 'username', col: 'username' },
-    { key: 'passwordHash', col: 'password_hash' },
     { key: 'displayName', col: 'display_name' },
     { key: 'role', col: 'role' },
     { key: 'isActive', col: 'is_active', fallback: 1 },
@@ -245,6 +246,18 @@ const TABLE_MAP: Record<string, string> = {
   expense_designation: 'expense_designations',
   user: 'users',
 };
+
+// Validate all identifiers at module load — fail fast if any are unsafe
+for (const [entityType, tableName] of Object.entries(TABLE_MAP)) {
+  assertSafeIdentifier(entityType, 'TABLE_MAP key');
+  assertSafeIdentifier(tableName, 'TABLE_MAP value');
+}
+for (const [entityType, cols] of Object.entries(ENTITY_COLUMNS)) {
+  assertSafeIdentifier(entityType, 'ENTITY_COLUMNS key');
+  for (const c of cols) {
+    assertSafeIdentifier(c.col, `ENTITY_COLUMNS[${entityType}] col`);
+  }
+}
 
 // After database migration, all tables have `version` column
 const NO_VERSION_TABLES = new Set<string>();
@@ -302,6 +315,19 @@ export class SyncManager {
     if (this.retryTimer) {
       clearTimeout(this.retryTimer);
       this.retryTimer = null;
+    }
+  }
+
+  /** Wait for any in-flight sync to finish (up to timeoutMs). */
+  async stopGracefully(timeoutMs = 5000): Promise<void> {
+    this.stop();
+    if (!this.syncing) return;
+    const start = Date.now();
+    while (this.syncing && (Date.now() - start) < timeoutMs) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (this.syncing) {
+      console.warn('[SYNC] Graceful shutdown timed out — sync still in progress');
     }
   }
 
@@ -376,8 +402,9 @@ export class SyncManager {
     if (pending.length === 0) return;
 
     const desktopId = this.getDesktopId();
+    const apiKey = getSyncApiKey();
     const headers: Record<string, string> = { 'Content-Type': 'application/json', 'X-Desktop-ID': desktopId };
-    if (SYNC_API_KEY) headers['Authorization'] = `Bearer ${SYNC_API_KEY}`;
+    if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
     const operations = pending.map((op) => ({
       id: op['id'] as string,
       entityType: op['entity_type'] as string,
@@ -388,7 +415,7 @@ export class SyncManager {
       createdAt: op['created_at'] as string,
     }));
 
-    const response = await fetch(`${SERVER_URL}/api/sync/push`, {
+    const response = await fetch(`${getSyncServerUrl()}/api/sync/push`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ desktopId, operations }),
@@ -418,8 +445,9 @@ export class SyncManager {
   }
 
   private async pullUpdates(): Promise<void> {
+    const apiKey = getSyncApiKey();
     const pullHeaders: Record<string, string> = {};
-    if (SYNC_API_KEY) pullHeaders['Authorization'] = `Bearer ${SYNC_API_KEY}`;
+    if (apiKey) pullHeaders['Authorization'] = `Bearer ${apiKey}`;
 
     const desktopId = this.getDesktopId();
     const MAX_PULL_ROUNDS = 20; // Safety cap to prevent infinite loops
@@ -427,7 +455,7 @@ export class SyncManager {
     for (let round = 0; round < MAX_PULL_ROUNDS; round++) {
       const cursor = this.db.prepare("SELECT last_pull_at FROM sync_cursor WHERE id = 'main'").get() as { last_pull_at: string };
 
-      const response = await fetch(`${SERVER_URL}/api/sync/pull?since=${encodeURIComponent(cursor.last_pull_at)}&limit=500`, {
+      const response = await fetch(`${getSyncServerUrl()}/api/sync/pull?since=${encodeURIComponent(cursor.last_pull_at)}&limit=500`, {
         headers: pullHeaders,
         signal: AbortSignal.timeout(15_000),
       });
@@ -465,6 +493,10 @@ export class SyncManager {
   }
 
   private applyServerEntity(entityType: string, data: Record<string, unknown>): void {
+    if (!SAFE_IDENTIFIER.test(entityType)) {
+      console.warn(`[SYNC] Rejected unsafe entity type: ${entityType}`);
+      return;
+    }
     const table = TABLE_MAP[entityType];
     if (!table) {
       console.warn(`[SYNC] Unknown entity type: ${entityType}`);
@@ -593,6 +625,9 @@ export function addToOutbox(
   operation: 'CREATE' | 'UPDATE' | 'DELETE',
   payload: unknown,
 ): void {
+  if (!TABLE_MAP[entityType]) {
+    throw new Error(`[SYNC] addToOutbox: unknown entity type "${entityType}"`);
+  }
   const id = uuidv7();
   let version = 1;
   if (operation !== 'CREATE') {

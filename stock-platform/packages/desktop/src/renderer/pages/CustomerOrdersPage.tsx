@@ -81,7 +81,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
         window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
           const data = r as { items: StockItem[] };
           setStock(data.items || []);
-        }).catch(() => {});
+        }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
         return;
       }
       setLines(prev => {
@@ -113,16 +113,18 @@ export function CustomerOrdersPage(): React.JSX.Element {
 
   useBarcodeScanner(handleBarcodeScan);
 
+  const loadStock = () => {
+    window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
+      const data = r as { items: StockItem[] };
+      setStock(data.items || []);
+    }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
+  };
   const load = () => {
     window.api.customerOrders.list({ search: search || undefined, page, limit: PAGE_SIZE, status: filterStatus || undefined }).then((r: unknown) => {
       const data = r as { items: CustomerOrder[]; total: number };
       setOrders(data.items || []);
       setTotalOrders(data.total || 0);
     }).catch(() => addToast('Erreur lors du chargement des commandes', 'error'));
-    window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
-      const data = r as { items: StockItem[] };
-      setStock(data.items || []);
-    }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
   };
   useEffect(load, [search, page, filterStatus]);
   useEffect(() => () => clearTimeout(clientSearchTimer.current), []);
@@ -137,7 +139,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
     setModalSubCategory('');
   };
 
-  const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); };
+  const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); loadStock(); };
   const openEdit = (o: CustomerOrder) => {
     setDate(o.date);
     setObservation(o.observation || '');
@@ -149,6 +151,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
     })));
     setEditingId(o.id);
     setShowForm(true);
+    loadStock();
   };
   const closeForm = () => { setShowForm(false); setEditingId(null); resetForm(); };
 
@@ -173,6 +176,18 @@ export function CustomerOrdersPage(): React.JSX.Element {
     if (validLines.length === 0) {
       addToast('Au moins une ligne complète est requise', 'error');
       return;
+    }
+
+    // Validate quantities against available stock
+    for (const l of validLines) {
+      const lot = stock.find(s => s.lotId === l.lotId);
+      if (lot) {
+        const qty = parseInt(l.quantity);
+        if (qty > lot.remainingQuantity) {
+          addToast(`Quantité (${qty}) dépasse le stock disponible (${lot.remainingQuantity}) pour ${lot.designation}`, 'error');
+          return;
+        }
+      }
     }
 
     setSubmitting(true);
@@ -211,19 +226,19 @@ export function CustomerOrdersPage(): React.JSX.Element {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
   const handleDelete = async (id: string) => {
-    if (deleting) return;
+    if (deletingIds.has(id)) return;
     const ok = await confirm('Supprimer cette commande ? Cette action est irreversible.');
     if (!ok) return;
-    setDeleting(true);
+    setDeletingIds(prev => new Set(prev).add(id));
     try {
       await window.api.customerOrders.delete(id);
       load();
     } catch {
       addToast('Erreur lors de la suppression', 'error');
     } finally {
-      setDeleting(false);
+      setDeletingIds(prev => { const next = new Set(prev); next.delete(id); return next; });
     }
   };
 
@@ -348,7 +363,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
                       required
                       options={filteredStock.map(s => ({
                         value: s.lotId,
-                        label: `${s.designation} (${s.category}) — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
+                        label: `${s.designation} (${s.category})${s.barcode ? ` [${s.barcode}]` : ''} — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
                       }))}
                     />
                   </div>

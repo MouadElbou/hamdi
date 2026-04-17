@@ -1,0 +1,27 @@
+# Claude Code agent configs and memory
+.claude/
+.workflow/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+release/
+build/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const secret = process.env['JWT_SECRET'];
-if (!secret && process.env['NODE_ENV'] === 'production') {
-  throw new Error('FATAL: JWT_SECRET environment variable is required in production');
+if (!secret && process.env['NODE_ENV'] !== 'development') {
+  throw new Error('FATAL: JWT_SECRET environment variable is required in non-development environments');
 }
-const JWT_SECRET = new TextEncoder().encode(secret ?? 'dev-jwt-secret-change-in-production');
+const JWT_SECRET = new TextEncoder().encode(secret ?? 'dev-jwt-secret-' + Math.random().toString(36));
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
