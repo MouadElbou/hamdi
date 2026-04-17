@@ -16,6 +16,7 @@
   "build": {
     "appId": "com.stock-platform.desktop",
     "productName": "Stock Platform",
+    "electronVersion": "33.4.11",
     "directories": {
       "output": "release"
     },
