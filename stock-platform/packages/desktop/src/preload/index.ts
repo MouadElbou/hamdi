@@ -18,6 +18,7 @@ import type {
   PurchaseListParams,
   PurchaseCreateParams,
   PurchaseUpdateParams,
+  PurchaseImportExcelParams,
   StockListParams,
   StockLookupBarcodeParams,
   SaleCreateParams,
@@ -104,6 +105,7 @@ const api = {
     create: (data: PurchaseCreateParams) => ipcRenderer.invoke('purchases:create', data),
     update: (data: PurchaseUpdateParams) => ipcRenderer.invoke('purchases:update', data),
     delete: (id: string) => ipcRenderer.invoke('purchases:delete', id),
+    importExcel: (data: PurchaseImportExcelParams) => ipcRenderer.invoke('purchases:import-excel', data),
   },
 
   // Stock

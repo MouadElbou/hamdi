@@ -103,6 +103,15 @@ export interface PurchaseUpdateParams {
   barcode?: string;
 }
 
+export interface PurchaseImportExcelParams {
+  rows: PurchaseCreateParams[];
+}
+
+export interface PurchaseImportExcelResult {
+  created: number;
+  errors: Array<{ row: number; message: string }>;
+}
+
 // ─── Stock ──────────────────────────────────────────────────────────
 
 export interface StockListParams {

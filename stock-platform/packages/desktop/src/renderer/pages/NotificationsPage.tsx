@@ -83,7 +83,7 @@ export function NotificationsPage(): React.JSX.Element {
                     <tr key={a.id}>
                       <td className="col-bold">{a.designation}</td>
                       <td>{a.category}</td>
-                      <td className={`text-right col-mono col-bold ${a.remaining <= 2 ? 'text-danger' : 'text-warning'}`}>{a.remaining}</td>
+                      <td className="text-right col-mono col-bold text-danger">{a.remaining}</td>
                     </tr>
                   ))}
                 </tbody>

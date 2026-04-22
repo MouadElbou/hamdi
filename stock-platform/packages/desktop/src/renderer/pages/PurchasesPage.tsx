@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import * as XLSX from 'xlsx';
 import { Modal } from '../components/Modal.js';
 import { EditIcon, TrashIcon } from '../components/Icons.js';
 import { useConfirm } from '../components/ConfirmDialog.js';
@@ -8,6 +9,79 @@ import { SearchableSelect } from '../components/SearchableSelect.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
 import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
+
+interface ExcelRow {
+  date: string;
+  category: string;
+  designation: string;
+  supplier?: string;
+  boutique: string;
+  initialQuantity: number;
+  purchaseUnitCost: number;
+  targetResalePrice: number | null;
+  blockPrice: number | null;
+  sellingPrice: number | null;
+  subCategory: string | null;
+  barcode?: string;
+}
+
+interface ParsedRow {
+  index: number;
+  data: ExcelRow | null;
+  error: string | null;
+  raw: Record<string, unknown>;
+}
+
+function pick(obj: Record<string, unknown>, keys: string[]): unknown {
+  for (const k of keys) {
+    for (const actual of Object.keys(obj)) {
+      if (actual.toLowerCase().trim() === k.toLowerCase().trim()) {
+        const v = obj[actual];
+        if (v !== undefined && v !== null && String(v).trim() !== '') return v;
+      }
+    }
+  }
+  return undefined;
+}
+
+function toISODate(v: unknown): string | null {
+  if (!v) return null;
+  if (v instanceof Date) {
+    const y = v.getFullYear();
+    const m = String(v.getMonth() + 1).padStart(2, '0');
+    const d = String(v.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  const match = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/);
+  if (match) {
+    const d = match[1].padStart(2, '0');
+    const mo = match[2].padStart(2, '0');
+    let y = match[3];
+    if (y.length === 2) y = `20${y}`;
+    return `${y}-${mo}-${d}`;
+  }
+  const parsed = new Date(s);
+  if (!isNaN(parsed.getTime())) {
+    return toISODate(parsed);
+  }
+  return null;
+}
+
+function toNumber(v: unknown): number | null {
+  if (v === undefined || v === null || v === '') return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  const cleaned = String(v).replace(/\s/g, '').replace(',', '.');
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+function toCents(v: unknown): number | null {
+  const n = toNumber(v);
+  if (n === null) return null;
+  return Math.round(n * 100);
+}
 
 export function PurchasesPage(): React.JSX.Element {
   const { categories, suppliers, boutiques, subCategories, addCategory, addSupplier, addBoutique, addSubCategory } = useReferenceData();
@@ -23,6 +97,10 @@ export function PurchasesPage(): React.JSX.Element {
   const [confirm, confirmDialog] = useConfirm();
   const { addToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showImport, setShowImport] = useState(false);
+  const [importPreview, setImportPreview] = useState<ParsedRow[]>([]);
+  const [importing, setImporting] = useState(false);
   const [form, setForm] = useState({
     date: todayLocal(), category: '', subCategory: '', designation: '',
     supplier: '', boutique: '', initialQuantity: '', purchaseUnitCost: '', targetResalePrice: '', sellingPrice: '', barcode: '',
@@ -97,7 +175,7 @@ export function PurchasesPage(): React.JSX.Element {
       purchaseUnitCost: unitCostCents,
       targetResalePrice: form.targetResalePrice ? parseCents(form.targetResalePrice, 'Prix revente') : null,
       blockPrice: null,
-      sellingPrice: form.sellingPrice ? parseCents(form.sellingPrice, 'Prix de vente') : null,
+      sellingPrice: form.sellingPrice ? parseCents(form.sellingPrice, 'Prix de vente public') : null,
       barcode: form.barcode || undefined,
     };
     if (editingId) {
@@ -112,6 +190,137 @@ export function PurchasesPage(): React.JSX.Element {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleImportClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const parseExcelRow = (raw: Record<string, unknown>, idx: number): ParsedRow => {
+    const dateVal = pick(raw, ['date', 'Date']);
+    const category = pick(raw, ['category', 'categorie', 'catégorie', 'Catégorie', 'Categorie']);
+    const designation = pick(raw, ['designation', 'désignation', 'Désignation', 'Designation', 'produit', 'Produit', 'nom', 'Nom']);
+    const supplier = pick(raw, ['supplier', 'fournisseur', 'Fournisseur']);
+    const boutique = pick(raw, ['boutique', 'Boutique', 'magasin', 'Magasin']);
+    const qty = pick(raw, ['quantity', 'quantité', 'quantite', 'Quantité', 'Quantite', 'qte', 'Qte', 'qty']);
+    const puc = pick(raw, ['purchaseUnitCost', 'prix achat', 'Prix achat', 'prix d\'achat', 'Prix d\'achat', 'pa', 'PA', 'cout', 'coût', 'Coût', 'prix achat unitaire', 'Prix achat unitaire']);
+    const resale = pick(raw, ['targetResalePrice', 'prix revendeur', 'Prix revendeur', 'prix de vente revendeur', 'Prix de vente revendeur', 'pv revendeur', 'PV Revendeur', 'prix bloc', 'Prix bloc']);
+    const selling = pick(raw, ['sellingPrice', 'prix vente', 'Prix vente', 'prix de vente public', 'Prix de vente public', 'prix vente public', 'Prix vente public', 'pvp', 'PVP', 'pv', 'PV']);
+    const subCat = pick(raw, ['subCategory', 'sous-categorie', 'sous-catégorie', 'Sous-catégorie', 'Sous-categorie', 'sous categorie', 'Sous categorie']);
+    const barcode = pick(raw, ['barcode', 'code-barres', 'Code-barres', 'code barres', 'Code barres', 'codebarre', 'Codebarre', 'cb', 'CB', 'ean', 'EAN']);
+
+    const date = toISODate(dateVal);
+    if (!date) return { index: idx, data: null, error: 'Date invalide ou manquante', raw };
+
+    const cat = category ? String(category).trim() : '';
+    if (!cat) return { index: idx, data: null, error: 'Catégorie manquante', raw };
+
+    const desig = designation ? String(designation).trim() : '';
+    if (!desig) return { index: idx, data: null, error: 'Désignation manquante', raw };
+
+    const bout = boutique ? String(boutique).trim() : '';
+    if (!bout) return { index: idx, data: null, error: 'Boutique manquante', raw };
+
+    const qtyNum = toNumber(qty);
+    if (qtyNum === null || qtyNum <= 0 || !Number.isInteger(qtyNum)) {
+      return { index: idx, data: null, error: 'Quantité invalide (entier positif requis)', raw };
+    }
+
+    const pucCents = toCents(puc);
+    if (pucCents === null || pucCents < 0) {
+      return { index: idx, data: null, error: 'Prix d\'achat invalide', raw };
+    }
+
+    const data: ExcelRow = {
+      date,
+      category: cat,
+      designation: desig,
+      supplier: supplier ? String(supplier).trim() : undefined,
+      boutique: bout,
+      initialQuantity: qtyNum,
+      purchaseUnitCost: pucCents,
+      targetResalePrice: toCents(resale),
+      blockPrice: null,
+      sellingPrice: toCents(selling),
+      subCategory: subCat ? String(subCat).trim() : null,
+      barcode: barcode ? String(barcode).trim() : undefined,
+    };
+    return { index: idx, data, error: null, raw };
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) {
+        addToast('Fichier Excel vide', 'error');
+        return;
+      }
+      const sheet = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '', raw: false });
+      if (rows.length === 0) {
+        addToast('Aucune ligne trouvée dans le fichier', 'error');
+        return;
+      }
+      const parsed = rows.map((r, i) => parseExcelRow(r, i + 2));
+      setImportPreview(parsed);
+      setShowImport(true);
+    } catch (err) {
+      console.error('[Excel parse]', err);
+      addToast('Erreur lors de la lecture du fichier: ' + ((err as Error).message || 'inconnue'), 'error');
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (importing) return;
+    const validRows = importPreview.filter(p => p.data !== null).map(p => p.data!);
+    if (validRows.length === 0) {
+      addToast('Aucune ligne valide à importer', 'error');
+      return;
+    }
+    setImporting(true);
+    try {
+      const result = await window.api.purchases.importExcel({
+        rows: validRows.map(r => ({
+          date: r.date,
+          category: r.category,
+          designation: r.designation,
+          supplier: r.supplier,
+          boutique: r.boutique,
+          initialQuantity: r.initialQuantity,
+          purchaseUnitCost: r.purchaseUnitCost,
+          targetResalePrice: r.targetResalePrice,
+          blockPrice: null,
+          sellingPrice: r.sellingPrice,
+          subCategory: r.subCategory,
+          barcode: r.barcode,
+        })),
+      }) as { created: number; errors: Array<{ row: number; message: string }> };
+      if (result.errors.length > 0) {
+        addToast(`${result.created} créé(s), ${result.errors.length} erreur(s)`, 'warning');
+      } else {
+        addToast(`${result.created} achat(s) importé(s) avec succès`, 'success');
+      }
+      setShowImport(false);
+      setImportPreview([]);
+      load();
+    } catch (err) {
+      addToast((err as Error).message || 'Erreur lors de l\'import', 'error');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleCloseImport = () => {
+    if (importing) return;
+    setShowImport(false);
+    setImportPreview([]);
   };
 
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
@@ -135,7 +344,7 @@ export function PurchasesPage(): React.JSX.Element {
       {confirmDialog}
       <div className="page-header">
         <h2>Achats</h2>
-        <span className="subtitle">Lots d'achat enregistres</span>
+        <span className="subtitle">Achats enregistres</span>
         <div className="header-accent" />
       </div>
 
@@ -154,8 +363,18 @@ export function PurchasesPage(): React.JSX.Element {
             {filterSubCategoryOptions.map(sc => <option key={sc.id} value={sc.name}>{sc.name}</option>)}
           </select>
         )}
-        <span className="badge">{totalItems} lots</span>
+        <span className="badge">{totalItems} articles</span>
         <div className="toolbar-spacer" />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx,.xls"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+        <button className="btn btn-secondary" onClick={handleImportClick}>
+          Importer Excel
+        </button>
         <button className="btn btn-primary" onClick={openCreate}>
           + Nouvel achat
         </button>
@@ -246,12 +465,12 @@ export function PurchasesPage(): React.JSX.Element {
             )}
             {isAdmin && (
               <div className="form-group">
-                <label>Prix de vente en bloc</label>
+                <label>Prix de vente revendeur</label>
                 <input type="number" step="0.01" min="0" value={form.targetResalePrice} onChange={e => setForm({ ...form, targetResalePrice: e.target.value })} />
               </div>
             )}
             <div className="form-group">
-              <label>Prix de vente</label>
+              <label>Prix de vente public</label>
               <input type="number" step="0.01" min="0" value={form.sellingPrice} onChange={e => setForm({ ...form, sellingPrice: e.target.value })} placeholder="Optionnel" />
             </div>
           </div>
@@ -260,6 +479,80 @@ export function PurchasesPage(): React.JSX.Element {
             <button type="submit" className="btn btn-primary" disabled={submitting}>{submitting ? 'En cours...' : editingId ? 'Modifier' : 'Enregistrer'}</button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={showImport} onClose={handleCloseImport} title="Importer depuis Excel" width="960px">
+        <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
+          {importPreview.length === 0 ? (
+            <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
+          ) : (
+            <>
+              <div style={{ marginBottom: 12, display: 'flex', gap: 16, fontSize: 13 }}>
+                <span><strong>Total:</strong> {importPreview.length}</span>
+                <span style={{ color: '#0a7f2e' }}>
+                  <strong>Valides:</strong> {importPreview.filter(p => p.data !== null).length}
+                </span>
+                <span style={{ color: '#c02626' }}>
+                  <strong>Erreurs:</strong> {importPreview.filter(p => p.error !== null).length}
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: '#555', marginBottom: 8 }}>
+                Colonnes attendues: Date, Catégorie, Désignation, Fournisseur, Boutique, Quantité, Prix achat, Prix revendeur, Prix vente, Code-barres, Sous-catégorie (noms flexibles).
+              </div>
+              <table className="data-table" style={{ fontSize: 12 }}>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Date</th>
+                    <th>Catégorie</th>
+                    <th>Désignation</th>
+                    <th>Fournisseur</th>
+                    <th>Boutique</th>
+                    <th className="text-right">Qté</th>
+                    <th className="text-right">PA</th>
+                    <th className="text-right">PV Rev.</th>
+                    <th className="text-right">PV Pub.</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {importPreview.map(row => (
+                    <tr key={row.index} style={row.error ? { background: '#fdecec' } : {}}>
+                      <td className="col-mono">{row.index}</td>
+                      <td>{row.data?.date || '—'}</td>
+                      <td>{row.data?.category || '—'}</td>
+                      <td>{row.data?.designation || '—'}</td>
+                      <td>{row.data?.supplier || '—'}</td>
+                      <td>{row.data?.boutique || '—'}</td>
+                      <td className="text-right col-mono">{row.data?.initialQuantity ?? '—'}</td>
+                      <td className="text-right col-mono">{row.data ? fm(row.data.purchaseUnitCost) : '—'}</td>
+                      <td className="text-right col-mono">{row.data?.targetResalePrice ? fm(row.data.targetResalePrice) : '—'}</td>
+                      <td className="text-right col-mono">{row.data?.sellingPrice ? fm(row.data.sellingPrice) : '—'}</td>
+                      <td>
+                        {row.error ? (
+                          <span style={{ color: '#c02626' }}>{row.error}</span>
+                        ) : (
+                          <span style={{ color: '#0a7f2e' }}>OK</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+        <div className="form-actions">
+          <button type="button" className="btn btn-cancel" onClick={handleCloseImport} disabled={importing}>Annuler</button>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleConfirmImport}
+            disabled={importing || importPreview.filter(p => p.data !== null).length === 0}
+          >
+            {importing ? 'Import en cours…' : `Importer ${importPreview.filter(p => p.data !== null).length} ligne(s)`}
+          </button>
+        </div>
       </Modal>
 
       <div className="card-table">
@@ -288,7 +581,7 @@ export function PurchasesPage(): React.JSX.Element {
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
                       </div>
                       <div className="empty-title">Aucun achat</div>
-                      <div className="empty-desc">Les lots d'achat enregistres apparaitront ici.</div>
+                      <div className="empty-desc">Les achats enregistres apparaitront ici.</div>
                     </div>
                   </td>
                 </tr>

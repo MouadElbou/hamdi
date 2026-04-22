@@ -53,7 +53,7 @@ export function StockPage(): React.JSX.Element {
     <div>
       <div className="page-header">
         <h2>Stock</h2>
-        <span className="subtitle">Inventaire par lot d'achat</span>
+        <span className="subtitle">Inventaire des articles en stock</span>
         <div className="header-accent" />
       </div>
 
@@ -78,7 +78,7 @@ export function StockPage(): React.JSX.Element {
           En stock uniquement
         </label>
         <div className="toolbar-spacer" />
-        <span className="badge">{total} lots</span>
+        <span className="badge">{total} articles</span>
       </div>
 
       <div className="card-table">
@@ -86,32 +86,27 @@ export function StockPage(): React.JSX.Element {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Catégorie</th>
                 <th>Désignation</th>
-                <th>Fournisseur</th>
-                <th>Boutique</th>
-                <th className="text-right">Init</th>
-                <th className="text-right">Vendu</th>
+                <th>Catégorie</th>
                 <th className="text-right">Reste</th>
                 <th className="text-right">PA</th>
-                <th className="text-right">PV Rév</th>
+                <th className="text-right">PV Revendeur</th>
                 <th className="text-right">Valeur</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={11}>
+                  <td colSpan={6}>
                     <div className="empty-state">
                       <div className="empty-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l10-5 10 5-10 5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
                       </div>
-                      <div className="empty-title">Aucun lot en stock</div>
+                      <div className="empty-title">Aucun article en stock</div>
                       <div className="empty-desc">
                         {search
                           ? `Aucun résultat pour « ${search} »`
-                          : 'Les lots apparaîtront ici après enregistrement d\'achats.'}
+                          : 'Les articles apparaîtront ici après enregistrement d\'achats.'}
                       </div>
                     </div>
                   </td>
@@ -119,13 +114,8 @@ export function StockPage(): React.JSX.Element {
               )}
               {items.map((item) => (
                 <tr key={item.lotId}>
-                  <td className="col-mono">{item.date}</td>
-                  <td>{item.category}</td>
                   <td className="col-bold">{item.designation}</td>
-                  <td>{item.supplier}</td>
-                  <td>{item.boutique}</td>
-                  <td className="text-right col-mono">{item.initialQuantity}</td>
-                  <td className="text-right col-mono">{item.soldQuantity}</td>
+                  <td>{item.category}</td>
                   <td className="text-right col-mono" style={{ fontWeight: 600 }}>
                     <span className={item.remainingQuantity === 0 ? 'text-danger' : 'text-success'}>
                       {item.remainingQuantity}
@@ -137,6 +127,21 @@ export function StockPage(): React.JSX.Element {
                 </tr>
               ))}
             </tbody>
+            {items.length > 0 && (
+              <tfoot>
+                <tr style={{ fontWeight: 700, borderTop: '2px solid var(--border)' }}>
+                  <td colSpan={2} className="text-right">Total</td>
+                  <td className="text-right col-mono">
+                    {items.reduce((s, i) => s + i.remainingQuantity, 0)}
+                  </td>
+                  <td className="text-right col-mono">—</td>
+                  <td className="text-right col-mono">—</td>
+                  <td className="text-right col-mono">
+                    {formatMoney(items.reduce((s, i) => s + i.currentStockValue, 0))}
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
           <Pagination total={total} page={page} onPageChange={setPage} />
         </div>

@@ -133,7 +133,7 @@ export function Dashboard({ onNavigate }: { onNavigate?: (page: string) => void 
             </div>
             {lowStockItems.length > 0 ? (
               <table className="data-table">
-                <thead><tr><th>Lot</th><th>Categorie</th><th className="text-right">Restant</th></tr></thead>
+                <thead><tr><th>Article</th><th>Categorie</th><th className="text-right">Restant</th></tr></thead>
                 <tbody>
                   {lowStockItems.map(a => (
                     <tr key={a.id}>

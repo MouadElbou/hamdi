@@ -20,6 +20,7 @@ import { ThemeToggle } from './components/ThemeToggle.js';
 import { ToastProvider, useToast } from './components/Toast.js';
 import { ReferenceDataProvider } from './components/ReferenceDataContext.js';
 import { AuthProvider, useAuth } from './components/AuthContext.js';
+import { ChangePasswordModal } from './components/ChangePasswordModal.js';
 import './styles.css';
 
 type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'settings';
@@ -175,6 +176,7 @@ const PAGE_MAP: Record<Page, React.ComponentType> = {
 
 function AppInner(): React.JSX.Element {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const { addToast } = useToast();
   const { user, isAdmin, hasPermission, logout } = useAuth();
 
@@ -184,7 +186,7 @@ function AppInner(): React.JSX.Element {
         if (alerts.length <= 3) {
           alerts.forEach(a => addToast(`Stock faible: ${a.designation} — ${a.remaining} restant(s)`, 'warning'));
         } else {
-          addToast(`${alerts.length} lots avec stock faible (≤ 5 unités)`, 'warning');
+          addToast(`${alerts.length} articles avec stock faible (≤ 1 unité)`, 'warning');
         }
       }
     }).catch((err: unknown) => {
@@ -279,6 +281,16 @@ function AppInner(): React.JSX.Element {
               <div className="sidebar-user-name">{user.displayName}</div>
               <div className="sidebar-user-role">{isAdmin ? 'Administrateur' : 'Employé'}</div>
             </div>
+            <button
+              className="sidebar-logout-btn"
+              onClick={() => setChangePasswordOpen(true)}
+              title="Changer le mot de passe"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </button>
             <button className="sidebar-logout-btn" onClick={logout} title="Déconnexion">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
@@ -287,6 +299,7 @@ function AppInner(): React.JSX.Element {
           </div>
         )}
       </nav>
+      <ChangePasswordModal open={changePasswordOpen} onClose={() => setChangePasswordOpen(false)} />
 
       <main className="main-content">
         <button
@@ -300,7 +313,9 @@ function AppInner(): React.JSX.Element {
         </button>
         <div className="page-enter" key={currentPage}>
           <PageErrorBoundary>
-            {currentPage === 'dashboard' ? <Dashboard onNavigate={(p: string) => setCurrentPage(p as Page)} /> : <PageComponent />}
+            {currentPage === 'dashboard' ? <Dashboard onNavigate={(p: string) => setCurrentPage(p as Page)} />
+              : currentPage === 'sales' ? <SalesPage onNavigate={(p: string) => setCurrentPage(p as Page)} />
+              : <PageComponent />}
           </PageErrorBoundary>
         </div>
       </main>

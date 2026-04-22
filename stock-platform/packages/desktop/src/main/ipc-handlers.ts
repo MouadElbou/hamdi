@@ -605,8 +605,8 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     validatePositive(data.initialQuantity, 'Quantité');
     if (data.purchaseUnitCost > 0) validatePositive(data.purchaseUnitCost, 'Coût unitaire');
     if (data.targetResalePrice != null) validatePositive(data.targetResalePrice, 'Prix de revente');
-    if (data.blockPrice != null) validatePositive(data.blockPrice, 'Prix bloc');
-    if (data.sellingPrice != null) validatePositive(data.sellingPrice, 'Prix de vente');
+    if (data.blockPrice != null) validatePositive(data.blockPrice, 'Prix revendeur');
+    if (data.sellingPrice != null) validatePositive(data.sellingPrice, 'Prix de vente public');
     const id = uuidv7();
     const refNumber = `PUR-${Date.now()}`;
     const now = new Date().toISOString();
@@ -681,6 +681,121 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     transaction();
 
     return { id, refNumber };
+  });
+
+  safeHandle('purchases:import-excel', (_event, data: {
+    rows: Array<{
+      date: string; category: string; designation: string; supplier?: string;
+      boutique: string; initialQuantity: number; purchaseUnitCost: number;
+      targetResalePrice: number | null; blockPrice: number | null;
+      sellingPrice: number | null; subCategory: string | null;
+      barcode?: string;
+    }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.category, 'Catégorie');
+          validateString(row.designation, 'Désignation');
+          if (row.supplier) validateString(row.supplier, 'Fournisseur');
+          validateString(row.boutique, 'Boutique');
+          validatePositive(row.initialQuantity, 'Quantité');
+          if (row.purchaseUnitCost > 0) validatePositive(row.purchaseUnitCost, 'Coût unitaire');
+          if (row.targetResalePrice != null) validatePositive(row.targetResalePrice, 'Prix de revente');
+          if (row.blockPrice != null) validatePositive(row.blockPrice, 'Prix revendeur');
+          if (row.sellingPrice != null) validatePositive(row.sellingPrice, 'Prix de vente public');
+
+          const id = uuidv7();
+          const refNumber = `PUR-${Date.now()}-${idx}`;
+          const now = new Date().toISOString();
+
+          let category = db.prepare('SELECT id FROM categories WHERE name = ? AND deleted_at IS NULL').get(row.category) as { id: string } | undefined;
+          let supplier = row.supplier ? db.prepare('SELECT id FROM suppliers WHERE code = ? AND deleted_at IS NULL').get(row.supplier) as { id: string } | undefined : undefined;
+          let boutique = db.prepare('SELECT id FROM boutiques WHERE name = ? AND deleted_at IS NULL').get(row.boutique) as { id: string } | undefined;
+
+          if (!category) {
+            const catId = uuidv7();
+            db.prepare('INSERT INTO categories (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(catId, row.category.trim(), now, now);
+            addToOutbox(db, 'category', catId, 'CREATE', { id: catId, name: row.category.trim() });
+            category = { id: catId };
+          }
+          if (row.supplier && row.supplier.trim()) {
+            if (!supplier) {
+              const supId = uuidv7();
+              db.prepare('INSERT INTO suppliers (id, code, created_at, updated_at) VALUES (?, ?, ?, ?)').run(supId, row.supplier.trim(), now, now);
+              addToOutbox(db, 'supplier', supId, 'CREATE', { id: supId, code: row.supplier.trim() });
+              supplier = { id: supId };
+            }
+          } else {
+            supplier = db.prepare("SELECT id FROM suppliers WHERE code = '—' AND deleted_at IS NULL").get() as { id: string } | undefined;
+            if (!supplier) {
+              const supId = uuidv7();
+              db.prepare("INSERT INTO suppliers (id, code, created_at, updated_at) VALUES (?, '—', ?, ?)").run(supId, now, now);
+              addToOutbox(db, 'supplier', supId, 'CREATE', { id: supId, code: '—' });
+              supplier = { id: supId };
+            }
+          }
+          if (!boutique) {
+            const boutId = uuidv7();
+            db.prepare('INSERT INTO boutiques (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(boutId, row.boutique.trim(), now, now);
+            addToOutbox(db, 'boutique', boutId, 'CREATE', { id: boutId, name: row.boutique.trim() });
+            boutique = { id: boutId };
+          }
+
+          let subCategoryId: string | null = null;
+          if (row.subCategory && row.subCategory.trim()) {
+            const trimmedSub = row.subCategory.trim();
+            const subCat = db.prepare('SELECT id FROM sub_categories WHERE name = ? AND category_id = ? AND deleted_at IS NULL').get(trimmedSub, category.id) as { id: string } | undefined;
+            if (!subCat) {
+              subCategoryId = uuidv7();
+              db.prepare('INSERT INTO sub_categories (id, name, category_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)').run(subCategoryId, trimmedSub, category.id, now, now);
+              addToOutbox(db, 'sub_category', subCategoryId, 'CREATE', { id: subCategoryId, name: trimmedSub, categoryId: category.id });
+            } else {
+              subCategoryId = subCat.id;
+            }
+          }
+
+          db.prepare(`
+            INSERT INTO purchase_lots (id, ref_number, date, designation, initial_quantity, purchase_unit_cost, target_resale_price, block_price, selling_price, category_id, supplier_id, boutique_id, sub_category_id, barcode, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `).run(id, refNumber, row.date, row.designation.trim(), row.initialQuantity, row.purchaseUnitCost, row.targetResalePrice, row.blockPrice ?? null, row.sellingPrice ?? null, category.id, supplier.id, boutique.id, subCategoryId, row.barcode?.trim() || null, now, now);
+
+          addToOutbox(db, 'purchase_lot', id, 'CREATE', {
+            id, refNumber, date: row.date, designation: row.designation.trim(),
+            initialQuantity: row.initialQuantity, purchaseUnitCost: row.purchaseUnitCost,
+            targetResalePrice: row.targetResalePrice, blockPrice: row.blockPrice ?? null,
+            sellingPrice: row.sellingPrice ?? null,
+            categoryId: category.id, supplierId: supplier.id, boutiqueId: boutique.id,
+            subCategoryId,
+            barcode: row.barcode?.trim() || null,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
   });
 
   // ─── Stock ───────────────────────────────────────────────────────
@@ -797,7 +912,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (data.lines.length > 200) throw new Error('Maximum 200 lignes par vente');
     for (const line of data.lines) {
       validatePositive(line.quantity, 'Quantité');
-      validatePositive(line.sellingUnitPrice, 'Prix de vente');
+      validatePositive(line.sellingUnitPrice, 'Prix de vente public');
     }
     if (data.paymentType === 'credit' && (!data.clientName || !data.clientName.trim())) {
       throw new Error('Le nom du client est requis pour une vente à crédit');
@@ -1149,7 +1264,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (data.lines.length > 200) throw new Error('Maximum 200 lignes par vente');
     for (const line of data.lines) {
       validatePositive(line.quantity, 'Quantité');
-      validatePositive(line.sellingUnitPrice, 'Prix de vente');
+      validatePositive(line.sellingUnitPrice, 'Prix de vente public');
     }
     const now = new Date().toISOString();
     const transaction = db.transaction(() => {
@@ -1252,7 +1367,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (data.lines.length > 200) throw new Error('Maximum 200 lignes par retour');
     for (const line of data.lines) {
       validatePositive(line.quantity, 'Quantité');
-      validatePositive(line.sellingUnitPrice, 'Prix de vente');
+      validatePositive(line.sellingUnitPrice, 'Prix de vente public');
     }
 
     const returnId = uuidv7();
@@ -1340,9 +1455,11 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
     const orders = db.prepare(`
       SELECT so.id, so.ref_number, so.date, so.observation, so.client_id,
-        cl.name as client_name
+        cl.name as client_name,
+        cc.id as credit_id, cc.advance_paid, cc.due_date, cc.amount as credit_amount
       FROM sale_orders so
       LEFT JOIN clients cl ON so.client_id = cl.id
+      LEFT JOIN customer_credits cc ON cc.sale_order_id = so.id AND cc.deleted_at IS NULL
       WHERE ${whereClauses} ORDER BY so.date DESC LIMIT ? OFFSET ?
     `).all(...bindings, limit, offset) as Array<Record<string, unknown>>;
 
@@ -1352,7 +1469,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (orderIds.length > 0) {
       const allLines = db.prepare(`
         SELECT sl.id, sl.quantity, sl.selling_unit_price, sl.lot_id, sl.sale_order_id,
-          pl.designation, pl.purchase_unit_cost, pl.selling_price, COALESCE(c.name, '[Supprimé]') as category, COALESCE(b.name, '[Supprimé]') as boutique
+          pl.designation, pl.barcode, pl.purchase_unit_cost, pl.selling_price, COALESCE(c.name, '[Supprimé]') as category, COALESCE(b.name, '[Supprimé]') as boutique
         FROM sale_lines sl
         JOIN purchase_lots pl ON sl.lot_id = pl.id
         LEFT JOIN categories c ON pl.category_id = c.id
@@ -1408,7 +1525,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (data.lines.length > 200) throw new Error('Maximum 200 lignes par commande');
     for (const line of data.lines) {
       validatePositive(line.quantity, 'Quantité');
-      validatePositive(line.sellingUnitPrice, 'Prix de vente');
+      validatePositive(line.sellingUnitPrice, 'Prix de vente public');
     }
     const orderId = uuidv7();
     const refNumber = `CMD-${Date.now()}`;
@@ -1462,7 +1579,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     if (data.lines.length > 200) throw new Error('Maximum 200 lignes par commande');
     for (const line of data.lines) {
       validatePositive(line.quantity, 'Quantité');
-      validatePositive(line.sellingUnitPrice, 'Prix de vente');
+      validatePositive(line.sellingUnitPrice, 'Prix de vente public');
     }
     if (data.status && !['pending', 'confirmed', 'delivered', 'cancelled'].includes(data.status)) {
       throw new Error('Statut invalide');
@@ -1861,7 +1978,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     // Stock value — single aggregation query (no row-level load)
     const stockResult = db.prepare(`
       SELECT COALESCE(SUM((pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) * pl.purchase_unit_cost), 0) as stockValue,
-        SUM(CASE WHEN (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) > 0 AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 5 THEN 1 ELSE 0 END) as lowStockAlerts
+        SUM(CASE WHEN (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) > 0 AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 1 THEN 1 ELSE 0 END) as lowStockAlerts
       FROM purchase_lots pl
       LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_lines WHERE deleted_at IS NULL GROUP BY lot_id) sold ON sold.lot_id = pl.id
       LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_return_lines WHERE deleted_at IS NULL GROUP BY lot_id) ret ON ret.lot_id = pl.id
@@ -2088,7 +2205,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       LEFT JOIN (SELECT lot_id, SUM(quantity) as qty FROM sale_return_lines WHERE deleted_at IS NULL GROUP BY lot_id) ret ON ret.lot_id = pl.id
       WHERE pl.deleted_at IS NULL
         AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) > 0
-        AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 5
+        AND (pl.initial_quantity - COALESCE(sold.qty, 0) + COALESCE(ret.qty, 0)) <= 1
       ORDER BY remaining ASC
     `).all();
   });
@@ -2242,8 +2359,8 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     validatePositive(data.initialQuantity, 'Quantité');
     if (data.purchaseUnitCost > 0) validatePositive(data.purchaseUnitCost, 'Coût unitaire');
     if (data.targetResalePrice != null) validatePositive(data.targetResalePrice, 'Prix de revente');
-    if (data.blockPrice != null) validatePositive(data.blockPrice, 'Prix bloc');
-    if (data.sellingPrice != null) validatePositive(data.sellingPrice, 'Prix de vente');
+    if (data.blockPrice != null) validatePositive(data.blockPrice, 'Prix revendeur');
+    if (data.sellingPrice != null) validatePositive(data.sellingPrice, 'Prix de vente public');
     const now = new Date().toISOString();
     return db.transaction(() => {
       let category = db.prepare('SELECT id FROM categories WHERE name = ? AND deleted_at IS NULL').get(data.category) as { id: string } | undefined;

@@ -19,13 +19,14 @@ interface SaleOrder {
   id: string; ref_number: string; date: string; observation: string | null;
   client_name: string | null;
   totalAmount: number; totalMargin: number; totalReturned?: number;
-  lines: Array<{ id: string; lot_id: string; designation: string; category: string; quantity: number; selling_unit_price: number; purchase_unit_cost: number; selling_price?: number | null; returned_quantity?: number }>;
+  credit_id?: string | null; advance_paid?: number | null; due_date?: string | null; credit_amount?: number | null;
+  lines: Array<{ id: string; lot_id: string; designation: string; category: string; barcode?: string | null; quantity: number; selling_unit_price: number; purchase_unit_cost: number; selling_price?: number | null; returned_quantity?: number }>;
 }
 interface ReturnLine { saleLineId: string; lotId: string; designation: string; category: string; originalQty: number; alreadyReturned: number; returnQty: string; sellingUnitPrice: number; }
 
 const fm = (c: number) => (c / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
 
-export function SalesPage(): React.JSX.Element {
+export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } = {}): React.JSX.Element {
   const { categories, subCategories } = useReferenceData();
   const [orders, setOrders] = useState<SaleOrder[]>([]);
   const [totalOrders, setTotalOrders] = useState(0);
@@ -255,7 +256,7 @@ export function SalesPage(): React.JSX.Element {
       lines: validLines.map(l => ({
         lotId: l.lotId,
         quantity: parsePositiveInt(l.quantity, 'Quantité'),
-        sellingUnitPrice: parseCents(l.sellingUnitPrice, 'Prix de vente'),
+        sellingUnitPrice: parseCents(l.sellingUnitPrice, 'Prix de vente public'),
       })),
     };
 
@@ -351,7 +352,7 @@ export function SalesPage(): React.JSX.Element {
       {confirmDialog}
       <div className="page-header">
         <h2>Ventes</h2>
-        <span className="subtitle">Enregistrer et consulter les ventes liees aux lots</span>
+        <span className="subtitle">Enregistrer et consulter les ventes</span>
         <div className="header-accent" />
       </div>
 
@@ -477,7 +478,7 @@ export function SalesPage(): React.JSX.Element {
               <div key={i} className={`sale-line ${i > 0 ? 'sale-line-border' : ''}`}>
                 <div className="form-row" style={{ marginBottom: 4 }}>
                   <div className="form-group" style={{ flex: 3 }}>
-                    <label>Lot</label>
+                    <label>Article</label>
                     <SearchableSelect
                       value={line.lotId}
                       onChange={val => {
@@ -491,7 +492,7 @@ export function SalesPage(): React.JSX.Element {
                         }
                         setLines(updated);
                       }}
-                      placeholder="Rechercher un lot..."
+                      placeholder="Rechercher un article..."
                       required
                       options={filteredStock.map(s => ({
                         value: s.lotId,
@@ -509,17 +510,17 @@ export function SalesPage(): React.JSX.Element {
                     <label>Mode</label>
                     <div className="sale-toggle sm">
                       <button type="button" className={line.priceMode === 'unit' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'unit')}>Unité</button>
-                      <button type="button" className={line.priceMode === 'block' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'block')}>Bloc</button>
+                      <button type="button" className={line.priceMode === 'block' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'block')}>Revendeur</button>
                     </div>
                   </div>
                   {line.priceMode === 'block' ? (
                     <div className="form-group">
-                      <label>PV unitaire (bloc)</label>
+                      <label>PV unitaire (revendeur)</label>
                       <input type="number" step="0.01" min="0" value={line.sellingUnitPrice} onChange={e => updateLine(i, 'sellingUnitPrice', e.target.value)} required />
                     </div>
                   ) : (
                     <div className="form-group">
-                      <label>PV unitaire</label>
+                      <label>PV unitaire public</label>
                       <input type="number" step="0.01" min="0" value={line.sellingUnitPrice} onChange={e => updateLine(i, 'sellingUnitPrice', e.target.value)} required />
                     </div>
                   )}
@@ -538,7 +539,7 @@ export function SalesPage(): React.JSX.Element {
                       </span>
                     )}
                     {selectedLot && <span className="text-muted">PA: {fm(selectedLot.purchaseUnitCost)}</span>}
-                    {selectedLot?.sellingPrice && <span className="text-muted">PV lot: {fm(selectedLot.sellingPrice)}</span>}
+                    {selectedLot?.sellingPrice && <span className="text-muted">PV public: {fm(selectedLot.sellingPrice)}</span>}
                   </div>
                 )}
               </div>
@@ -599,10 +600,26 @@ export function SalesPage(): React.JSX.Element {
                   </div>
                 </td></tr>
               )}
-              {orders.map(o => (
+              {orders.map(o => {
+                const creditRemaining = o.credit_id && o.credit_amount != null
+                  ? o.credit_amount - (o.advance_paid || 0)
+                  : null;
+                return (
                 <React.Fragment key={o.id}>
                   <tr>
-                    <td className="col-mono col-bold">{o.ref_number}</td>
+                    <td className="col-mono col-bold">
+                      {o.ref_number}
+                      {o.credit_id && (
+                        <button
+                          type="button"
+                          className="credit-badge"
+                          onClick={() => onNavigate?.('credits')}
+                          title="Voir dans Crédits clients"
+                        >
+                          Crédit{creditRemaining != null && creditRemaining > 0 ? ` • ${fm(creditRemaining)}` : ''}
+                        </button>
+                      )}
+                    </td>
                     <td className="col-mono">{o.date}</td>
                     <td className="text-muted">{o.client_name || '—'}</td>
                     <td className="text-muted">{o.observation || '—'}</td>
@@ -617,17 +634,27 @@ export function SalesPage(): React.JSX.Element {
                     </td>
                   </tr>
                   {o.lines.map((l, i) => (
-                    <tr key={i} className="row-detail">
+                    <tr key={i} className="row-detail row-detail-line">
                       <td></td>
-                      <td className="text-muted">{l.category}</td>
-                      <td colSpan={2}>{l.designation}{l.returned_quantity ? <span className="text-warning" style={{ marginLeft: 8, fontSize: '0.85em' }}>({l.returned_quantity} retourné)</span> : null}</td>
-                      <td className="text-right col-mono">{l.quantity} x {fm(l.selling_unit_price)}</td>
+                      <td className="sale-detail-cell" colSpan={3}>
+                        <div className="sale-detail-product">
+                          <span className="sale-detail-name">{l.designation}</span>
+                          {l.barcode && <span className="sale-detail-barcode">{l.barcode}</span>}
+                          <span className="sale-detail-category">{l.category}</span>
+                          {l.returned_quantity ? <span className="text-warning" style={{ fontSize: '0.85em' }}>({l.returned_quantity} retourné)</span> : null}
+                        </div>
+                      </td>
+                      <td className="text-right col-mono">
+                        <span className="sale-detail-qty">{l.quantity}</span>
+                        <span className="sale-detail-price"> × {fm(l.selling_unit_price)}</span>
+                      </td>
                       <td className={`text-right col-mono ${(l.selling_unit_price - l.purchase_unit_cost) >= 0 ? 'text-success' : 'text-danger'}`}>{fm((l.selling_unit_price - l.purchase_unit_cost) * l.quantity)}</td>
                       <td></td>
                     </tr>
                   ))}
                 </React.Fragment>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           <Pagination total={totalOrders} page={page} onPageChange={setPage} />

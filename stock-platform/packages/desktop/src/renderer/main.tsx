@@ -220,7 +220,7 @@ if (!window.api && import.meta.env.DEV) {
       lowStockAlerts: () => Promise.resolve(
         MOCK.purchaseLots
           .map(l => ({ id: l.id, designation: l.designation, category: l.category_name, remaining: l.initial_quantity - l.sold_quantity }))
-          .filter(r => r.remaining > 0 && r.remaining <= 5)
+          .filter(r => r.remaining > 0 && r.remaining <= 1)
       ),
       lookupBarcode: (data: Record<string, unknown>) => {
         const barcode = data.barcode as string;
@@ -495,7 +495,7 @@ if (!window.api && import.meta.env.DEV) {
         monthlyMargin,
         monthlyMaintenance,
         monthlyExpenses,
-        lowStockAlerts: MOCK.purchaseLots.filter(l => (l.initial_quantity - l.sold_quantity) <= 2 && (l.initial_quantity - l.sold_quantity) > 0).length,
+        lowStockAlerts: MOCK.purchaseLots.filter(l => (l.initial_quantity - l.sold_quantity) <= 1 && (l.initial_quantity - l.sold_quantity) > 0).length,
         activeCredits: MOCK.customerCredits.filter(c => c.remainingBalance > 0).length,
       }),
     },

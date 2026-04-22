@@ -199,7 +199,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
         lines: validLines.map(l => ({
           lotId: l.lotId,
           quantity: parsePositiveInt(l.quantity, 'Quantité'),
-          sellingUnitPrice: parseCents(l.sellingUnitPrice, 'Prix de vente'),
+          sellingUnitPrice: parseCents(l.sellingUnitPrice, 'Prix de vente public'),
         })),
       };
 
@@ -347,7 +347,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
               <div key={i} className={`sale-line ${i > 0 ? 'sale-line-border' : ''}`}>
                 <div className="form-row" style={{ marginBottom: 4 }}>
                   <div className="form-group" style={{ flex: 3 }}>
-                    <label>Lot</label>
+                    <label>Article</label>
                     <SearchableSelect
                       value={line.lotId}
                       onChange={val => {
@@ -359,7 +359,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
                         }
                         setLines(updated);
                       }}
-                      placeholder="Rechercher un lot..."
+                      placeholder="Rechercher un article..."
                       required
                       options={filteredStock.map(s => ({
                         value: s.lotId,
@@ -374,7 +374,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
                 </div>
                 <div className="form-row" style={{ marginBottom: 0 }}>
                   <div className="form-group">
-                    <label>PV unitaire</label>
+                    <label>PV unitaire public</label>
                     <input type="number" step="0.01" min="0" value={line.sellingUnitPrice} onChange={e => updateLine(i, 'sellingUnitPrice', e.target.value)} required />
                   </div>
                   {lines.length > 1 && (
