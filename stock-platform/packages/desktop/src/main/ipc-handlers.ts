@@ -1456,7 +1456,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     const orders = db.prepare(`
       SELECT so.id, so.ref_number, so.date, so.observation, so.client_id,
         cl.name as client_name,
-        cc.id as credit_id, cc.advance_paid, cc.due_date, cc.amount as credit_amount
+        cc.id as credit_id, cc.advance_paid, cc.due_date, (cc.quantity * cc.unit_price) as credit_amount
       FROM sale_orders so
       LEFT JOIN clients cl ON so.client_id = cl.id
       LEFT JOIN customer_credits cc ON cc.sale_order_id = so.id AND cc.deleted_at IS NULL

@@ -1,6 +1,6 @@
 {
   "name": "@stock/desktop",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "type": "module",
   "main": "dist/main/index.js",
@@ -47,7 +47,8 @@
       {
         "provider": "github",
         "owner": "MouadElbou",
-        "repo": "hamdi"
+        "repo": "hamdi",
+        "releaseType": "release"
       }
     ]
   },
