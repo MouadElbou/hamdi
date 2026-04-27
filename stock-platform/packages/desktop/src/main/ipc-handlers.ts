@@ -274,6 +274,31 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     })();
   });
 
+  safeHandle('suppliers:update', (_event, data: { id: string; code: string }) => {
+    const trimmed = data.code.trim();
+    if (!trimmed) throw new Error('Supplier code is required');
+    validateStringLength(trimmed, 'Code fournisseur');
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const conflict = db.prepare('SELECT id FROM suppliers WHERE code = ? AND id != ? AND deleted_at IS NULL').get(trimmed, data.id) as { id: string } | undefined;
+      if (conflict) throw new Error('Un fournisseur avec ce code existe déjà');
+      const result = db.prepare('UPDATE suppliers SET code=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(trimmed, now, data.id);
+      if (result.changes === 0) throw new Error(`Fournisseur ${data.id} introuvable`);
+      addToOutbox(db, 'supplier', data.id, 'UPDATE', { id: data.id, code: trimmed });
+      return { success: true };
+    })();
+  });
+
+  safeHandle('suppliers:delete', (_event, id: string) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE suppliers SET deleted_at=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error(`Fournisseur ${id} introuvable`);
+      addToOutbox(db, 'supplier', id, 'DELETE', { id });
+      return { success: true };
+    })();
+  });
+
   safeHandle('boutiques:create', (_event, data: { name: string }) => {
     const trimmed = data.name.trim();
     if (!trimmed) throw new Error('Boutique name is required');
@@ -304,6 +329,31 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     })();
   });
 
+  safeHandle('categories:update', (_event, data: { id: string; name: string }) => {
+    const trimmed = data.name.trim();
+    if (!trimmed) throw new Error('Category name is required');
+    validateStringLength(trimmed, 'Nom catégorie');
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const conflict = db.prepare('SELECT id FROM categories WHERE name = ? AND id != ? AND deleted_at IS NULL').get(trimmed, data.id) as { id: string } | undefined;
+      if (conflict) throw new Error('Une catégorie avec ce nom existe déjà');
+      const result = db.prepare('UPDATE categories SET name=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(trimmed, now, data.id);
+      if (result.changes === 0) throw new Error(`Catégorie ${data.id} introuvable`);
+      addToOutbox(db, 'category', data.id, 'UPDATE', { id: data.id, name: trimmed });
+      return { success: true };
+    })();
+  });
+
+  safeHandle('categories:delete', (_event, id: string) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE categories SET deleted_at=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error(`Catégorie ${id} introuvable`);
+      addToOutbox(db, 'category', id, 'DELETE', { id });
+      return { success: true };
+    })();
+  });
+
   // ─── Sub-Categories ──────────────────────────────────────────────
 
   safeHandle('sub-categories:list', (_event, params?: { categoryId?: string }) => {
@@ -326,6 +376,32 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       db.prepare('INSERT INTO sub_categories (id, name, category_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)').run(id, trimmed, data.categoryId, now, now);
       addToOutbox(db, 'sub_category', id, 'CREATE', { id, name: trimmed, categoryId: data.categoryId });
       return { id, name: trimmed, category_id: data.categoryId };
+    })();
+  });
+
+  safeHandle('sub-categories:update', (_event, data: { id: string; name: string; categoryId: string }) => {
+    const trimmed = data.name.trim();
+    if (!trimmed) throw new Error('Sub-category name is required');
+    if (!data.categoryId) throw new Error('Category is required');
+    validateStringLength(trimmed, 'Nom sous-catégorie');
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const conflict = db.prepare('SELECT id FROM sub_categories WHERE name = ? AND category_id = ? AND id != ? AND deleted_at IS NULL').get(trimmed, data.categoryId, data.id) as { id: string } | undefined;
+      if (conflict) throw new Error('Une sous-catégorie avec ce nom existe déjà');
+      const result = db.prepare('UPDATE sub_categories SET name=?, category_id=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(trimmed, data.categoryId, now, data.id);
+      if (result.changes === 0) throw new Error(`Sous-catégorie ${data.id} introuvable`);
+      addToOutbox(db, 'sub_category', data.id, 'UPDATE', { id: data.id, name: trimmed, categoryId: data.categoryId });
+      return { success: true };
+    })();
+  });
+
+  safeHandle('sub-categories:delete', (_event, id: string) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE sub_categories SET deleted_at=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error(`Sous-catégorie ${id} introuvable`);
+      addToOutbox(db, 'sub_category', id, 'DELETE', { id });
+      return { success: true };
     })();
   });
 
@@ -441,6 +517,32 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('clients:search', (_event, query: string) => {
     const escaped = query.replace(/[%_\\]/g, '\\$&');
     return db.prepare("SELECT * FROM clients WHERE name LIKE ? ESCAPE '\\' AND deleted_at IS NULL ORDER BY name LIMIT 20").all(`%${escaped}%`);
+  });
+
+  safeHandle('clients:update', (_event, data: { id: string; name: string; phone?: string }) => {
+    const trimmed = data.name.trim();
+    if (!trimmed) throw new Error('Le nom du client est requis');
+    validateStringLength(trimmed, 'Nom client', 200);
+    if (data.phone) validateStringLength(data.phone, 'Téléphone', 30);
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const conflict = db.prepare('SELECT id FROM clients WHERE name = ? AND id != ? AND deleted_at IS NULL').get(trimmed, data.id) as { id: string } | undefined;
+      if (conflict) throw new Error('Un client avec ce nom existe déjà');
+      const result = db.prepare('UPDATE clients SET name=?, phone=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(trimmed, data.phone ?? null, now, data.id);
+      if (result.changes === 0) throw new Error(`Client ${data.id} introuvable`);
+      addToOutbox(db, 'client', data.id, 'UPDATE', { id: data.id, name: trimmed, phone: data.phone ?? null });
+      return { success: true };
+    })();
+  });
+
+  safeHandle('clients:delete', (_event, id: string) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const result = db.prepare('UPDATE clients SET deleted_at=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error(`Client ${id} introuvable`);
+      addToOutbox(db, 'client', id, 'DELETE', { id });
+      return { success: true };
+    })();
   });
 
   // ─── Employees ───────────────────────────────────────────────────
@@ -996,6 +1098,116 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     return transaction();
   });
 
+  safeHandle('sales:import-excel', (_event, data: {
+    rows: Array<{
+      date: string;
+      designation: string;
+      quantity: number;
+      sellingUnitPrice: number;
+      clientName?: string;
+      observation?: string;
+      boutique?: string;
+    }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.designation, 'Désignation');
+          validatePositive(row.quantity, 'Quantité');
+          validatePositive(row.sellingUnitPrice, 'Prix de vente');
+
+          const trimmedDesig = row.designation.trim();
+          const now = new Date().toISOString();
+
+          // Find oldest in-stock lot by designation (FIFO) with available stock >= quantity
+          const lots = db.prepare(`
+            SELECT pl.id, pl.initial_quantity
+            FROM purchase_lots pl
+            WHERE pl.designation = ? AND pl.deleted_at IS NULL
+            ORDER BY pl.date ASC, pl.created_at ASC
+          `).all(trimmedDesig) as Array<{ id: string; initial_quantity: number }>;
+
+          if (lots.length === 0) {
+            throw new Error(`Aucun lot trouvé pour la désignation "${trimmedDesig}"`);
+          }
+
+          let selectedLotId: string | null = null;
+          for (const lot of lots) {
+            const soldResult = db.prepare('SELECT COALESCE(SUM(quantity), 0) as sold FROM sale_lines WHERE lot_id = ? AND deleted_at IS NULL').get(lot.id) as { sold: number };
+            const returnedResult = db.prepare('SELECT COALESCE(SUM(quantity), 0) as returned FROM sale_return_lines WHERE lot_id = ? AND deleted_at IS NULL').get(lot.id) as { returned: number };
+            const available = lot.initial_quantity - soldResult.sold + returnedResult.returned;
+            if (available >= row.quantity) {
+              selectedLotId = lot.id;
+              break;
+            }
+          }
+
+          if (!selectedLotId) {
+            throw new Error(`Stock insuffisant pour "${trimmedDesig}" (demandé ${row.quantity})`);
+          }
+
+          // Resolve or auto-create client
+          let clientId: string | null = null;
+          if (row.clientName && row.clientName.trim()) {
+            const trimmedName = row.clientName.trim();
+            const existingClient = db.prepare('SELECT id FROM clients WHERE name = ? AND deleted_at IS NULL').get(trimmedName) as { id: string } | undefined;
+            if (!existingClient) {
+              clientId = uuidv7();
+              db.prepare('INSERT INTO clients (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(clientId, trimmedName, now, now);
+              addToOutbox(db, 'client', clientId, 'CREATE', { id: clientId, name: trimmedName });
+            } else {
+              clientId = existingClient.id;
+            }
+          }
+
+          const saleId = uuidv7();
+          const refNumber = `SAL-${Date.now()}-${idx}`;
+
+          db.prepare(`INSERT INTO sale_orders (id, ref_number, date, observation, client_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(saleId, refNumber, row.date, row.observation ?? null, clientId, now, now);
+
+          addToOutbox(db, 'sale_order', saleId, 'CREATE', {
+            id: saleId, refNumber, date: row.date,
+            observation: row.observation ?? null, clientId,
+          });
+
+          const lineId = uuidv7();
+          db.prepare(`INSERT INTO sale_lines (id, selling_unit_price, quantity, sale_order_id, lot_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+            .run(lineId, row.sellingUnitPrice, row.quantity, saleId, selectedLotId, now, now);
+
+          addToOutbox(db, 'sale_line', lineId, 'CREATE', {
+            id: lineId, sellingUnitPrice: row.sellingUnitPrice,
+            quantity: row.quantity, saleOrderId: saleId, lotId: selectedLotId,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
+  });
+
   // ─── Maintenance ─────────────────────────────────────────────────
 
   safeHandle('maintenance:create', (_event, data: { date: string; designation: string; price: number; boutique: string }) => {
@@ -1035,6 +1247,72 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     })();
   });
 
+  safeHandle('maintenance:import-excel', (_event, data: {
+    rows: Array<{ date: string; designation: string; price: number; boutique: string }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.designation, 'Désignation');
+          validatePositive(row.price, 'Prix');
+          validateString(row.boutique, 'Boutique');
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+          const trimmedDesig = row.designation.trim();
+
+          let boutique = db.prepare('SELECT id FROM boutiques WHERE name = ? AND deleted_at IS NULL').get(row.boutique) as { id: string } | undefined;
+          if (!boutique) {
+            const boutId = uuidv7();
+            db.prepare('INSERT INTO boutiques (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(boutId, row.boutique.trim(), now, now);
+            addToOutbox(db, 'boutique', boutId, 'CREATE', { id: boutId, name: row.boutique.trim() });
+            boutique = { id: boutId };
+          }
+
+          const existingType = db.prepare('SELECT id FROM maintenance_service_types WHERE name = ? AND deleted_at IS NULL').get(trimmedDesig) as { id: string } | undefined;
+          if (!existingType) {
+            const typeId = uuidv7();
+            const ins = db.prepare('INSERT OR IGNORE INTO maintenance_service_types (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(typeId, trimmedDesig, now, now);
+            if (ins.changes > 0) {
+              addToOutbox(db, 'maintenance_service_type', typeId, 'CREATE', { id: typeId, name: trimmedDesig });
+            }
+          }
+
+          db.prepare('INSERT INTO maintenance_jobs (id, date, designation, price, boutique_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, row.date, trimmedDesig, row.price, boutique.id, now, now);
+
+          addToOutbox(db, 'maintenance_job', id, 'CREATE', {
+            id, date: row.date, designation: trimmedDesig,
+            price: row.price, boutiqueId: boutique.id,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
+  });
+
   // ─── Battery Repair ──────────────────────────────────────────────
 
   safeHandle('battery-repair:create', (_event, data: { date: string; description: string; customerNote?: string; amount: number; costAdjustment?: number }) => {
@@ -1053,6 +1331,58 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       });
       return { id };
     })();
+  });
+
+  safeHandle('battery-repair:import-excel', (_event, data: {
+    rows: Array<{ date: string; description: string; amount: number; customerNote?: string; costAdjustment?: number }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.description, 'Description');
+          validatePositive(row.amount, 'Montant');
+          if (row.costAdjustment != null && row.costAdjustment !== 0) {
+            validateAmount(row.costAdjustment, 'Ajustement coût');
+          }
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+
+          db.prepare('INSERT INTO battery_repair_jobs (id, date, description, customer_note, amount, cost_adjustment, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+            .run(id, row.date, row.description.trim(), row.customerNote ?? null, row.amount, row.costAdjustment ?? 0, now, now);
+
+          addToOutbox(db, 'battery_repair_job', id, 'CREATE', {
+            id, date: row.date, description: row.description.trim(),
+            customerNote: row.customerNote ?? null, amount: row.amount,
+            costAdjustment: row.costAdjustment ?? 0,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
   });
 
   safeHandle('battery-repair:tariffs', () => {
@@ -1096,6 +1426,72 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       });
       return { id };
     })();
+  });
+
+  safeHandle('expenses:import-excel', (_event, data: {
+    rows: Array<{ date: string; designation: string; amount: number; boutique: string }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.designation, 'Désignation');
+          validatePositive(row.amount, 'Montant');
+          validateString(row.boutique, 'Boutique');
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+          const trimmedDesig = row.designation.trim();
+
+          let boutique = db.prepare('SELECT id FROM boutiques WHERE name = ? AND deleted_at IS NULL').get(row.boutique) as { id: string } | undefined;
+          if (!boutique) {
+            const boutId = uuidv7();
+            db.prepare('INSERT INTO boutiques (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(boutId, row.boutique.trim(), now, now);
+            addToOutbox(db, 'boutique', boutId, 'CREATE', { id: boutId, name: row.boutique.trim() });
+            boutique = { id: boutId };
+          }
+
+          const existingDesig = db.prepare('SELECT id FROM expense_designations WHERE name = ? AND deleted_at IS NULL').get(trimmedDesig) as { id: string } | undefined;
+          if (!existingDesig) {
+            const desigId = uuidv7();
+            const ins = db.prepare('INSERT OR IGNORE INTO expense_designations (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)').run(desigId, trimmedDesig, now, now);
+            if (ins.changes > 0) {
+              addToOutbox(db, 'expense_designation', desigId, 'CREATE', { id: desigId, name: trimmedDesig });
+            }
+          }
+
+          db.prepare('INSERT INTO expenses (id, date, designation, amount, boutique_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, row.date, trimmedDesig, row.amount, boutique.id, now, now);
+
+          addToOutbox(db, 'expense', id, 'CREATE', {
+            id, date: row.date, designation: trimmedDesig,
+            amount: row.amount, boutiqueId: boutique.id,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
   });
 
   // ─── Customer Credits ────────────────────────────────────────────
@@ -1196,6 +1592,65 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     })();
   });
 
+  safeHandle('customer-credits:import-excel', (_event, data: {
+    rows: Array<{ date: string; customerName: string; designation: string; quantity: number; unitPrice: number; advancePaid?: number }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.customerName, 'Nom client');
+          validateString(row.designation, 'Désignation');
+          validatePositive(row.quantity, 'Quantité');
+          validatePositive(row.unitPrice, 'Prix unitaire');
+          if (row.advancePaid != null && row.advancePaid !== 0) {
+            validateAmount(row.advancePaid, 'Avance');
+            if (row.advancePaid > row.quantity * row.unitPrice) {
+              throw new Error('L\'avance ne peut pas dépasser le total');
+            }
+          }
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+          const trimmedName = row.customerName.trim();
+          const trimmedDesig = row.designation.trim();
+          const advance = row.advancePaid ?? 0;
+
+          db.prepare('INSERT INTO customer_credits (id, date, customer_name, designation, quantity, unit_price, advance_paid, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)').run(id, row.date, trimmedName, trimmedDesig, row.quantity, row.unitPrice, advance, now, now);
+
+          addToOutbox(db, 'customer_credit', id, 'CREATE', {
+            id, date: row.date, customerName: trimmedName,
+            designation: trimmedDesig, quantity: row.quantity,
+            unitPrice: row.unitPrice, advancePaid: advance,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
+  });
+
   // ─── Supplier Credits ────────────────────────────────────────────
 
   safeHandle('supplier-credits:create', (_event, data: { date: string; supplier: string; designation: string; totalAmount: number; advancePaid?: number }) => {
@@ -1223,6 +1678,72 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     })();
   });
 
+  safeHandle('supplier-credits:import-excel', (_event, data: {
+    rows: Array<{ date: string; supplier: string; designation: string; totalAmount: number; advancePaid?: number }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.supplier, 'Fournisseur');
+          validateString(row.designation, 'Désignation');
+          validatePositive(row.totalAmount, 'Montant total');
+          if (row.advancePaid != null && row.advancePaid !== 0) {
+            validateAmount(row.advancePaid, 'Avance');
+            if (row.advancePaid > row.totalAmount) {
+              throw new Error('L\'avance ne peut pas dépasser le total');
+            }
+          }
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+          const trimmedDesig = row.designation.trim();
+          const advance = row.advancePaid ?? 0;
+
+          const supplierCode = row.supplier.trim() || '—';
+          let supplier = db.prepare('SELECT id FROM suppliers WHERE code = ? AND deleted_at IS NULL').get(supplierCode) as { id: string } | undefined;
+          if (!supplier) {
+            const supId = uuidv7();
+            db.prepare('INSERT INTO suppliers (id, code, created_at, updated_at) VALUES (?, ?, ?, ?)').run(supId, supplierCode, now, now);
+            addToOutbox(db, 'supplier', supId, 'CREATE', { id: supId, code: supplierCode });
+            supplier = { id: supId };
+          }
+
+          db.prepare('INSERT INTO supplier_credits (id, date, designation, total_amount, advance_paid, supplier_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(id, row.date, trimmedDesig, row.totalAmount, advance, supplier.id, now, now);
+
+          addToOutbox(db, 'supplier_credit', id, 'CREATE', {
+            id, date: row.date, designation: trimmedDesig,
+            totalAmount: row.totalAmount, advancePaid: advance,
+            supplierId: supplier.id,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
+  });
+
   // ─── Bank Movements ──────────────────────────────────────────────
 
   safeHandle('bank-movements:create', (_event, data: { date: string; description: string; amountIn?: number; amountOut?: number }) => {
@@ -1246,6 +1767,63 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       });
       return { id };
     })();
+  });
+
+  safeHandle('bank-movements:import-excel', (_event, data: {
+    rows: Array<{ date: string; description: string; amountIn?: number; amountOut?: number }>;
+  }) => {
+    if (!Array.isArray(data.rows) || data.rows.length === 0) {
+      throw new Error('Aucune ligne à importer.');
+    }
+
+    const errors: Array<{ row: number; message: string }> = [];
+    let created = 0;
+
+    const transaction = db.transaction(() => {
+      for (let idx = 0; idx < data.rows.length; idx++) {
+        const row = data.rows[idx];
+        const rowNum = idx + 1;
+        try {
+          validateDate(row.date, 'Date');
+          validateString(row.description, 'Description');
+          if (row.amountIn != null) validateAmount(row.amountIn, 'Montant entrée');
+          if (row.amountOut != null) validateAmount(row.amountOut, 'Montant sortie');
+          if ((row.amountIn ?? 0) > 0 && (row.amountOut ?? 0) > 0) {
+            throw new Error('Un mouvement ne peut pas avoir un montant en entrée ET en sortie');
+          }
+          if ((row.amountIn ?? 0) === 0 && (row.amountOut ?? 0) === 0) {
+            throw new Error('Un mouvement doit avoir un montant en entrée OU en sortie');
+          }
+
+          const id = uuidv7();
+          const now = new Date().toISOString();
+          const trimmedDesc = row.description.trim();
+          const amountIn = row.amountIn ?? 0;
+          const amountOut = row.amountOut ?? 0;
+
+          db.prepare('INSERT INTO bank_movements (id, date, description, amount_in, amount_out, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)').run(id, row.date, trimmedDesc, amountIn, amountOut, now, now);
+
+          addToOutbox(db, 'bank_movement', id, 'CREATE', {
+            id, date: row.date, description: trimmedDesc,
+            amountIn, amountOut,
+          });
+
+          created++;
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Erreur inconnue';
+          errors.push({ row: rowNum, message });
+          throw err;
+        }
+      }
+    });
+
+    try {
+      transaction();
+    } catch {
+      return { created: 0, errors };
+    }
+
+    return { created, errors };
   });
 
   safeHandle('bank-movements:summary', () => {

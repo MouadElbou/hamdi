@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../components/AuthContext.js';
 import { useToast } from '../components/Toast.js';
+import { parseWorkbook, importParsedWorkbook } from './ImportDataPage.js';
 
 type UpdaterEvent =
   | 'checking'
@@ -49,6 +50,9 @@ export function SettingsPage(): React.JSX.Element {
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [updaterState, setUpdaterState] = useState<UpdaterState>(INITIAL_STATE);
+  const [importing, setImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState<string>('');
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const loadPath = useCallback(async () => {
     setLoadingPath(true);
@@ -160,6 +164,49 @@ export function SettingsPage(): React.JSX.Element {
     }
   };
 
+  const handleImportAll = async (file: File) => {
+    setImporting(true);
+    setImportProgress('Lecture du fichier…');
+    try {
+      const preview = await parseWorkbook(file);
+      const totalValid = preview.sheets.reduce((sum, s) => sum + s.validRows.length, 0);
+      if (totalValid === 0) {
+        addToast('Aucune ligne valide détectée dans ce fichier.', 'warning');
+        return;
+      }
+      setImportProgress(`Import en cours (${totalValid} ligne(s))…`);
+      const result = await importParsedWorkbook(preview);
+      for (const failure of result.failures) {
+        addToast(`${failure.label}: échec — ${failure.message}`, 'error');
+      }
+      const summary = result.perSheet
+        .map((s) => `${s.label}: ${s.created}`)
+        .join(', ');
+      if (result.totalErrors === 0 && result.failures.length === 0) {
+        addToast(
+          `Import terminé: ${result.totalCreated} ligne(s) importée(s). ${summary}`,
+          'success',
+        );
+      } else {
+        addToast(
+          `Import terminé: ${result.totalCreated} créé(s), ${result.totalErrors} erreur(s). ${summary}`,
+          'warning',
+        );
+      }
+    } catch (err: unknown) {
+      addToast((err as Error).message || 'Erreur lors de l\'import', 'error');
+    } finally {
+      setImporting(false);
+      setImportProgress('');
+      if (importInputRef.current) importInputRef.current.value = '';
+    }
+  };
+
+  const handleImportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) void handleImportAll(file);
+  };
+
   const statusLabel = formatStatus(updaterState);
 
   return (
@@ -207,6 +254,44 @@ export function SettingsPage(): React.JSX.Element {
           <p className="form-help" style={{ marginTop: 12 }}>
             Astuce: après édition du fichier, enregistrez-le puis cliquez sur « Recharger ».
             Un redémarrage de l'application n'est pas nécessaire.
+          </p>
+        </div>
+      </section>
+
+      <section className="card" style={{ marginBottom: 24 }}>
+        <div className="card-header">
+          <h2 className="card-title">Import de données COMPTA.xlsx</h2>
+          <p className="card-subtitle">
+            Importez en un seul clic toutes les feuilles compatibles (ACHAT, VENTE,
+            MAINTENANCE, AP BAT, LES CHARGES, CREDITS CLIENT, CREDITS FRS,
+            Entrée&nbsp;&amp;&nbsp;Sortie BANQUE). Les feuilles calculées (GESTION DE STOCK,
+            Recette&amp;Dépense, ZAKAT) sont ignorées.
+          </p>
+        </div>
+        <div className="card-body">
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => importInputRef.current?.click()}
+              disabled={importing}
+            >
+              {importing ? 'Import en cours…' : 'Importer tout'}
+            </button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              onChange={handleImportChange}
+              style={{ display: 'none' }}
+              disabled={importing}
+            />
+            {importProgress && (
+              <span style={{ fontSize: 13, color: '#555' }}>{importProgress}</span>
+            )}
+          </div>
+          <p className="form-help" style={{ marginTop: 12 }}>
+            Astuce: pour un aperçu détaillé avant import, utilisez la page « Import de
+            données » depuis le menu principal.
           </p>
         </div>
       </section>

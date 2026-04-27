@@ -1,9 +1,22 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
+interface OptionMeta {
+  label: string;
+  value: string;
+  tone?: 'muted' | 'success' | 'warning' | 'danger';
+}
+
+interface OptionDisplay {
+  main: string;
+  sub?: string;
+  meta?: OptionMeta[];
+}
+
 interface Option {
   value: string;
   label: string;
+  display?: OptionDisplay;
 }
 
 interface SearchableSelectProps {
@@ -14,6 +27,29 @@ interface SearchableSelectProps {
   required?: boolean;
   creatable?: boolean;
   onCreate?: (value: string) => Promise<void>;
+}
+
+function renderOptionContent(opt: Option): React.ReactNode {
+  if (!opt.display) return opt.label;
+  const { main, sub, meta } = opt.display;
+  return (
+    <div className="ss-option-grid">
+      <div className="ss-option-text">
+        <div className="ss-option-main">{main}</div>
+        {sub && <div className="ss-option-sub">{sub}</div>}
+      </div>
+      {meta && meta.length > 0 && (
+        <div className="ss-option-meta">
+          {meta.map((m, i) => (
+            <span key={i} className={`ss-option-pill ${m.tone ? `tone-${m.tone}` : ''}`}>
+              <span className="ss-option-pill-label">{m.label}</span>
+              <span className="ss-option-pill-value">{m.value}</span>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function SearchableSelect({ options, value, onChange, placeholder = 'Rechercher...', required, creatable, onCreate }: SearchableSelectProps): React.JSX.Element {
@@ -180,7 +216,9 @@ export function SearchableSelect({ options, value, onChange, placeholder = 'Rech
           onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleInputClick(); }}
         >
           {selected ? (
-            <span className="searchable-select-value">{selected.label}</span>
+            <span className="searchable-select-value">
+              {selected.display ? selected.display.main : selected.label}
+            </span>
           ) : (
             <span className="searchable-select-placeholder">{placeholder}</span>
           )}
@@ -233,12 +271,12 @@ export function SearchableSelect({ options, value, onChange, placeholder = 'Rech
                 <div
                   key={o.value}
                   id={`${listId}-opt-${itemIndex}`}
-                  className={`searchable-select-option ${o.value === value ? 'selected' : ''} ${activeIndex === itemIndex ? 'active' : ''}`}
+                  className={`searchable-select-option ${o.display ? 'has-display' : ''} ${o.value === value ? 'selected' : ''} ${activeIndex === itemIndex ? 'active' : ''}`}
                   onClick={() => handleSelect(o.value)}
                   role="option"
                   aria-selected={o.value === value}
                 >
-                  {o.label}
+                  {renderOptionContent(o)}
                 </div>
               );
             })
