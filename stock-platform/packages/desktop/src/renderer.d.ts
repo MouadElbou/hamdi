@@ -4,6 +4,8 @@ interface DesktopAPI {
   suppliers: {
     list: () => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
+    update: (data: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<unknown>;
   };
   boutiques: {
     list: () => Promise<unknown>;
@@ -12,14 +14,20 @@ interface DesktopAPI {
   categories: {
     list: () => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
+    update: (data: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<unknown>;
   };
   subCategories: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
+    update: (data: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<unknown>;
   };
   clients: {
     list: () => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
+    update: (data: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<unknown>;
     search: (query: string) => Promise<unknown>;
   };
   employees: {
@@ -38,6 +46,7 @@ interface DesktopAPI {
     create: (data: Record<string, unknown>) => Promise<unknown>;
     update: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   stock: {
     list: (params: Record<string, unknown>) => Promise<unknown>;
@@ -50,12 +59,14 @@ interface DesktopAPI {
     update: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
     return: (data: Record<string, unknown>) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   maintenance: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
     update: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   maintenanceTypes: {
     list: () => Promise<unknown>;
@@ -74,12 +85,14 @@ interface DesktopAPI {
     createTariff: (data: Record<string, unknown>) => Promise<unknown>;
     updateTariff: (data: Record<string, unknown>) => Promise<unknown>;
     deleteTariff: (id: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   expenses: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;
     update: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   customerCredits: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
@@ -89,6 +102,7 @@ interface DesktopAPI {
     addPayment: (data: Record<string, unknown>) => Promise<unknown>;
     deletePayment: (id: string) => Promise<unknown>;
     history: (name: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   supplierCredits: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
@@ -98,6 +112,7 @@ interface DesktopAPI {
     addPayment: (data: Record<string, unknown>) => Promise<unknown>;
     deletePayment: (id: string) => Promise<unknown>;
     history: (code: string) => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   notifications: {
     unpaidCustomerCredits: () => Promise<unknown>;
@@ -116,6 +131,7 @@ interface DesktopAPI {
     update: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
     summary: () => Promise<unknown>;
+    importExcel: (data: { rows: Array<Record<string, unknown>> }) => Promise<{ created: number; errors: Array<{ row: number; message: string }> }>;
   };
   auth: {
     login: (data: Record<string, unknown>) => Promise<unknown>;

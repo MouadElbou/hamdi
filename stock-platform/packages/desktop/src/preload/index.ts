@@ -6,11 +6,15 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type {
   SupplierCreateParams,
+  SupplierUpdateParams,
   BoutiqueCreateParams,
   CategoryCreateParams,
+  CategoryUpdateParams,
   SubCategoryListParams,
   SubCategoryCreateParams,
+  SubCategoryUpdateParams,
   ClientCreateParams,
+  ClientUpdateParams,
   EmployeeCreateParams,
   EmployeeUpdateParams,
   SalaryPaymentListParams,
@@ -19,6 +23,13 @@ import type {
   PurchaseCreateParams,
   PurchaseUpdateParams,
   PurchaseImportExcelParams,
+  MaintenanceImportExcelParams,
+  ExpenseImportExcelParams,
+  CustomerCreditImportExcelParams,
+  SupplierCreditImportExcelParams,
+  BankMovementImportExcelParams,
+  SaleImportExcelParams,
+  BatteryRepairImportExcelParams,
   StockListParams,
   StockLookupBarcodeParams,
   SaleCreateParams,
@@ -67,6 +78,8 @@ const api = {
   suppliers: {
     list: () => ipcRenderer.invoke('suppliers:list'),
     create: (data: SupplierCreateParams) => ipcRenderer.invoke('suppliers:create', data),
+    update: (data: SupplierUpdateParams) => ipcRenderer.invoke('suppliers:update', data),
+    delete: (id: string) => ipcRenderer.invoke('suppliers:delete', id),
   },
   boutiques: {
     list: () => ipcRenderer.invoke('boutiques:list'),
@@ -75,14 +88,20 @@ const api = {
   categories: {
     list: () => ipcRenderer.invoke('categories:list'),
     create: (data: CategoryCreateParams) => ipcRenderer.invoke('categories:create', data),
+    update: (data: CategoryUpdateParams) => ipcRenderer.invoke('categories:update', data),
+    delete: (id: string) => ipcRenderer.invoke('categories:delete', id),
   },
   subCategories: {
     list: (params?: SubCategoryListParams) => ipcRenderer.invoke('sub-categories:list', params),
     create: (data: SubCategoryCreateParams) => ipcRenderer.invoke('sub-categories:create', data),
+    update: (data: SubCategoryUpdateParams) => ipcRenderer.invoke('sub-categories:update', data),
+    delete: (id: string) => ipcRenderer.invoke('sub-categories:delete', id),
   },
   clients: {
     list: () => ipcRenderer.invoke('clients:list'),
     create: (data: ClientCreateParams) => ipcRenderer.invoke('clients:create', data),
+    update: (data: ClientUpdateParams) => ipcRenderer.invoke('clients:update', data),
+    delete: (id: string) => ipcRenderer.invoke('clients:delete', id),
     search: (query: string) => ipcRenderer.invoke('clients:search', query),
   },
 
@@ -122,6 +141,7 @@ const api = {
     update: (data: SaleUpdateParams) => ipcRenderer.invoke('sales:update', data),
     delete: (id: string) => ipcRenderer.invoke('sales:delete', id),
     return: (data: SaleReturnParams) => ipcRenderer.invoke('sales:return', data),
+    importExcel: (data: SaleImportExcelParams) => ipcRenderer.invoke('sales:import-excel', data),
   },
 
   // Maintenance
@@ -130,6 +150,7 @@ const api = {
     create: (data: MaintenanceCreateParams) => ipcRenderer.invoke('maintenance:create', data),
     update: (data: MaintenanceUpdateParams) => ipcRenderer.invoke('maintenance:update', data),
     delete: (id: string) => ipcRenderer.invoke('maintenance:delete', id),
+    importExcel: (data: MaintenanceImportExcelParams) => ipcRenderer.invoke('maintenance:import-excel', data),
   },
 
   // Maintenance Service Types
@@ -154,6 +175,7 @@ const api = {
     createTariff: (data: BatteryTariffCreateParams) => ipcRenderer.invoke('battery-tariffs:create', data),
     updateTariff: (data: BatteryTariffUpdateParams) => ipcRenderer.invoke('battery-tariffs:update', data),
     deleteTariff: (id: string) => ipcRenderer.invoke('battery-tariffs:delete', id),
+    importExcel: (data: BatteryRepairImportExcelParams) => ipcRenderer.invoke('battery-repair:import-excel', data),
   },
 
   // Expenses
@@ -162,6 +184,7 @@ const api = {
     create: (data: ExpenseCreateParams) => ipcRenderer.invoke('expenses:create', data),
     update: (data: ExpenseUpdateParams) => ipcRenderer.invoke('expenses:update', data),
     delete: (id: string) => ipcRenderer.invoke('expenses:delete', id),
+    importExcel: (data: ExpenseImportExcelParams) => ipcRenderer.invoke('expenses:import-excel', data),
   },
 
   // Customer Credits
@@ -173,6 +196,7 @@ const api = {
     addPayment: (data: CreditPaymentParams) => ipcRenderer.invoke('customer-credits:add-payment', data),
     deletePayment: (id: string) => ipcRenderer.invoke('customer-credits:delete-payment', id),
     history: (name: string) => ipcRenderer.invoke('customer-credits:history', name),
+    importExcel: (data: CustomerCreditImportExcelParams) => ipcRenderer.invoke('customer-credits:import-excel', data),
   },
 
   // Supplier Credits
@@ -184,6 +208,7 @@ const api = {
     addPayment: (data: CreditPaymentParams) => ipcRenderer.invoke('supplier-credits:add-payment', data),
     deletePayment: (id: string) => ipcRenderer.invoke('supplier-credits:delete-payment', id),
     history: (code: string) => ipcRenderer.invoke('supplier-credits:history', code),
+    importExcel: (data: SupplierCreditImportExcelParams) => ipcRenderer.invoke('supplier-credits:import-excel', data),
   },
 
   // Notifications
@@ -208,6 +233,7 @@ const api = {
     update: (data: BankMovementUpdateParams) => ipcRenderer.invoke('bank-movements:update', data),
     delete: (id: string) => ipcRenderer.invoke('bank-movements:delete', id),
     summary: () => ipcRenderer.invoke('bank-movements:summary'),
+    importExcel: (data: BankMovementImportExcelParams) => ipcRenderer.invoke('bank-movements:import-excel', data),
   },
 
   // Dashboard

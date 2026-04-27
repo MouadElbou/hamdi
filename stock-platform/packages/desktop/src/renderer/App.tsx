@@ -11,7 +11,11 @@ import { BankPage } from './pages/BankPage.js';
 import { MonthlySummaryPage } from './pages/MonthlySummaryPage.js';
 import { ZakatPage } from './pages/ZakatPage.js';
 import { AdminUsersPage } from './pages/AdminUsersPage.js';
+import { ImportDataPage } from './pages/ImportDataPage.js';
 import { SettingsPage } from './pages/SettingsPage.js';
+import { SuppliersPage } from './pages/SuppliersPage.js';
+import { CategoriesPage } from './pages/CategoriesPage.js';
+import { ClientsPage } from './pages/ClientsPage.js';
 import { NotificationsPage } from './pages/NotificationsPage.js';
 import { CustomerOrdersPage } from './pages/CustomerOrdersPage.js';
 import { LoginPage } from './pages/LoginPage.js';
@@ -23,7 +27,7 @@ import { AuthProvider, useAuth } from './components/AuthContext.js';
 import { ChangePasswordModal } from './components/ChangePasswordModal.js';
 import './styles.css';
 
-type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'settings';
+type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'admin-suppliers' | 'admin-categories' | 'admin-clients' | 'import-data' | 'settings';
 
 /* ── Icon components (18×18, stroke-based) ── */
 const icons: Record<Page, React.ReactNode> = {
@@ -105,6 +109,28 @@ const icons: Record<Page, React.ReactNode> = {
       <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   ),
+  'admin-suppliers': (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="3" width="15" height="13" rx="1" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+      <circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" />
+    </svg>
+  ),
+  'admin-categories': (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+  'admin-clients': (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+      <path d="M22 11h-6" /><path d="M19 8v6" />
+    </svg>
+  ),
+  'import-data': (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+  ),
   settings: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -171,6 +197,10 @@ const PAGE_MAP: Record<Page, React.ComponentType> = {
   'monthly-summary': MonthlySummaryPage,
   zakat: ZakatPage,
   'admin-users': AdminUsersPage,
+  'admin-suppliers': SuppliersPage,
+  'admin-categories': CategoriesPage,
+  'admin-clients': ClientsPage,
+  'import-data': ImportDataPage,
   settings: SettingsPage,
 };
 
@@ -196,7 +226,7 @@ function AppInner(): React.JSX.Element {
 
   // If user navigated to a page they no longer have access to, redirect to dashboard
   React.useEffect(() => {
-    const adminOnly = currentPage === 'admin-users' || currentPage === 'settings';
+    const adminOnly = currentPage === 'admin-users' || currentPage === 'admin-suppliers' || currentPage === 'admin-categories' || currentPage === 'admin-clients' || currentPage === 'settings' || currentPage === 'import-data';
     if (adminOnly ? !isAdmin : !hasPermission(currentPage)) {
       setCurrentPage('dashboard');
     }
@@ -254,6 +284,46 @@ function AppInner(): React.JSX.Element {
                   >
                     {icons['admin-users']}
                     Utilisateurs
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'admin-suppliers' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('admin-suppliers')}
+                    {...(currentPage === 'admin-suppliers' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons['admin-suppliers']}
+                    Fournisseurs
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'admin-categories' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('admin-categories')}
+                    {...(currentPage === 'admin-categories' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons['admin-categories']}
+                    Catégories
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'admin-clients' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('admin-clients')}
+                    {...(currentPage === 'admin-clients' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons['admin-clients']}
+                    Clients
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'import-data' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('import-data')}
+                    {...(currentPage === 'import-data' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons['import-data']}
+                    Import de donnees
                   </button>
                 </li>
                 <li>

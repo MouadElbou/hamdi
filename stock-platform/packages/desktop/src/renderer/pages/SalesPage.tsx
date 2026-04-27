@@ -46,8 +46,6 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
   const [paymentType, setPaymentType] = useState<'comptant' | 'credit'>('comptant');
   const [advancePaid, setAdvancePaid] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [modalCategory, setModalCategory] = useState('');
-  const [modalSubCategory, setModalSubCategory] = useState('');
   const [confirm, confirmDialog] = useConfirm();
   const { addToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
@@ -152,8 +150,6 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
     setPaymentType('comptant');
     setAdvancePaid('');
     setDueDate('');
-    setModalCategory('');
-    setModalSubCategory('');
   };
 
   const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); loadStock(); };
@@ -438,37 +434,15 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
           </div>
 
           <div className="sale-lines-header">
-            <div className="form-row" style={{ flex: 1, marginBottom: 0 }}>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <select className="toolbar-filter" value={modalCategory} onChange={e => { setModalCategory(e.target.value); setModalSubCategory(''); }}>
-                  <option value="">Toutes catégories</option>
-                  {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                </select>
-              </div>
-              {modalCategory && (() => {
-                const cat = categories.find(c => c.name === modalCategory);
-                const subs = cat ? subCategories.filter(sc => sc.category_id === cat.id) : [];
-                return subs.length > 0 ? (
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <select className="toolbar-filter" value={modalSubCategory} onChange={e => setModalSubCategory(e.target.value)}>
-                      <option value="">Toutes sous-cat.</option>
-                      {subs.map(sc => <option key={sc.id} value={sc.name}>{sc.name}</option>)}
-                    </select>
-                  </div>
-                ) : null;
-              })()}
-            </div>
+            <span className="sale-lines-title">Articles</span>
+            <div className="toolbar-spacer" />
             <button type="button" className="btn btn-secondary btn-sm" onClick={addLine}>+ Ligne</button>
           </div>
 
           {lines.map((line, i) => {
             const selectedLot = stock.find(s => s.lotId === line.lotId);
             const margin = lineMargin(line);
-            const filteredStock = stock.filter(s => {
-              if (modalCategory && s.category !== modalCategory) return false;
-              if (modalSubCategory && s.subCategory !== modalSubCategory) return false;
-              return true;
-            });
+            const filteredStock = stock;
             const parsedPrice = parseFloat(line.sellingUnitPrice);
             const parsedQty = parseInt(line.quantity);
             const lineTotal = line.quantity && line.sellingUnitPrice && Number.isFinite(parsedPrice) && Number.isFinite(parsedQty)
@@ -494,10 +468,23 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                       }}
                       placeholder="Rechercher un article..."
                       required
-                      options={filteredStock.map(s => ({
-                        value: s.lotId,
-                        label: `${s.designation} (${s.category})${s.barcode ? ` [${s.barcode}]` : ''} — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
-                      }))}
+                      options={filteredStock.map(s => {
+                        const pa = (s.purchaseUnitCost / 100).toFixed(2);
+                        const pv = s.sellingPrice != null ? (s.sellingPrice / 100).toFixed(2) : null;
+                        return {
+                          value: s.lotId,
+                          label: `${s.designation} ${s.category}${s.barcode ? ` ${s.barcode}` : ''}`,
+                          display: {
+                            main: s.designation,
+                            sub: [s.category, s.subCategory, s.barcode].filter(Boolean).join(' · '),
+                            meta: [
+                              { label: 'Dispo', value: String(s.remainingQuantity), tone: (s.remainingQuantity > 0 ? 'success' : 'danger') as 'success' | 'danger' },
+                              { label: 'PA', value: pa, tone: 'muted' as const },
+                              ...(pv ? [{ label: 'PV', value: pv, tone: 'muted' as const }] : []),
+                            ],
+                          },
+                        };
+                      })}
                     />
                   </div>
                   <div className="form-group" style={{ flex: 'none', width: 80 }}>
@@ -530,6 +517,30 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                     </div>
                   )}
                 </div>
+                {selectedLot && (
+                  <div className="sale-article-info">
+                    <div className="sale-info-chip">
+                      <span className="sale-info-label">Code-barre</span>
+                      <span className="sale-info-value">{selectedLot.barcode || '—'}</span>
+                    </div>
+                    <div className={`sale-info-chip ${selectedLot.remainingQuantity > 0 ? 'tone-success' : 'tone-danger'}`}>
+                      <span className="sale-info-label">Stock dispo</span>
+                      <span className="sale-info-value">{selectedLot.remainingQuantity}</span>
+                    </div>
+                    <div className="sale-info-chip">
+                      <span className="sale-info-label">PA</span>
+                      <span className="sale-info-value">{fm(selectedLot.purchaseUnitCost)}</span>
+                    </div>
+                    <div className="sale-info-chip">
+                      <span className="sale-info-label">PV public</span>
+                      <span className="sale-info-value">{selectedLot.sellingPrice != null ? fm(selectedLot.sellingPrice) : '—'}</span>
+                    </div>
+                    <div className="sale-info-chip">
+                      <span className="sale-info-label">PV revendeur</span>
+                      <span className="sale-info-value">{selectedLot.targetResalePrice != null ? fm(selectedLot.targetResalePrice) : '—'}</span>
+                    </div>
+                  </div>
+                )}
                 {(margin !== null || lineTotal !== null) && (
                   <div className="sale-line-info">
                     {lineTotal !== null && <span>Total: {fm(lineTotal)}</span>}
@@ -538,8 +549,6 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                         Marge: {fm(margin)}
                       </span>
                     )}
-                    {selectedLot && <span className="text-muted">PA: {fm(selectedLot.purchaseUnitCost)}</span>}
-                    {selectedLot?.sellingPrice && <span className="text-muted">PV public: {fm(selectedLot.sellingPrice)}</span>}
                   </div>
                 )}
               </div>

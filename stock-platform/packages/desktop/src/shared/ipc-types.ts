@@ -10,11 +10,21 @@ export interface SupplierCreateParams {
   code: string;
 }
 
+export interface SupplierUpdateParams {
+  id: string;
+  code: string;
+}
+
 export interface BoutiqueCreateParams {
   name: string;
 }
 
 export interface CategoryCreateParams {
+  name: string;
+}
+
+export interface CategoryUpdateParams {
+  id: string;
   name: string;
 }
 
@@ -27,7 +37,19 @@ export interface SubCategoryCreateParams {
   categoryId: string;
 }
 
+export interface SubCategoryUpdateParams {
+  id: string;
+  name: string;
+  categoryId: string;
+}
+
 export interface ClientCreateParams {
+  name: string;
+  phone?: string;
+}
+
+export interface ClientUpdateParams {
+  id: string;
   name: string;
   phone?: string;
 }
@@ -107,10 +129,42 @@ export interface PurchaseImportExcelParams {
   rows: PurchaseCreateParams[];
 }
 
-export interface PurchaseImportExcelResult {
+export interface ImportExcelResult {
   created: number;
   errors: Array<{ row: number; message: string }>;
 }
+
+export type PurchaseImportExcelResult = ImportExcelResult;
+
+export interface MaintenanceImportExcelParams {
+  rows: MaintenanceCreateParams[];
+}
+
+export type MaintenanceImportExcelResult = ImportExcelResult;
+
+export interface ExpenseImportExcelParams {
+  rows: ExpenseCreateParams[];
+}
+
+export type ExpenseImportExcelResult = ImportExcelResult;
+
+export interface CustomerCreditImportExcelParams {
+  rows: CustomerCreditCreateParams[];
+}
+
+export type CustomerCreditImportExcelResult = ImportExcelResult;
+
+export interface SupplierCreditImportExcelParams {
+  rows: SupplierCreditCreateParams[];
+}
+
+export type SupplierCreditImportExcelResult = ImportExcelResult;
+
+export interface BankMovementImportExcelParams {
+  rows: BankMovementCreateParams[];
+}
+
+export type BankMovementImportExcelResult = ImportExcelResult;
 
 // ─── Stock ──────────────────────────────────────────────────────────
 
@@ -174,6 +228,22 @@ export interface SaleListParams {
   subCategory?: string;
 }
 
+export interface SaleImportRow {
+  date: string;
+  designation: string;
+  quantity: number;
+  sellingUnitPrice: number;
+  clientName?: string;
+  observation?: string;
+  boutique?: string;
+}
+
+export interface SaleImportExcelParams {
+  rows: SaleImportRow[];
+}
+
+export type SaleImportExcelResult = ImportExcelResult;
+
 // ─── Maintenance ────────────────────────────────────────────────────
 
 export interface MaintenanceCreateParams {
@@ -233,6 +303,20 @@ export interface BatteryRepairListParams {
   page?: number;
   limit?: number;
 }
+
+export interface BatteryRepairImportRow {
+  date: string;
+  description: string;
+  amount: number;
+  customerNote?: string;
+  costAdjustment?: number;
+}
+
+export interface BatteryRepairImportExcelParams {
+  rows: BatteryRepairImportRow[];
+}
+
+export type BatteryRepairImportExcelResult = ImportExcelResult;
 
 export interface BatteryTariffCreateParams {
   label: string;

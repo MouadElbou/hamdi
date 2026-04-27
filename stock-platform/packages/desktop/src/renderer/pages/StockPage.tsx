@@ -15,6 +15,8 @@ interface StockItem {
   remainingQuantity: number;
   purchaseUnitCost: number;
   targetResalePrice: number | null;
+  sellingPrice: number | null;
+  barcode: string | null;
   currentStockValue: number;
 }
 
@@ -88,16 +90,18 @@ export function StockPage(): React.JSX.Element {
               <tr>
                 <th>Désignation</th>
                 <th>Catégorie</th>
+                <th>Code barres</th>
                 <th className="text-right">Reste</th>
                 <th className="text-right">PA</th>
+                <th className="text-right">PV Public</th>
                 <th className="text-right">PV Revendeur</th>
-                <th className="text-right">Valeur</th>
+                <th className="text-right">Total Stock</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={8}>
                     <div className="empty-state">
                       <div className="empty-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l10-5 10 5-10 5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
@@ -116,12 +120,14 @@ export function StockPage(): React.JSX.Element {
                 <tr key={item.lotId}>
                   <td className="col-bold">{item.designation}</td>
                   <td>{item.category}</td>
+                  <td className="col-mono">{item.barcode || '—'}</td>
                   <td className="text-right col-mono" style={{ fontWeight: 600 }}>
                     <span className={item.remainingQuantity === 0 ? 'text-danger' : 'text-success'}>
                       {item.remainingQuantity}
                     </span>
                   </td>
                   <td className="text-right col-mono">{formatMoney(item.purchaseUnitCost)}</td>
+                  <td className="text-right col-mono">{item.sellingPrice ? formatMoney(item.sellingPrice) : '—'}</td>
                   <td className="text-right col-mono">{item.targetResalePrice ? formatMoney(item.targetResalePrice) : '—'}</td>
                   <td className="text-right col-mono col-bold">{formatMoney(item.currentStockValue)}</td>
                 </tr>
@@ -130,10 +136,11 @@ export function StockPage(): React.JSX.Element {
             {items.length > 0 && (
               <tfoot>
                 <tr style={{ fontWeight: 700, borderTop: '2px solid var(--border)' }}>
-                  <td colSpan={2} className="text-right">Total</td>
+                  <td colSpan={3} className="text-right">Total</td>
                   <td className="text-right col-mono">
                     {items.reduce((s, i) => s + i.remainingQuantity, 0)}
                   </td>
+                  <td className="text-right col-mono">—</td>
                   <td className="text-right col-mono">—</td>
                   <td className="text-right col-mono">—</td>
                   <td className="text-right col-mono">
