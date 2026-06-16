@@ -55,6 +55,22 @@ if (!API_KEY && process.env['NODE_ENV'] === 'production') {
   console.error('FATAL: API_KEY environment variable is required in production');
   process.exit(1);
 }
+// H4: In production, reject known-placeholder or too-short secrets so a default/weak
+// secret can never ship. Each must be >= 32 chars and not the shipped placeholder.
+if (process.env['NODE_ENV'] === 'production') {
+  // Reject any shipped placeholder verbatim (the .env.example values are 32 chars,
+  // so a length check alone would let them through).
+  const PLACEHOLDERS = new Set(['change-me-in-production', 'REPLACE_WITH_openssl_rand_hex_32', 'CHANGE_ME']);
+  for (const [name, value] of [['JWT_SECRET', JWT_SECRET], ['API_KEY', API_KEY]] as const) {
+    if (!value || PLACEHOLDERS.has(value) || value.startsWith('REPLACE_WITH') || value.length < 32) {
+      console.error(
+        `FATAL: ${name} is empty, a known placeholder, or shorter than 32 chars in production. ` +
+        'Generate a strong secret with: openssl rand -hex 32',
+      );
+      process.exit(1);
+    }
+  }
+}
 // H19: Auto-generate dev API key instead of disabling auth
 if (!API_KEY && process.env['NODE_ENV'] !== 'production') {
   API_KEY = randomBytes(32).toString('hex');
@@ -208,13 +224,15 @@ await app.register(userRoutes, { prefix: '/api/users' });
 await app.register(referenceDataRoutes, { prefix: '/api/reference' });
 await app.register(customerOrderRoutes, { prefix: '/api/customer-orders' });
 
-// Health check — verifies DB connectivity
+// Health check — verifies DB connectivity AND that the schema is migrated.
+// Touches a real application table ("suppliers", the @@map of model Supplier) so an
+// empty/un-migrated DB reports unhealthy (503). Kept cheap via a COUNT(*).
 app.get('/api/health', async (_request, reply) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$queryRaw`SELECT COUNT(*) FROM "suppliers"`;
     return { status: 'ok', timestamp: new Date().toISOString() };
   } catch {
-    return reply.status(503).send({ status: 'error', message: 'Database unreachable' });
+    return reply.status(503).send({ status: 'error', message: 'Database unreachable or not migrated' });
   }
 });
 

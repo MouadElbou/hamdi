@@ -97,3 +97,95 @@ jobs:
       - name: Security audit
         run: npm audit --omit=dev --audit-level=critical
         working-directory: stock-platform
+
+  # B2 — verify the schema actually deploys and creates the real schema.
+  # This job runs the SAME `prisma migrate deploy` the prod Dockerfile uses against a
+  # fresh Postgres, then performs ONE non-mocked end-to-end check (real DB query + a
+  # live backend health probe). It MUST fail if migrations don't create the schema.
+  migrate-deploy-e2e:
+    name: Migrate deploy & e2e schema check
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stock_platform_deploy
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/stock_platform_deploy?schema=public
+      # Strong secrets (>= 32 chars, not the placeholder) so the production startup
+      # guard in server.ts passes and the backend can boot under NODE_ENV=production.
+      JWT_SECRET: ci-e2e-jwt-secret-0123456789abcdef0123456789abcdef
+      API_KEY: ci-e2e-api-key-0123456789abcdef0123456789abcdef
+      CORS_ORIGINS: http://localhost:3000
+      NODE_ENV: production
+      PORT: "3001"
+      HOST: "127.0.0.1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: stock-platform/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: stock-platform
+
+      - name: Build shared package
+        run: npm run build:shared
+        working-directory: stock-platform
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: stock-platform/packages/backend
+
+      # Same command the prod Dockerfile runs on container start.
+      - name: Deploy migrations (prod path)
+        run: npx prisma migrate deploy
+        working-directory: stock-platform/packages/backend
+
+      # Non-mocked check #1: a real table created by the migrations must exist and
+      # be queryable. Fails if the schema wasn't actually applied.
+      - name: Verify core table exists (real SELECT)
+        run: npx prisma db execute --schema prisma/schema.prisma --stdin <<< 'SELECT COUNT(*) FROM "suppliers";'
+        working-directory: stock-platform/packages/backend
+
+      - name: Build backend
+        run: npm run backend:build
+        working-directory: stock-platform
+
+      # Non-mocked check #2: boot the real backend against the migrated DB and probe
+      # /api/health, which itself queries the "suppliers" table → 200 only if migrated.
+      - name: Start backend and probe health
+        working-directory: stock-platform
+        run: |
+          node packages/backend/dist/server.js &
+          SERVER_PID=$!
+          # Ensure the server is killed even if the probe fails.
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3001/api/health; then
+              echo ""
+              echo "Health check passed against migrated DB."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Backend did not become healthy in time" >&2
+          exit 1

@@ -1,0 +1,24 @@
+# H6 — TLS for the sync channel.
+#
+# Caddy terminates HTTPS on 443 (with automatic Let's Encrypt certificates) and
+# reverse-proxies to the internal `backend` service over the compose network.
+# The backend is NOT published to the public interface — only Caddy is.
+#
+# Enable with:  docker compose --profile tls up -d
+# Required env: SYNC_DOMAIN (public hostname). Optional: ACME_EMAIL.
+#
+# Desktop apps must then point SYNC_SERVER_URL at https://<SYNC_DOMAIN>.
+
+{
+	# ACME account email for certificate-expiry notices (optional).
+	email {$ACME_EMAIL}
+}
+
+{$SYNC_DOMAIN} {
+	# Automatic HTTPS is on by default; HTTP/80 is redirected to HTTPS.
+	encode gzip
+
+	# Proxy everything to the backend over the internal network.
+	# "backend" resolves via Docker DNS; the port is the container's internal 3001.
+	reverse_proxy backend:3001
+}

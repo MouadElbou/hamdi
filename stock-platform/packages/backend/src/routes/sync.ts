@@ -85,7 +85,7 @@ const ENTITY_ALLOWED_FIELDS: Record<string, Set<string>> = {
   category: new Set(['name']),
   sub_category: new Set(['name', 'categoryId']),
   category_alias: new Set(['rawValue', 'categoryId']),
-  user: new Set(['username', 'displayName', 'role', 'isActive', 'mustChangePassword']),
+  user: new Set(['username', 'passwordHash', 'displayName', 'role', 'isActive', 'mustChangePassword']),
 };
 
 // C5: All entities now use soft-delete (deletedAt added to Supplier, Boutique, Category)
@@ -272,9 +272,12 @@ export async function syncRoutes(app: FastifyInstance) {
             if (NO_SOFT_DELETE_ENTITIES.has(op.entityType)) {
               await txModel.delete({ where: { id: op.entityId } }).catch(() => { /* already deleted */ });
             } else {
+              // C-DELETE-ORIGIN: stamp the deleter as the new origin so the row's
+              // original creator/last-editor desktop no longer echo-suppresses this
+              // delete and actually removes the record locally (convergence fix).
               await txModel.update({
                 where: { id: op.entityId },
-                data: { deletedAt: new Date(), version: { increment: 1 } },
+                data: { deletedAt: new Date(), version: { increment: 1 }, originDesktopId: body.desktopId },
               });
             }
           }
@@ -352,53 +355,79 @@ export async function syncRoutes(app: FastifyInstance) {
     return { results };
   });
 
-  // Pull: desktop fetches updates since a cursor
+  // Pull: desktop fetches updates since a COMPOSITE (updatedAt, id) cursor.
+  //
+  // Why composite + query-every-type: the previous implementation advanced a
+  // single `updatedAt` cursor while filling a page budget per entity type with an
+  // early-exit. A busy entity type could fill the page and push the cursor past
+  // OLDER changes of other types, which then matched neither `> cursor` nor the
+  // boundary — permanently lost. Equal-timestamp rows straddling a page boundary
+  // were also dropped. Here we query every type with the SAME cursor (no shared
+  // budget / no early break), globally merge-sort by (updatedAt, id), and return
+  // one page; the cursor is the (updatedAt, id) of the last row in the page, so
+  // the next page strictly continues from it for ALL types. The client apply is
+  // version-gated/idempotent, so any re-delivery at the boundary is harmless.
   app.get('/pull', async (request) => {
-    const { since, limit = '500' } = request.query as Record<string, string | undefined>;
+    const { since, sinceId, limit = '500' } = request.query as Record<string, string | undefined>;
     const take = Math.min(parseInt(limit ?? '500', 10) || 500, 1000);
     const sinceDate = since ? new Date(since) : new Date(0);
+    const sinceIdVal = sinceId ?? '';
 
-    // Collect updated entities with a global budget across all types
-    const entities: Array<{ entityType: string; data: unknown; updatedAt: Date }> = [];
-    let remaining = take;
+    const candidates: Array<{ entityType: string; data: Record<string, unknown>; updatedAt: Date; id: string }> = [];
+    let anySaturated = false;
 
     for (const [entityType, modelName] of Object.entries(ENTITY_TYPE_MAP)) {
-      if (remaining <= 0) break;
       const model = (prisma as Record<string, any>)[modelName];
       if (!model?.findMany) continue;
 
       try {
-        // Include permissions when pulling user entities
         const findArgs: Record<string, unknown> = {
-          where: { updatedAt: { gt: sinceDate } },
-          orderBy: { updatedAt: 'asc' },
-          take: remaining,
+          where: {
+            OR: [
+              { updatedAt: { gt: sinceDate } },
+              { updatedAt: sinceDate, id: { gt: sinceIdVal } },
+            ],
+          },
+          orderBy: [{ updatedAt: 'asc' }, { id: 'asc' }],
+          take,
         };
         if (entityType === 'user') {
           findArgs.include = { permissions: { select: { pageKey: true } } };
         }
         const rows = await model.findMany(findArgs);
+        if (rows.length >= take) anySaturated = true;
         for (const row of rows) {
           // Flatten user permissions into a simple array for the desktop
           if (entityType === 'user' && row.permissions) {
             row.permissions = (row.permissions as Array<{ pageKey: string }>).map((p: { pageKey: string }) => p.pageKey);
           }
-          entities.push({ entityType, data: row, updatedAt: row.updatedAt });
+          candidates.push({ entityType, data: row, updatedAt: row.updatedAt, id: row.id as string });
         }
-        remaining -= rows.length;
       } catch {
         // Some models might not have updatedAt — skip
       }
     }
 
-    // Sort by timestamp and trim to limit
-    entities.sort((a, b) => a.updatedAt.getTime() - b.updatedAt.getTime());
-    const result = entities.slice(0, take);
-    const newCursor = result.length > 0
-      ? result[result.length - 1]!.updatedAt.toISOString()
-      : (since ?? new Date(0).toISOString());
+    // Global merge-sort by (updatedAt, id), then take one page.
+    candidates.sort((a, b) => {
+      const t = a.updatedAt.getTime() - b.updatedAt.getTime();
+      if (t !== 0) return t;
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    });
+    const page = candidates.slice(0, take);
+    const last = page[page.length - 1];
+    const newCursor = last ? last.updatedAt.toISOString() : (since ?? new Date(0).toISOString());
+    const newCursorId = last ? last.id : sinceIdVal;
+    // More remains if we truncated the merged set, or any single type filled a full
+    // page (it may have rows beyond `take` that this round's page didn't reach).
+    const hasMore = candidates.length > take || anySaturated;
 
-    return { entities: result, cursor: newCursor, hasMore: result.length >= take };
+    return {
+      entities: page.map(({ entityType, data }) => ({ entityType, data })),
+      cursor: newCursor,
+      cursorId: newCursorId,
+      hasMore,
+    };
   });
 
   // Bootstrap: paginated full pull for new desktop installations

@@ -208,7 +208,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
   safeHandle('sync:list-conflicts', () => {
     return db.prepare(
-      `SELECT id, entity_type, entity_id, operation, payload, version, created_at, status
+      `SELECT id, entity_type, entity_id, operation, payload, version, created_at, status, detail, retry_count
        FROM sync_outbox
        WHERE status IN ('conflict', 'rejected')
        ORDER BY created_at DESC`
@@ -3361,7 +3361,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
       const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.userId, 'UPDATE', {
-        username: updatedUser['username'],
+        username: updatedUser['username'], passwordHash: hash,
         displayName: updatedUser['display_name'], role: updatedUser['role'],
         isActive: !!(updatedUser['is_active'] as number), mustChangePassword: false,
         permissions: perms,
@@ -3420,7 +3420,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
         insertPerm.run(uuidv7(), id, page, now);
       }
       addToOutbox(db, 'user', id, 'CREATE', {
-        username, displayName: data.displayName.trim(),
+        username, passwordHash: hash, displayName: data.displayName.trim(),
         role: data.role, isActive: true, mustChangePassword: true, permissions: perms,
       });
       auditLog('USER_CREATE', `Created user "${username}" (role: ${data.role})`);
@@ -3461,7 +3461,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const updatedUser = db.prepare('SELECT * FROM users WHERE id = ?').get(data.id) as Record<string, unknown>;
       const updatedPerms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.id) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.id, 'UPDATE', {
-        username: updatedUser['username'],
+        username: updatedUser['username'], passwordHash: updatedUser['password_hash'],
         displayName: updatedUser['display_name'], role: updatedUser['role'],
         isActive: !!(updatedUser['is_active'] as number), mustChangePassword: !!(updatedUser['must_change_password'] as number),
         permissions: updatedPerms,
@@ -3481,7 +3481,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       const user = db.prepare('SELECT * FROM users WHERE id = ?').get(data.userId) as Record<string, unknown>;
       const perms = (db.prepare('SELECT page_key FROM user_permissions WHERE user_id = ?').all(data.userId) as Array<{ page_key: string }>).map(p => p.page_key);
       addToOutbox(db, 'user', data.userId, 'UPDATE', {
-        username: user['username'],
+        username: user['username'], passwordHash: hash,
         displayName: user['display_name'], role: user['role'],
         isActive: !!(user['is_active'] as number), mustChangePassword: true,
         permissions: perms,

@@ -575,19 +575,22 @@ function createTables(): void {
       version INTEGER NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       synced_at TEXT,
-      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'synced', 'conflict', 'rejected'))
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'synced', 'conflict', 'rejected', 'dismissed')),
+      detail TEXT,
+      retry_count INTEGER NOT NULL DEFAULT 0
     );
 
     CREATE INDEX IF NOT EXISTS idx_sync_outbox_status ON sync_outbox(status, created_at);
     CREATE INDEX IF NOT EXISTS idx_sync_outbox_entity ON sync_outbox(entity_id);
 
-    -- Sync cursor: tracks the last pull timestamp
+    -- Sync cursor: tracks the last pull position as a composite (timestamp, id)
     CREATE TABLE IF NOT EXISTS sync_cursor (
       id TEXT PRIMARY KEY DEFAULT 'main',
-      last_pull_at TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z'
+      last_pull_at TEXT NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
+      last_pull_id TEXT NOT NULL DEFAULT ''
     );
 
-    INSERT OR IGNORE INTO sync_cursor (id, last_pull_at) VALUES ('main', '1970-01-01T00:00:00.000Z');
+    INSERT OR IGNORE INTO sync_cursor (id, last_pull_at, last_pull_id) VALUES ('main', '1970-01-01T00:00:00.000Z', '');
 
     -- Desktop identity
     CREATE TABLE IF NOT EXISTS desktop_meta (
@@ -692,7 +695,10 @@ function runMigrations(): void {
   // C4: Recreate sync_outbox to add 'dismissed' to CHECK constraint
   // SQLite doesn't support ALTER CHECK, so we recreate the table inside a transaction
   const outboxCols = db.prepare("PRAGMA table_info(sync_outbox)").all() as Array<{ name: string }>;
-  if (outboxCols.length > 0) {
+  // Only rebuild on a pre-H7 table (no `detail` column). Once detail/retry_count
+  // exist the table already has the 'dismissed'-capable CHECK, so re-running the
+  // 9-column rebuild would just fail-and-rollback on every startup — skip it.
+  if (outboxCols.length > 0 && !outboxCols.some(c => c.name === 'detail')) {
     try {
       db.transaction(() => {
         db.exec(`
@@ -719,6 +725,15 @@ function runMigrations(): void {
       try { db.exec('DROP TABLE IF EXISTS _sync_outbox_new'); } catch { /* safe to ignore */ }
     }
   }
+
+  // H7: surface why an op was rejected/conflicted, and a bounded auto-retry counter.
+  // Added AFTER the C4 rebuild so its `SELECT *` copy isn't affected (the rebuild
+  // becomes a harmless no-op once these columns exist).
+  addCol('sync_outbox', 'detail', 'TEXT');
+  addCol('sync_outbox', 'retry_count', 'INTEGER NOT NULL DEFAULT 0');
+
+  // H3: composite (updatedAt, id) pull cursor — add the id half for existing DBs.
+  addCol('sync_cursor', 'last_pull_id', "TEXT NOT NULL DEFAULT ''");
 
   // Backfill 'customer-orders' permission for existing admin users who lack it
   try {

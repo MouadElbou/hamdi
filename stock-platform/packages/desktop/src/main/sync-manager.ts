@@ -205,6 +205,7 @@ const ENTITY_COLUMNS: Record<string, ColDef[]> = {
   ],
   user: [
     { key: 'username', col: 'username' },
+    { key: 'passwordHash', col: 'password_hash' },
     { key: 'displayName', col: 'display_name' },
     { key: 'role', col: 'role' },
     { key: 'isActive', col: 'is_active', fallback: 1 },
@@ -264,17 +265,6 @@ const NO_VERSION_TABLES = new Set<string>();
 
 // Reference tables that do NOT have a `deleted_at` column
 const NO_SOFT_DELETE_TABLES = new Set<string>();
-
-// Tables where the natural unique key differs from `id`.
-// For these, use INSERT OR IGNORE to skip conflicts (seeded reference data).
-// Tables where the natural unique key differs from `id` (seeded reference data).
-// Use INSERT OR IGNORE to skip server entities that conflict with existing local data.
-// This prevents UNIQUE constraint failures when seeded data has different IDs on backend vs desktop.
-const INSERT_OR_IGNORE_TABLES = new Set<string>([
-  'category_aliases', 'suppliers', 'boutiques', 'categories', 'sub_categories',
-  'battery_tariffs', 'maintenance_service_types', 'expense_designations',
-  'users', // admin seeded independently on each end — desktop is auth authority
-]);
 
 export class SyncManager {
   private db: Database.Database;
@@ -424,19 +414,39 @@ export class SyncManager {
 
     if (!response.ok) throw new Error(`Push failed: ${response.status}`);
 
-    const result = await response.json() as { results: Array<{ operationId: string; result: string }> };
+    const result = await response.json() as { results: Array<{ operationId: string; result: string; detail?: string }> };
 
     // M4: Validate response length matches request — detect truncated responses
     if (!result.results || result.results.length !== operations.length) {
       throw new Error(`Push response mismatch: sent ${operations.length} ops, got ${result.results?.length ?? 0} results`);
     }
 
-    const VALID_STATUSES = new Set(['synced', 'conflict', 'rejected']);
-    const markSynced = this.db.prepare("UPDATE sync_outbox SET status = ?, synced_at = datetime('now') WHERE id = ?");
-    for (const r of result.results) {
-      const status = r.result === 'accepted' ? 'synced' : (VALID_STATUSES.has(r.result) ? r.result : 'rejected');
-      markSynced.run(status, r.operationId);
-    }
+    // H7: conflicts are auto-redriven a bounded number of times (the next cycle
+    // runs after a pull that may have delivered the state that caused an ordering
+    // conflict); persist the server `detail` for both conflict and rejected ops so
+    // they are no longer silent dead-ends (surfaced via sync:list-conflicts).
+    const MAX_CONFLICT_RETRIES = 3;
+    const markSynced = this.db.prepare("UPDATE sync_outbox SET status = 'synced', synced_at = datetime('now'), detail = NULL WHERE id = ?");
+    const markTerminal = this.db.prepare("UPDATE sync_outbox SET status = ?, synced_at = datetime('now'), detail = ? WHERE id = ?");
+    const requeueConflict = this.db.prepare("UPDATE sync_outbox SET status = 'pending', retry_count = retry_count + 1, detail = ? WHERE id = ?");
+    const getRetry = this.db.prepare("SELECT retry_count FROM sync_outbox WHERE id = ?");
+    this.db.transaction(() => {
+      for (const r of result.results) {
+        if (r.result === 'accepted') {
+          markSynced.run(r.operationId);
+        } else if (r.result === 'conflict') {
+          const row = getRetry.get(r.operationId) as { retry_count: number } | undefined;
+          if ((row?.retry_count ?? 0) < MAX_CONFLICT_RETRIES) {
+            requeueConflict.run(r.detail ?? null, r.operationId);
+          } else {
+            markTerminal.run('conflict', r.detail ?? null, r.operationId);
+          }
+        } else {
+          // 'rejected' or any unknown status → terminal, but recorded (not silent).
+          markTerminal.run('rejected', r.detail ?? null, r.operationId);
+        }
+      }
+    })();
 
     // Cleanup old synced entries (keep last 7 days)
     this.db.prepare("DELETE FROM sync_outbox WHERE status = 'synced' AND synced_at < datetime('now', '-7 days')").run();
@@ -452,10 +462,23 @@ export class SyncManager {
     const desktopId = this.getDesktopId();
     const MAX_PULL_ROUNDS = 20; // Safety cap to prevent infinite loops
 
-    for (let round = 0; round < MAX_PULL_ROUNDS; round++) {
-      const cursor = this.db.prepare("SELECT last_pull_at FROM sync_cursor WHERE id = 'main'").get() as { last_pull_at: string };
+    // Apply a single entity inside its own SAVEPOINT (better-sqlite3 nests
+    // transactions as savepoints) so one bad row — e.g. a natural-key UNIQUE
+    // collision from independently-seeded reference data — can never roll back
+    // and wedge the whole pull batch (which would stop ALL future sync).
+    const applyOne = this.db.transaction((entityType: string, data: Record<string, unknown>) => {
+      this.applyServerEntity(entityType, data);
+    });
 
-      const response = await fetch(`${getSyncServerUrl()}/api/sync/pull?since=${encodeURIComponent(cursor.last_pull_at)}&limit=500`, {
+    for (let round = 0; round < MAX_PULL_ROUNDS; round++) {
+      const cursor = this.db.prepare("SELECT last_pull_at, last_pull_id FROM sync_cursor WHERE id = 'main'").get() as { last_pull_at: string; last_pull_id: string | null };
+
+      const params = new URLSearchParams({
+        since: cursor.last_pull_at,
+        sinceId: cursor.last_pull_id ?? '',
+        limit: '500',
+      });
+      const response = await fetch(`${getSyncServerUrl()}/api/sync/pull?${params.toString()}`, {
         headers: pullHeaders,
         signal: AbortSignal.timeout(15_000),
       });
@@ -465,6 +488,7 @@ export class SyncManager {
       const data = await response.json() as {
         entities: Array<{ entityType: string; data: Record<string, unknown> }>;
         cursor: string;
+        cursorId?: string;
         hasMore?: boolean;
       };
 
@@ -475,17 +499,33 @@ export class SyncManager {
 
       if (data.entities.length === 0) return;
 
-      this.db.transaction(() => {
-        for (const entity of data.entities) {
-          // Skip entities that originated from this desktop to avoid echo
-          if ((entity.data['originDesktopId'] ?? entity.data['origin_desktop_id']) === desktopId) continue;
+      // Disable FK enforcement for the apply window so a child pulled before its
+      // parent doesn't fail (relationships converge as every row arrives; the
+      // server is the source of truth). better-sqlite3 runs the transaction
+      // synchronously, so no other statement observes foreign_keys = OFF.
+      this.db.pragma('foreign_keys = OFF');
+      try {
+        this.db.transaction(() => {
+          for (const entity of data.entities) {
+            // Echo suppression: skip rows we originated — EXCEPT deletes, which we
+            // must always apply (the server stamps the deleter as origin, and a
+            // delete may target a row we created). Apply is version-gated/idempotent.
+            const origin = entity.data['originDesktopId'] ?? entity.data['origin_desktop_id'];
+            const isDeleted = entity.data['deletedAt'] ?? entity.data['deleted_at'];
+            if (!isDeleted && origin === desktopId) continue;
+            try {
+              applyOne(entity.entityType, entity.data);
+            } catch (err) {
+              console.warn(`[SYNC] Skipped ${entity.entityType} ${String(entity.data['id'])}: ${(err as Error).message}`);
+            }
+          }
 
-          this.applyServerEntity(entity.entityType, entity.data);
-        }
-
-        // Update cursor
-        this.db.prepare("UPDATE sync_cursor SET last_pull_at = ? WHERE id = 'main'").run(data.cursor);
-      })();
+          // Advance the composite (updatedAt, id) cursor
+          this.db.prepare("UPDATE sync_cursor SET last_pull_at = ?, last_pull_id = ? WHERE id = 'main'").run(data.cursor, data.cursorId ?? '');
+        })();
+      } finally {
+        this.db.pragma('foreign_keys = ON');
+      }
 
       // H2: Loop if server reports more data available
       if (!data.hasMore) return;
@@ -555,24 +595,12 @@ export class SyncManager {
     };
     const colVal = (c: ColDef) => toSQLite(data[c.key] ?? data[c.col] ?? c.fallback ?? null);
 
-    // Tables with secondary unique natural keys (e.g. category_aliases.raw_value):
-    // use INSERT OR IGNORE to skip server entries that conflict with existing local data.
-    if (INSERT_OR_IGNORE_TABLES.has(table)) {
-      const cols = ['id', ...columnDefs.map(c => c.col), 'version', 'created_at', 'updated_at'];
-      const placeholders = cols.map(() => '?').join(', ');
-      const values = [
-        id,
-        ...columnDefs.map(c => colVal(c)),
-        serverVersion,
-        toSQLite(data['createdAt'] ?? data['created_at'] ?? now),
-        toSQLite(data['updatedAt'] ?? data['updated_at'] ?? now),
-      ];
-      this.db.prepare(
-        `INSERT OR IGNORE INTO ${table} (${cols.join(', ')}) VALUES (${placeholders})`
-      ).run(...values);
-      return;
-    }
-
+    // Reference data and users go through the same version-gated upsert as
+    // everything else so server-side renames / edits / role & permission changes
+    // actually propagate. A genuine natural-key collision on a DIFFERENT local id
+    // (independently-seeded data) raises a UNIQUE error that the per-row SAVEPOINT
+    // in pullUpdates catches and skips — same end-state as the old INSERT OR IGNORE,
+    // but updates to id-matched rows now apply.
     if (hasVersion) {
       const cols = ['id', ...columnDefs.map(c => c.col), 'version', 'created_at', 'updated_at'];
       const placeholders = cols.map(() => '?').join(', ');

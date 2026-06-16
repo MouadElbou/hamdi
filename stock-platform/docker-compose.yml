@@ -3,15 +3,18 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: stock_platform
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      # H4: no hardcoded password — must be provided, fails closed if unset
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-stock_platform}
+    # H5: do NOT publish Postgres to the public interface. Bind to loopback only
+    # so local admin tools can connect; the backend reaches it over the compose network.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,12 +27,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # H6: do NOT publish the backend to the public interface. Bind to loopback only
+    # for local admin; in production the caddy service (profile "tls") terminates HTTPS
+    # and proxies to backend over the internal compose network.
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/stock_platform?schema=public
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
-      API_KEY: ${API_KEY:-change-me-in-production}
+      # Password is parameterized via POSTGRES_PASSWORD (no hardcoded credential)
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@db:5432/${POSTGRES_DB:-stock_platform}?schema=public
+      # H4: secrets must be supplied (no insecure default). Fails closed if unset.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      API_KEY: ${API_KEY:?API_KEY is required}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       PORT: "3001"
       HOST: "0.0.0.0"
@@ -54,7 +62,8 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://backend:3001/api
       NEXT_PUBLIC_STORE_PHONE: ${NEXT_PUBLIC_STORE_PHONE:-212536690306}
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      # H4: secret must be supplied (no insecure default). Fails closed if unset.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
       NODE_ENV: production
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
@@ -63,5 +72,30 @@ services:
       retries: 3
       start_period: 30s
 
+  # H6: TLS terminator (optional). Enable with: docker compose --profile tls up
+  # Publishes 80/443, obtains/renews certificates automatically, and reverse-proxies
+  # to the internal backend. Set SYNC_DOMAIN to your public hostname.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    profiles: ["tls"]
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # Public hostname Caddy serves (used for automatic TLS via Let's Encrypt)
+      SYNC_DOMAIN: ${SYNC_DOMAIN:?SYNC_DOMAIN is required for the tls profile}
+      # Email for ACME/Let's Encrypt expiry notices (optional but recommended)
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
