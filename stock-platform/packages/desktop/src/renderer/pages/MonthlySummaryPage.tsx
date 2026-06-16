@@ -67,6 +67,23 @@ export function MonthlySummaryPage(): React.JSX.Element {
 
       {loadError && <div style={{ background: 'var(--bg-danger, #7f1d1d)', padding: '12px 16px', borderRadius: 8, marginBottom: 16, color: 'var(--text-primary)' }}>Erreur lors du chargement des données.</div>}
 
+      {months.length > 0 && (
+        <div className="ms-summary">
+          <div className="ms-summary-card">
+            <span className="ms-summary-label">Revenu total {year}</span>
+            <span className="ms-summary-value">{fm(totals.totalRevenue)}</span>
+          </div>
+          <div className="ms-summary-card">
+            <span className="ms-summary-label">Dépenses {year}</span>
+            <span className="ms-summary-value text-danger">{fm(totals.expenseTotal)}</span>
+          </div>
+          <div className="ms-summary-card ms-summary-card-accent">
+            <span className="ms-summary-label">Bénéfice net {year}</span>
+            <span className={`ms-summary-value ${totals.profit >= 0 ? 'text-success' : 'text-danger'}`}>{fm(totals.profit)}</span>
+          </div>
+        </div>
+      )}
+
       <div className="card-table">
         <div className="table-wrapper" style={{ maxHeight: 'calc(100vh - 260px)', overflowY: 'auto' }}>
           <table className="data-table">
@@ -85,7 +102,7 @@ export function MonthlySummaryPage(): React.JSX.Element {
                 <th className="text-right">Payé fourn.</th>
                 <th className="text-right">Rev. total</th>
                 <th className="text-right">Dépenses</th>
-                <th className="text-right">Bénéfice</th>
+                <th className="text-right">Bénéfice net</th>
               </tr>
             </thead>
             <tbody>

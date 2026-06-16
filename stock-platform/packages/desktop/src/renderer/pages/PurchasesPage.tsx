@@ -88,6 +88,7 @@ export function PurchasesPage(): React.JSX.Element {
   const { isAdmin } = useAuth();
   const [items, setItems] = useState<Array<Record<string, unknown>>>([]);
   const [totalItems, setTotalItems] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [filterCategory, setFilterCategory] = useState('');
@@ -145,9 +146,10 @@ export function PurchasesPage(): React.JSX.Element {
 
   const load = async () => {
     try {
-      const result = await window.api.purchases.list({ page, limit: PAGE_SIZE, search: search || undefined, category: filterCategory || undefined, subCategory: filterSubCategory || undefined }) as { items: Array<Record<string, unknown>>; total: number };
+      const result = await window.api.purchases.list({ page, limit: PAGE_SIZE, search: search || undefined, category: filterCategory || undefined, subCategory: filterSubCategory || undefined }) as { items: Array<Record<string, unknown>>; total: number; grandTotal?: number };
       if (result?.items) setItems(result.items);
       setTotalItems(result?.total || 0);
+      setGrandTotal(result?.grandTotal || 0);
     } catch (err) { console.error('[Load]', err); addToast('Erreur lors du chargement des achats', 'error'); }
   };
 
@@ -364,6 +366,7 @@ export function PurchasesPage(): React.JSX.Element {
           </select>
         )}
         <span className="badge">{totalItems} articles</span>
+        {isAdmin && <span className="badge badge-accent" title="Total global des achats">Total achats: {fm(grandTotal)}</span>}
         <div className="toolbar-spacer" />
         <input
           ref={fileInputRef}
@@ -560,10 +563,10 @@ export function PurchasesPage(): React.JSX.Element {
           <table className="data-table">
             <thead>
               <tr>
+                <th>Code-barres</th>
                 <th>Date</th>
                 <th>Categorie</th>
                 <th>Designation</th>
-                <th>Code-barres</th>
                 {isAdmin && <th>Fournisseur</th>}
                 <th className="text-right">Qte</th>
                 {isAdmin && <th className="text-right">PA unit.</th>}
@@ -575,7 +578,7 @@ export function PurchasesPage(): React.JSX.Element {
             <tbody>
               {items.length === 0 && (
                 <tr>
-                  <td colSpan={isAdmin ? 10 : 6}>
+                  <td colSpan={isAdmin ? 10 : 7}>
                     <div className="empty-state">
                       <div className="empty-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
@@ -588,10 +591,10 @@ export function PurchasesPage(): React.JSX.Element {
               )}
               {items.map((item) => (
                 <tr key={item['id'] as string}>
+                  <td className="col-mono col-bold">{(item['barcode'] as string) || '—'}</td>
                   <td className="col-mono">{item['date'] as string}</td>
                   <td>{item['category_name'] as string}</td>
                   <td className="col-bold">{item['designation'] as string}</td>
-                  <td className="text-muted">{(item['barcode'] as string) || '—'}</td>
                   {isAdmin && <td>{item['supplier_code'] as string}</td>}
                   <td className="text-right col-mono">{item['initial_quantity'] as number}</td>
                   {isAdmin && <td className="text-right col-mono">{fm(item['purchase_unit_cost'] as number)}</td>}

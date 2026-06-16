@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast.js';
 import { SearchableSelect } from '../components/SearchableSelect.js';
 import Pagination, { PAGE_SIZE } from '../components/Pagination.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
+import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
 import { useBarcodeScanner } from '../components/useBarcodeScanner.js';
 
@@ -28,7 +29,10 @@ const fm = (c: number) => (c / 100).toLocaleString('fr-FR', { minimumFractionDig
 
 export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } = {}): React.JSX.Element {
   const { categories, subCategories } = useReferenceData();
+  const { isAdmin } = useAuth();
   const [orders, setOrders] = useState<SaleOrder[]>([]);
+  const [barcodeInput, setBarcodeInput] = useState('');
+  const [barcodeFieldFocused, setBarcodeFieldFocused] = useState(false);
   const [totalOrders, setTotalOrders] = useState(0);
   const [stock, setStock] = useState<StockItem[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -65,6 +69,51 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
       })
     : [];
 
+  // Add a looked-up lot to the current sale lines (increment if already present).
+  const addLotToLines = (result: StockItem) => {
+    setLines(prev => {
+      const existingIdx = prev.findIndex(l => l.lotId === result.lotId);
+      if (existingIdx >= 0) {
+        const updated = [...prev];
+        const currentQty = parseInt(updated[existingIdx].quantity) || 0;
+        updated[existingIdx] = { ...updated[existingIdx], quantity: String(currentQty + 1) };
+        return updated;
+      }
+      const newLine: SaleLine = {
+        lotId: result.lotId,
+        quantity: '1',
+        sellingUnitPrice: result.sellingPrice ? (result.sellingPrice / 100).toFixed(2) : '',
+        priceMode: 'unit',
+        blockTotal: '',
+      };
+      const lastLine = prev[prev.length - 1];
+      if (lastLine && !lastLine.lotId) {
+        const updated = [...prev];
+        updated[updated.length - 1] = newLine;
+        return updated;
+      }
+      return [...prev, newLine];
+    });
+  };
+
+  // Manual barcode field inside the sale modal — type or scan a code then press Enter.
+  const submitBarcodeField = async () => {
+    const code = barcodeInput.trim();
+    if (!code) return;
+    try {
+      const result = await window.api.stock.lookupBarcode({ barcode: code }) as StockItem | null;
+      if (!result) {
+        addToast(`Aucun produit trouvé pour le code-barres: ${code}`, 'error');
+        return;
+      }
+      addLotToLines(result);
+      addToast(`${result.designation} ajouté`, 'success');
+      setBarcodeInput('');
+    } catch {
+      addToast('Erreur lors de la recherche par code-barres', 'error');
+    }
+  };
+
   const handleBarcodeScan = async (barcode: string) => {
     try {
       const result = await window.api.stock.lookupBarcode({ barcode }) as StockItem | null;
@@ -91,38 +140,18 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
         }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
         return;
       }
-      // Modal is open — check if lot already in lines
-      setLines(prev => {
-        const existingIdx = prev.findIndex(l => l.lotId === result.lotId);
-        if (existingIdx >= 0) {
-          const updated = [...prev];
-          const currentQty = parseInt(updated[existingIdx].quantity) || 0;
-          updated[existingIdx] = { ...updated[existingIdx], quantity: String(currentQty + 1) };
-          return updated;
-        }
-        // Add new line (replace empty line at end if exists)
-        const lastLine = prev[prev.length - 1];
-        const newLine: SaleLine = {
-          lotId: result.lotId,
-          quantity: '1',
-          sellingUnitPrice: result.sellingPrice ? (result.sellingPrice / 100).toFixed(2) : '',
-          priceMode: 'unit',
-          blockTotal: '',
-        };
-        if (lastLine && !lastLine.lotId) {
-          const updated = [...prev];
-          updated[updated.length - 1] = newLine;
-          return updated;
-        }
-        return [...prev, newLine];
-      });
+      // Modal is open — add (or increment) the scanned lot
+      addLotToLines(result);
       addToast(`${result.designation} ajouté`, 'success');
     } catch {
       addToast('Erreur lors de la recherche par code-barres', 'error');
     }
   };
 
-  useBarcodeScanner(handleBarcodeScan);
+  // While the in-modal barcode field is focused, the field itself handles input
+  // (typed or scanned). Disabling the global document-level scanner then avoids it
+  // intercepting and truncating scans aimed at the field.
+  useBarcodeScanner(handleBarcodeScan, !barcodeFieldFocused);
 
 
   const loadStock = () => {
@@ -146,6 +175,8 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
     setObservation('');
     setClientName('');
     setClientSuggestions([]);
+    setBarcodeInput('');
+    setBarcodeFieldFocused(false);
     setLines([{ lotId: '', quantity: '', sellingUnitPrice: '', priceMode: 'unit', blockTotal: '' }]);
     setPaymentType('comptant');
     setAdvancePaid('');
@@ -436,6 +467,17 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
           <div className="sale-lines-header">
             <span className="sale-lines-title">Articles</span>
             <div className="toolbar-spacer" />
+            <input
+              type="text"
+              value={barcodeInput}
+              onChange={e => setBarcodeInput(e.target.value)}
+              onFocus={() => setBarcodeFieldFocused(true)}
+              onBlur={() => setBarcodeFieldFocused(false)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); submitBarcodeField(); } }}
+              placeholder="Code-barres — Entrée pour ajouter"
+              title="Scanner ou saisir un code-barres pour sélectionner l'article"
+              style={{ maxWidth: 240, marginRight: 8 }}
+            />
             <button type="button" className="btn btn-secondary btn-sm" onClick={addLine}>+ Ligne</button>
           </div>
 
@@ -479,7 +521,7 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                             sub: [s.category, s.subCategory, s.barcode].filter(Boolean).join(' · '),
                             meta: [
                               { label: 'Dispo', value: String(s.remainingQuantity), tone: (s.remainingQuantity > 0 ? 'success' : 'danger') as 'success' | 'danger' },
-                              { label: 'PA', value: pa, tone: 'muted' as const },
+                              ...(isAdmin ? [{ label: 'PA', value: pa, tone: 'muted' as const }] : []),
                               ...(pv ? [{ label: 'PV', value: pv, tone: 'muted' as const }] : []),
                             ],
                           },
@@ -494,9 +536,9 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                 </div>
                 <div className="form-row" style={{ marginBottom: 0 }}>
                   <div className="form-group" style={{ flex: 'none' }}>
-                    <label>Mode</label>
+                    <label>Type client</label>
                     <div className="sale-toggle sm">
-                      <button type="button" className={line.priceMode === 'unit' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'unit')}>Unité</button>
+                      <button type="button" className={line.priceMode === 'unit' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'unit')}>Public</button>
                       <button type="button" className={line.priceMode === 'block' ? 'active' : ''} onClick={() => updateLine(i, 'priceMode', 'block')}>Revendeur</button>
                     </div>
                   </div>
@@ -527,10 +569,12 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                       <span className="sale-info-label">Stock dispo</span>
                       <span className="sale-info-value">{selectedLot.remainingQuantity}</span>
                     </div>
-                    <div className="sale-info-chip">
-                      <span className="sale-info-label">PA</span>
-                      <span className="sale-info-value">{fm(selectedLot.purchaseUnitCost)}</span>
-                    </div>
+                    {isAdmin && (
+                      <div className="sale-info-chip">
+                        <span className="sale-info-label">PA</span>
+                        <span className="sale-info-value">{fm(selectedLot.purchaseUnitCost)}</span>
+                      </div>
+                    )}
                     <div className="sale-info-chip">
                       <span className="sale-info-label">PV public</span>
                       <span className="sale-info-value">{selectedLot.sellingPrice != null ? fm(selectedLot.sellingPrice) : '—'}</span>
@@ -541,10 +585,10 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                     </div>
                   </div>
                 )}
-                {(margin !== null || lineTotal !== null) && (
+                {(lineTotal !== null || (isAdmin && margin !== null)) && (
                   <div className="sale-line-info">
                     {lineTotal !== null && <span>Total: {fm(lineTotal)}</span>}
-                    {margin !== null && (
+                    {isAdmin && margin !== null && (
                       <span className={margin < 0 ? 'text-danger' : 'text-success'}>
                         Marge: {fm(margin)}
                       </span>
@@ -563,10 +607,10 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
               return sum + Math.round(p * 100) * q;
             }, 0);
             const margin = totalFormMargin();
-            return (totalAmount > 0 || margin !== null) ? (
+            return (totalAmount > 0 || (isAdmin && margin !== null)) ? (
               <div className="sale-summary">
                 {totalAmount > 0 && <span>Total: {fm(totalAmount)}</span>}
-                {margin !== null && (
+                {isAdmin && margin !== null && (
                   <span className={margin < 0 ? 'text-danger' : 'text-success'}>
                     Marge: {fm(margin)}
                   </span>
@@ -588,18 +632,19 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
           <table className="data-table">
             <thead>
               <tr>
-                <th>Ref</th>
+                <th>Code-barre</th>
                 <th>Date</th>
                 <th>Client</th>
-                <th>Observation</th>
-                <th className="text-right">Montant</th>
-                <th className="text-right">Marge</th>
+                <th>Désignation</th>
+                <th className="text-right">PV</th>
+                <th className="text-right">Qté</th>
+                {isAdmin && <th className="text-right">Bénéfice</th>}
                 <th style={{ width: 40 }}></th>
               </tr>
             </thead>
             <tbody>
               {orders.length === 0 && (
-                <tr><td colSpan={7}>
+                <tr><td colSpan={isAdmin ? 8 : 7}>
                   <div className="empty-state">
                     <div className="empty-icon">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>
@@ -613,52 +658,49 @@ export function SalesPage({ onNavigate }: { onNavigate?: (p: string) => void } =
                 const creditRemaining = o.credit_id && o.credit_amount != null
                   ? o.credit_amount - (o.advance_paid || 0)
                   : null;
+                const saleLines = o.lines.length > 0 ? o.lines : [null];
+                const span = saleLines.length;
                 return (
                 <React.Fragment key={o.id}>
-                  <tr>
-                    <td className="col-mono col-bold">
-                      {o.ref_number}
-                      {o.credit_id && (
-                        <button
-                          type="button"
-                          className="credit-badge"
-                          onClick={() => onNavigate?.('credits')}
-                          title="Voir dans Crédits clients"
-                        >
-                          Crédit{creditRemaining != null && creditRemaining > 0 ? ` • ${fm(creditRemaining)}` : ''}
-                        </button>
+                  {saleLines.map((l, i) => (
+                    <tr key={i} className={`sale-flat-row${i === span - 1 ? ' sale-flat-row-end' : ''}`}>
+                      <td className="col-mono">{l?.barcode || '—'}</td>
+                      {i === 0 && <td className="col-mono" rowSpan={span}>{o.date}</td>}
+                      {i === 0 && (
+                        <td className="text-muted" rowSpan={span}>
+                          {o.client_name || '—'}
+                          {o.credit_id && (
+                            <button
+                              type="button"
+                              className="credit-badge"
+                              onClick={() => onNavigate?.('credits')}
+                              title="Voir dans Crédits clients"
+                            >
+                              Crédit{creditRemaining != null && creditRemaining > 0 ? ` • ${fm(creditRemaining)}` : ''}
+                            </button>
+                          )}
+                        </td>
                       )}
-                    </td>
-                    <td className="col-mono">{o.date}</td>
-                    <td className="text-muted">{o.client_name || '—'}</td>
-                    <td className="text-muted">{o.observation || '—'}</td>
-                    <td className="text-right col-mono col-bold">{fm(o.totalAmount)}{o.totalReturned ? <span className="text-warning" style={{ fontSize: '0.8em', display: 'block' }}>-{fm(o.totalReturned)}</span> : null}</td>
-                    <td className={`text-right col-mono col-bold ${o.totalMargin >= 0 ? 'text-success' : 'text-danger'}`}>{fm(o.totalMargin)}</td>
-                    <td className="text-center">
-                      <div className="row-actions">
-                        <button className="btn-icon" onClick={() => openEdit(o)} title="Modifier">{EditIcon}</button>
-                        <button className="btn-icon" onClick={() => openReturn(o)} title="Retour">{ReturnIcon}</button>
-                        <button className="btn-icon btn-icon-danger" onClick={() => handleDelete(o.id)} title="Supprimer">{TrashIcon}</button>
-                      </div>
-                    </td>
-                  </tr>
-                  {o.lines.map((l, i) => (
-                    <tr key={i} className="row-detail row-detail-line">
-                      <td></td>
-                      <td className="sale-detail-cell" colSpan={3}>
-                        <div className="sale-detail-product">
-                          <span className="sale-detail-name">{l.designation}</span>
-                          {l.barcode && <span className="sale-detail-barcode">{l.barcode}</span>}
-                          <span className="sale-detail-category">{l.category}</span>
-                          {l.returned_quantity ? <span className="text-warning" style={{ fontSize: '0.85em' }}>({l.returned_quantity} retourné)</span> : null}
-                        </div>
+                      <td className="col-bold">
+                        {l ? l.designation : '—'}
+                        {l?.returned_quantity ? <span className="text-warning" style={{ fontSize: '0.85em' }}> ({l.returned_quantity} retourné)</span> : null}
                       </td>
-                      <td className="text-right col-mono">
-                        <span className="sale-detail-qty">{l.quantity}</span>
-                        <span className="sale-detail-price"> × {fm(l.selling_unit_price)}</span>
-                      </td>
-                      <td className={`text-right col-mono ${(l.selling_unit_price - l.purchase_unit_cost) >= 0 ? 'text-success' : 'text-danger'}`}>{fm((l.selling_unit_price - l.purchase_unit_cost) * l.quantity)}</td>
-                      <td></td>
+                      <td className="text-right col-mono">{l ? fm(l.selling_unit_price) : '—'}</td>
+                      <td className="text-right col-mono">{l ? l.quantity : '—'}</td>
+                      {isAdmin && (
+                        <td className={`text-right col-mono col-bold ${l && (l.selling_unit_price - l.purchase_unit_cost) >= 0 ? 'text-success' : 'text-danger'}`}>
+                          {l ? fm((l.selling_unit_price - l.purchase_unit_cost) * l.quantity) : '—'}
+                        </td>
+                      )}
+                      {i === 0 && (
+                        <td className="text-center" rowSpan={span}>
+                          <div className="row-actions">
+                            <button className="btn-icon" onClick={() => openEdit(o)} title="Modifier">{EditIcon}</button>
+                            <button className="btn-icon" onClick={() => openReturn(o)} title="Retour">{ReturnIcon}</button>
+                            <button className="btn-icon btn-icon-danger" onClick={() => handleDelete(o.id)} title="Supprimer">{TrashIcon}</button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </React.Fragment>

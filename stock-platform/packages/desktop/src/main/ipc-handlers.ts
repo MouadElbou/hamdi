@@ -689,7 +689,18 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       ORDER BY pl.date DESC LIMIT ? OFFSET ?
     `).all(...bindings, limit, offset);
 
-    return { items, total, page, limit };
+    // Global purchase total across the whole filtered set (not just current page)
+    const grandTotal = (db.prepare(`
+      SELECT COALESCE(SUM(pl.initial_quantity * pl.purchase_unit_cost), 0) as grand_total
+      FROM purchase_lots pl
+      LEFT JOIN categories c ON pl.category_id = c.id
+      LEFT JOIN sub_categories sc ON pl.sub_category_id = sc.id
+      LEFT JOIN suppliers s ON pl.supplier_id = s.id
+      LEFT JOIN boutiques b ON pl.boutique_id = b.id
+      WHERE ${whereClauses}
+    `).get(...bindings) as { grand_total: number }).grand_total;
+
+    return { items, total, grandTotal, page, limit };
   });
 
   safeHandle('purchases:create', (_event, data: {
@@ -973,9 +984,16 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     return { items, total: countResult.total, page, limit };
   });
 
-  safeHandle('stock:lookup-barcode', (_event, params: { barcode: string }) => {
+  safeHandle('stock:lookup-barcode', (_event, params: { barcode: string; includeOutOfStock?: boolean }) => {
     if (!params.barcode || !params.barcode.trim()) return null;
     const barcode = params.barcode.trim();
+    // Customer orders can target out-of-stock items; sales cannot. When
+    // includeOutOfStock is set we drop the remaining>0 filter and prefer the
+    // lot with the most stock so in-stock lots still win when both exist.
+    const stockFilter = params.includeOutOfStock
+      ? ''
+      : 'AND (pl.initial_quantity - COALESCE((SELECT SUM(sl2.quantity) FROM sale_lines sl2 WHERE sl2.lot_id = pl.id AND sl2.deleted_at IS NULL), 0) + COALESCE((SELECT SUM(srl2.quantity) FROM sale_return_lines srl2 WHERE srl2.lot_id = pl.id AND srl2.deleted_at IS NULL), 0)) > 0';
+    const orderBy = params.includeOutOfStock ? 'ORDER BY remaining_quantity DESC, pl.date ASC' : 'ORDER BY pl.date ASC';
     const lot = db.prepare(`
       SELECT pl.id, pl.designation, pl.selling_price, pl.purchase_unit_cost, pl.target_resale_price, pl.barcode,
         COALESCE(c.name, '[Supprimé]') as category_name,
@@ -983,8 +1001,8 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
       FROM purchase_lots pl
       LEFT JOIN categories c ON pl.category_id = c.id
       WHERE pl.barcode = ? AND pl.deleted_at IS NULL
-        AND (pl.initial_quantity - COALESCE((SELECT SUM(sl2.quantity) FROM sale_lines sl2 WHERE sl2.lot_id = pl.id AND sl2.deleted_at IS NULL), 0) + COALESCE((SELECT SUM(srl2.quantity) FROM sale_return_lines srl2 WHERE srl2.lot_id = pl.id AND srl2.deleted_at IS NULL), 0)) > 0
-      ORDER BY pl.date ASC
+        ${stockFilter}
+      ${orderBy}
       LIMIT 1
     `).get(barcode) as Record<string, unknown> | undefined;
     if (!lot) return null;
@@ -2274,7 +2292,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
 
     const orders = db.prepare(`
       SELECT co.id, co.ref_number, co.date, co.observation, co.client_id, co.status,
-        cl.name as client_name
+        cl.name as client_name, cl.phone as client_phone
       FROM customer_orders co
       LEFT JOIN clients cl ON co.client_id = cl.id
       WHERE ${whereClauses} ORDER BY co.date DESC, co.created_at DESC LIMIT ? OFFSET ?

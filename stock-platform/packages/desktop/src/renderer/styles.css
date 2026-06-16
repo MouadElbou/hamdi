@@ -1727,6 +1727,51 @@ body {
   background: rgba(255, 255, 255, 0.012);
 }
 
+/* Flat sales list: separate each sale group with a stronger divider */
+.data-table tbody tr.sale-flat-row-end td {
+  border-bottom: 2px solid var(--border);
+}
+
+/* Monthly summary — annual net-profit summary cards */
+.ms-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.ms-summary-card {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-surface, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.ms-summary-card-accent {
+  border-color: var(--accent-dim);
+  background: var(--accent-dim);
+}
+
+.ms-summary-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ms-summary-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl, 22px);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
 /* --- Stat card value monospace digits for alignment --- */
 .stat-card .stat-value {
   font-variant-numeric: tabular-nums;

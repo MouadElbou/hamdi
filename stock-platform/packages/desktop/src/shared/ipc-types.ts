@@ -178,6 +178,8 @@ export interface StockListParams {
 
 export interface StockLookupBarcodeParams {
   barcode: string;
+  /** When true, also match lots that are out of stock (used by customer orders). */
+  includeOutOfStock?: boolean;
 }
 
 // ─── Sales ──────────────────────────────────────────────────────────

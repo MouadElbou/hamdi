@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast.js';
 import { SearchableSelect } from '../components/SearchableSelect.js';
 import Pagination, { PAGE_SIZE } from '../components/Pagination.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
+import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
 import { useBarcodeScanner } from '../components/useBarcodeScanner.js';
 
@@ -19,7 +20,7 @@ interface StockItem {
 interface OrderLine { lotId: string; quantity: string; sellingUnitPrice: string; }
 interface CustomerOrder {
   id: string; ref_number: string; date: string; observation: string | null;
-  client_name: string | null; status: OrderStatus;
+  client_name: string | null; client_phone: string | null; status: OrderStatus;
   totalAmount: number;
   lines: Array<{ lot_id: string; designation: string; category: string; quantity: number; selling_unit_price: number; purchase_unit_cost: number }>;
 }
@@ -42,6 +43,7 @@ const fm = (c: number) => (c / 100).toLocaleString('fr-FR', { minimumFractionDig
 
 export function CustomerOrdersPage(): React.JSX.Element {
   const { categories, subCategories } = useReferenceData();
+  const { isAdmin } = useAuth();
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [stock, setStock] = useState<StockItem[]>([]);
@@ -64,7 +66,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
 
   const handleBarcodeScan = async (barcode: string) => {
     try {
-      const result = await window.api.stock.lookupBarcode({ barcode }) as StockItem | null;
+      const result = await window.api.stock.lookupBarcode({ barcode, includeOutOfStock: true }) as StockItem | null;
       if (!result) {
         addToast(`Aucun produit trouvé pour le code-barres: ${barcode}`, 'error');
         return;
@@ -78,10 +80,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
           quantity: '1',
           sellingUnitPrice: result.sellingPrice ? (result.sellingPrice / 100).toFixed(2) : '',
         }]);
-        window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
-          const data = r as { items: StockItem[] };
-          setStock(data.items || []);
-        }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
+        fetchStock();
         return;
       }
       setLines(prev => {
@@ -113,11 +112,18 @@ export function CustomerOrdersPage(): React.JSX.Element {
 
   useBarcodeScanner(handleBarcodeScan);
 
-  const loadStock = () => {
-    window.api.stock.list({ inStockOnly: true, limit: 5000 }).then((r: unknown) => {
-      const data = r as { items: StockItem[] };
-      setStock(data.items || []);
-    }).catch(() => addToast('Erreur lors du chargement du stock', 'error'));
+  // Orders can include out-of-stock items (you order what you've run out of),
+  // so load ALL lots — not just in-stock ones.
+  const fetchStock = async (): Promise<StockItem[]> => {
+    try {
+      const r = await window.api.stock.list({ inStockOnly: false, limit: 5000 }) as { items: StockItem[] };
+      const items = r.items || [];
+      setStock(items);
+      return items;
+    } catch {
+      addToast('Erreur lors du chargement du stock', 'error');
+      return [];
+    }
   };
   const load = () => {
     window.api.customerOrders.list({ search: search || undefined, page, limit: PAGE_SIZE, status: filterStatus || undefined }).then((r: unknown) => {
@@ -139,7 +145,22 @@ export function CustomerOrdersPage(): React.JSX.Element {
     setModalSubCategory('');
   };
 
-  const openCreate = () => { resetForm(); setEditingId(null); setShowForm(true); loadStock(); };
+  const openCreate = async () => {
+    resetForm();
+    setEditingId(null);
+    setShowForm(true);
+    // Pre-fill the order with all low-stock articles (remaining 0 or 1) so the
+    // user is reminded of what needs re-ordering. Still fully editable.
+    const items = await fetchStock();
+    const lowStock = items.filter(s => s.remainingQuantity <= 1).slice(0, 200);
+    if (lowStock.length > 0) {
+      setLines(lowStock.map(s => ({
+        lotId: s.lotId,
+        quantity: '1',
+        sellingUnitPrice: s.sellingPrice ? (s.sellingPrice / 100).toFixed(2) : '',
+      })));
+    }
+  };
   const openEdit = (o: CustomerOrder) => {
     setDate(o.date);
     setObservation(o.observation || '');
@@ -151,7 +172,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
     })));
     setEditingId(o.id);
     setShowForm(true);
-    loadStock();
+    fetchStock();
   };
   const closeForm = () => { setShowForm(false); setEditingId(null); resetForm(); };
 
@@ -178,17 +199,9 @@ export function CustomerOrdersPage(): React.JSX.Element {
       return;
     }
 
-    // Validate quantities against available stock
-    for (const l of validLines) {
-      const lot = stock.find(s => s.lotId === l.lotId);
-      if (lot) {
-        const qty = parseInt(l.quantity);
-        if (qty > lot.remainingQuantity) {
-          addToast(`Quantité (${qty}) dépasse le stock disponible (${lot.remainingQuantity}) pour ${lot.designation}`, 'error');
-          return;
-        }
-      }
-    }
+    // Note: customer orders intentionally allow ordering out-of-stock items
+    // (you order precisely what you've run out of), so we don't cap the
+    // quantity against the remaining stock here.
 
     setSubmitting(true);
     try {
@@ -363,7 +376,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
                       required
                       options={filteredStock.map(s => ({
                         value: s.lotId,
-                        label: `${s.designation} (${s.category})${s.barcode ? ` [${s.barcode}]` : ''} — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''} — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}`,
+                        label: `${s.designation} (${s.category})${s.barcode ? ` [${s.barcode}]` : ''} — dispo: ${s.remainingQuantity}${s.sellingPrice ? ` — PV: ${(s.sellingPrice / 100).toFixed(2)}` : ''}${isAdmin ? ` — PA: ${(s.purchaseUnitCost / 100).toFixed(2)}` : ''}`,
                       }))}
                     />
                   </div>
@@ -386,7 +399,7 @@ export function CustomerOrdersPage(): React.JSX.Element {
                 {lineTotal !== null && (
                   <div className="sale-line-info">
                     <span>Total: {fm(lineTotal)}</span>
-                    {selectedLot && <span className="text-muted">PA: {fm(selectedLot.purchaseUnitCost)}</span>}
+                    {isAdmin && selectedLot && <span className="text-muted">PA: {fm(selectedLot.purchaseUnitCost)}</span>}
                   </div>
                 )}
               </div>
@@ -420,18 +433,19 @@ export function CustomerOrdersPage(): React.JSX.Element {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Ref</th>
                 <th>Date</th>
+                <th>Désignation</th>
                 <th>Client</th>
+                <th>N° Tél</th>
+                <th className="text-right">Qté</th>
+                <th className="text-right">PV</th>
                 <th>Statut</th>
-                <th>Observation</th>
-                <th className="text-right">Montant</th>
                 <th style={{ width: 80 }}></th>
               </tr>
             </thead>
             <tbody>
               {orders.length === 0 && (
-                <tr><td colSpan={7}>
+                <tr><td colSpan={8}>
                   <div className="empty-state">
                     <div className="empty-icon">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /></svg>
@@ -441,53 +455,54 @@ export function CustomerOrdersPage(): React.JSX.Element {
                   </div>
                 </td></tr>
               )}
-              {orders.map(o => (
+              {orders.map(o => {
+                const orderLines = o.lines.length > 0 ? o.lines : [null];
+                const span = orderLines.length;
+                return (
                 <React.Fragment key={o.id}>
-                  <tr>
-                    <td className="col-mono col-bold">{o.ref_number}</td>
-                    <td className="col-mono">{o.date}</td>
-                    <td className="text-muted">{o.client_name || '—'}</td>
-                    <td>
-                      <span className={`status-badge ${STATUS_CLASSES[o.status]}`}>
-                        {STATUS_LABELS[o.status]}
-                      </span>
-                    </td>
-                    <td className="text-muted">{o.observation || '—'}</td>
-                    <td className="text-right col-mono col-bold">{fm(o.totalAmount)}</td>
-                    <td className="text-center">
-                      <div className="row-actions">
-                        {o.status === 'pending' && (
-                          <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'confirmed')} title="Confirmer">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--info)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                          </button>
-                        )}
-                        {o.status === 'confirmed' && (
-                          <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'delivered')} title="Marquer livrée">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-                          </button>
-                        )}
-                        {o.status !== 'cancelled' && o.status !== 'delivered' && (
-                          <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'cancelled')} title="Annuler">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
-                          </button>
-                        )}
-                        <button className="btn-icon" onClick={() => openEdit(o)} title="Modifier">{EditIcon}</button>
-                        <button className="btn-icon btn-icon-danger" onClick={() => handleDelete(o.id)} title="Supprimer">{TrashIcon}</button>
-                      </div>
-                    </td>
-                  </tr>
-                  {o.lines.map((l, i) => (
-                    <tr key={i} className="row-detail">
-                      <td></td>
-                      <td className="text-muted">{l.category}</td>
-                      <td colSpan={2}>{l.designation}</td>
-                      <td className="text-right col-mono">{l.quantity} x {fm(l.selling_unit_price)}</td>
-                      <td className="text-right col-mono">{fm(l.quantity * l.selling_unit_price)}</td>
-                      <td></td>
+                  {orderLines.map((l, i) => (
+                    <tr key={i} className={`sale-flat-row${i === span - 1 ? ' sale-flat-row-end' : ''}`}>
+                      {i === 0 && <td className="col-mono" rowSpan={span}>{o.date}</td>}
+                      <td className="col-bold">{l ? l.designation : '—'}</td>
+                      {i === 0 && <td className="text-muted" rowSpan={span}>{o.client_name || 'Boutique'}</td>}
+                      {i === 0 && <td className="col-mono" rowSpan={span}>{o.client_phone || '—'}</td>}
+                      <td className="text-right col-mono">{l ? l.quantity : '—'}</td>
+                      <td className="text-right col-mono">{l ? fm(l.selling_unit_price) : '—'}</td>
+                      {i === 0 && (
+                        <td rowSpan={span}>
+                          <span className={`status-badge ${STATUS_CLASSES[o.status]}`}>
+                            {STATUS_LABELS[o.status]}
+                          </span>
+                        </td>
+                      )}
+                      {i === 0 && (
+                        <td className="text-center" rowSpan={span}>
+                          <div className="row-actions">
+                            {o.status === 'pending' && (
+                              <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'confirmed')} title="Confirmer">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--info)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                              </button>
+                            )}
+                            {o.status === 'confirmed' && (
+                              <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'delivered')} title="Marquer livrée">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+                              </button>
+                            )}
+                            {o.status !== 'cancelled' && o.status !== 'delivered' && (
+                              <button className="btn-icon" onClick={() => handleStatusChange(o.id, 'cancelled')} title="Annuler">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                              </button>
+                            )}
+                            <button className="btn-icon" onClick={() => openEdit(o)} title="Modifier">{EditIcon}</button>
+                            <button className="btn-icon btn-icon-danger" onClick={() => handleDelete(o.id)} title="Supprimer">{TrashIcon}</button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </React.Fragment>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           <Pagination total={totalOrders} page={page} onPageChange={setPage} />
