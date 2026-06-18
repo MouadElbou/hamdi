@@ -125,6 +125,22 @@ interface DesktopAPI {
     updateStatus: (data: Record<string, unknown>) => Promise<unknown>;
     delete: (id: string) => Promise<unknown>;
   };
+  documents: {
+    list: (params: Record<string, unknown>) => Promise<unknown>;
+    get: (id: string) => Promise<unknown>;
+    create: (data: Record<string, unknown>) => Promise<unknown>;
+    update: (data: Record<string, unknown>) => Promise<unknown>;
+    updateStatus: (data: Record<string, unknown>) => Promise<unknown>;
+    delete: (id: string) => Promise<unknown>;
+    fromSale: (data: Record<string, unknown>) => Promise<unknown>;
+    exportPdf: (data: Record<string, unknown>) => Promise<unknown>;
+    print: (data: Record<string, unknown>) => Promise<unknown>;
+    listPrinters: () => Promise<unknown>;
+  };
+  company: {
+    get: () => Promise<unknown>;
+    save: (data: Record<string, unknown>) => Promise<unknown>;
+  };
   bankMovements: {
     list: (params?: Record<string, unknown>) => Promise<unknown>;
     create: (data: Record<string, unknown>) => Promise<unknown>;

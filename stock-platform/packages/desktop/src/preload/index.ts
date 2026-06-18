@@ -71,6 +71,10 @@ import type {
   UserCreateParams,
   UserUpdateParams,
   UserResetPasswordParams,
+  CompanySaveParams,
+  DocumentListParams,
+  DocumentCreateParams,
+  DocumentUpdateParams,
 } from '../shared/ipc-types.js';
 
 const api = {
@@ -224,6 +228,26 @@ const api = {
     update: (data: CustomerOrderUpdateParams) => ipcRenderer.invoke('customer-orders:update', data),
     updateStatus: (data: CustomerOrderUpdateStatusParams) => ipcRenderer.invoke('customer-orders:update-status', data),
     delete: (id: string) => ipcRenderer.invoke('customer-orders:delete', id),
+  },
+
+  // Commercial Documents (Devis / Facture / Bon de livraison / Ticket reçu)
+  documents: {
+    list: (params: DocumentListParams) => ipcRenderer.invoke('documents:list', params),
+    get: (id: string) => ipcRenderer.invoke('documents:get', id),
+    create: (data: DocumentCreateParams) => ipcRenderer.invoke('documents:create', data),
+    update: (data: DocumentUpdateParams) => ipcRenderer.invoke('documents:update', data),
+    updateStatus: (data: { id: string; status: string }) => ipcRenderer.invoke('documents:update-status', data),
+    delete: (id: string) => ipcRenderer.invoke('documents:delete', id),
+    fromSale: (data: { saleOrderId: string; docType: string }) => ipcRenderer.invoke('documents:from-sale', data),
+    exportPdf: (data: { id: string; target?: 'a4' | 'thermal' }) => ipcRenderer.invoke('documents:export-pdf', data),
+    print: (data: { id: string; target?: 'a4' | 'thermal'; deviceName?: string }) => ipcRenderer.invoke('documents:print', data),
+    listPrinters: () => ipcRenderer.invoke('documents:list-printers'),
+  },
+
+  // Company profile (printed document header)
+  company: {
+    get: () => ipcRenderer.invoke('company:get'),
+    save: (data: CompanySaveParams) => ipcRenderer.invoke('company:save', data),
   },
 
   // Bank Movements

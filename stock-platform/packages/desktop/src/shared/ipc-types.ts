@@ -529,3 +529,58 @@ export interface UserResetPasswordParams {
   userId: string;
   newPassword: string;
 }
+
+// ─── Commercial Documents & Company Profile ─────────────────────────
+
+export interface CompanySaveParams {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  ice?: string;
+  rc?: string;
+  ifNum?: string;
+  patente?: string;
+  cnss?: string;
+  rib?: string;
+  bankName?: string;
+  footerNote?: string;
+  logo?: string;
+  thermalPrinter?: string;
+}
+
+export interface DocumentLineParams {
+  lotId?: string | null;
+  designation: string;
+  barcode?: string | null;
+  quantity: number;
+  sellingUnitPrice: number;
+}
+
+export interface DocumentCreateParams {
+  docType: 'devis' | 'facture' | 'bon_livraison' | 'ticket';
+  date: string;
+  clientId?: string | null;
+  clientName?: string;
+  clientAddress?: string;
+  clientIce?: string;
+  clientPhone?: string;
+  status?: string;
+  paymentType?: string;
+  observation?: string;
+  validUntil?: string | null;
+  saleOrderId?: string | null;
+  lines: DocumentLineParams[];
+}
+
+export interface DocumentUpdateParams extends DocumentCreateParams {
+  id: string;
+}
+
+export interface DocumentListParams {
+  docType: 'devis' | 'facture' | 'bon_livraison' | 'ticket';
+  search?: string;
+  page?: number;
+  limit?: number;
+  status?: string;
+}

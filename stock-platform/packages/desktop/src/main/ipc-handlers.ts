@@ -77,7 +77,7 @@ setInterval(() => {
 }, 120_000);
 
 const ALL_PAGES = [
-  'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'maintenance',
+  'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'documents', 'maintenance',
   'battery-repair', 'expenses', 'credits', 'bank', 'monthly-summary', 'zakat',
 ];
 
@@ -148,6 +148,7 @@ const CHANNEL_PERMISSION_MAP: Record<string, string> = {
   'monthly-summary': 'monthly-summary',
   'zakat': 'zakat',
   'dashboard': 'dashboard',
+  'documents': 'documents',
   'clients': 'credits',
   'maintenance-types': 'maintenance',
   'expense-designations': 'expenses',
@@ -2324,6 +2325,248 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     });
 
     return { items, total: countResult.total, page, limit };
+  });
+
+  // ─── Company Profile (printed on documents — desktop-only, not synced) ───
+
+  safeHandle('company:get', () => {
+    return db.prepare('SELECT * FROM company_profile WHERE id = 1').get() ?? null;
+  });
+
+  safeHandle('company:save', (_event, data: {
+    name?: string; address?: string; phone?: string; email?: string;
+    ice?: string; rc?: string; ifNum?: string; patente?: string; cnss?: string;
+    rib?: string; bankName?: string; footerNote?: string; logo?: string; thermalPrinter?: string;
+  }) => {
+    // Guard against an oversized logo (base64 data-URI) bloating the DB.
+    if (data.logo && data.logo.length > 800_000) throw new Error('Logo trop volumineux (max ~500 Ko)');
+    const s = (v?: string) => (typeof v === 'string' ? v.trim() : null) || null;
+    const now = new Date().toISOString();
+    db.prepare(`UPDATE company_profile SET
+      name=?, address=?, phone=?, email=?, ice=?, rc=?, if_num=?, patente=?, cnss=?,
+      rib=?, bank_name=?, footer_note=?, logo=?, thermal_printer=?, updated_at=? WHERE id = 1`).run(
+      s(data.name), s(data.address), s(data.phone), s(data.email), s(data.ice), s(data.rc),
+      s(data.ifNum), s(data.patente), s(data.cnss), s(data.rib), s(data.bankName),
+      s(data.footerNote), data.logo || null, s(data.thermalPrinter), now,
+    );
+    return { success: true };
+  }, { requireAdmin: true });
+
+  // ─── Commercial Documents (Devis / Facture / Bon de livraison / Ticket reçu) ───
+
+  const DOC_TYPES = new Set(['devis', 'facture', 'bon_livraison', 'ticket']);
+  const DOC_PREFIX: Record<string, string> = { devis: 'DEV', facture: 'FAC', bon_livraison: 'BL', ticket: 'TKT' };
+
+  // Atomic gapless per-year sequence — call INSIDE the create transaction.
+  function nextDocNumber(docType: string, dateStr: string): string {
+    const year = parseInt(dateStr.slice(0, 4), 10) || new Date().getFullYear();
+    db.prepare('INSERT INTO document_counters (doc_type, year, last_seq) VALUES (?, ?, 1) ON CONFLICT(doc_type, year) DO UPDATE SET last_seq = last_seq + 1').run(docType, year);
+    const row = db.prepare('SELECT last_seq FROM document_counters WHERE doc_type = ? AND year = ?').get(docType, year) as { last_seq: number };
+    return `${DOC_PREFIX[docType] ?? 'DOC'}-${year}-${String(row.last_seq).padStart(4, '0')}`;
+  }
+
+  interface DocLineInput { lotId?: string | null; designation: string; barcode?: string | null; quantity: number; sellingUnitPrice: number; }
+  interface DocInput {
+    docType: string; date: string; clientId?: string | null;
+    clientName?: string; clientAddress?: string; clientIce?: string; clientPhone?: string;
+    status?: string; paymentType?: string; observation?: string; validUntil?: string | null;
+    saleOrderId?: string | null; lines: DocLineInput[];
+  }
+
+  function validateDocInput(data: DocInput): void {
+    if (!DOC_TYPES.has(data.docType)) throw new Error('Type de document invalide');
+    validateDate(data.date, 'Date');
+    if (!Array.isArray(data.lines) || data.lines.length === 0) throw new Error('Au moins une ligne est requise');
+    if (data.lines.length > 200) throw new Error('Maximum 200 lignes par document');
+    for (const l of data.lines) {
+      validateString(l.designation, 'Désignation');
+      validatePositive(l.quantity, 'Quantité');
+      validateAmount(l.sellingUnitPrice, 'Prix unitaire');
+    }
+  }
+
+  function resolveDocClient(data: DocInput, now: string): { clientId: string | null; snapshotName: string | null } {
+    let clientId: string | null = data.clientId ?? null;
+    let snapshotName = (data.clientName?.trim()) || null;
+    if (!clientId && snapshotName) {
+      const existing = db.prepare('SELECT id FROM clients WHERE name = ? AND deleted_at IS NULL').get(snapshotName) as { id: string } | undefined;
+      if (existing) clientId = existing.id;
+      else {
+        clientId = uuidv7();
+        db.prepare('INSERT INTO clients (id, name, phone, created_at, updated_at) VALUES (?, ?, ?, ?, ?)').run(clientId, snapshotName, data.clientPhone?.trim() || null, now, now);
+        addToOutbox(db, 'client', clientId, 'CREATE', { name: snapshotName, phone: data.clientPhone?.trim() || null });
+      }
+    } else if (clientId && !snapshotName) {
+      const c = db.prepare('SELECT name FROM clients WHERE id = ?').get(clientId) as { name: string } | undefined;
+      snapshotName = c?.name ?? null;
+    }
+    return { clientId, snapshotName };
+  }
+
+  function insertDocLines(documentId: string, lines: DocLineInput[], now: string): void {
+    const insertLine = db.prepare(`INSERT INTO commercial_document_lines (id, document_id, lot_id, designation, barcode, quantity, selling_unit_price, line_total, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    for (const l of lines) {
+      const lineId = uuidv7();
+      const lineTotal = l.quantity * l.sellingUnitPrice;
+      const designation = l.designation.trim();
+      const barcode = l.barcode?.trim() || null;
+      insertLine.run(lineId, documentId, l.lotId ?? null, designation, barcode, l.quantity, l.sellingUnitPrice, lineTotal, now, now);
+      addToOutbox(db, 'commercial_document_line', lineId, 'CREATE', {
+        documentId, lotId: l.lotId ?? null, designation, barcode, quantity: l.quantity, sellingUnitPrice: l.sellingUnitPrice, lineTotal,
+      });
+    }
+  }
+
+  function createDocument(data: DocInput): { id: string; refNumber: string } {
+    validateDocInput(data);
+    const id = uuidv7();
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const { clientId, snapshotName } = resolveDocClient(data, now);
+      const refNumber = nextDocNumber(data.docType, data.date);
+      const total = data.lines.reduce((s, l) => s + l.quantity * l.sellingUnitPrice, 0);
+      // Header first (lines FK-reference it; foreign_keys = ON).
+      db.prepare(`INSERT INTO commercial_documents
+        (id, doc_type, ref_number, date, client_id, client_name, client_address, client_ice, client_phone, status, payment_type, observation, valid_until, sale_order_id, total, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        id, data.docType, refNumber, data.date, clientId,
+        snapshotName, data.clientAddress?.trim() || null, data.clientIce?.trim() || null, data.clientPhone?.trim() || null,
+        data.status || 'draft', data.paymentType || null, data.observation?.trim() || null, data.validUntil || null,
+        data.saleOrderId || null, total, now, now,
+      );
+      addToOutbox(db, 'commercial_document', id, 'CREATE', {
+        docType: data.docType, refNumber, date: data.date, clientId,
+        clientName: snapshotName, clientAddress: data.clientAddress?.trim() || null, clientIce: data.clientIce?.trim() || null, clientPhone: data.clientPhone?.trim() || null,
+        status: data.status || 'draft', paymentType: data.paymentType || null, observation: data.observation?.trim() || null,
+        validUntil: data.validUntil || null, saleOrderId: data.saleOrderId || null, total,
+      });
+      insertDocLines(id, data.lines, now);
+      return { id, refNumber };
+    })();
+  }
+
+  safeHandle('documents:create', (_event, data: DocInput) => createDocument(data));
+
+  // One-click generate a Facture / Bon de livraison / Ticket from an existing sale.
+  safeHandle('documents:from-sale', (_event, params: { saleOrderId: string; docType: string }) => {
+    if (!DOC_TYPES.has(params.docType)) throw new Error('Type de document invalide');
+    const sale = db.prepare(`SELECT so.id, so.date, so.observation, so.client_id, cl.name as client_name, cl.phone as client_phone
+      FROM sale_orders so LEFT JOIN clients cl ON so.client_id = cl.id WHERE so.id = ? AND so.deleted_at IS NULL`).get(params.saleOrderId) as Record<string, unknown> | undefined;
+    if (!sale) throw new Error('Vente introuvable');
+    const lines = db.prepare(`SELECT sl.lot_id, sl.quantity, sl.selling_unit_price, pl.designation, pl.barcode
+      FROM sale_lines sl JOIN purchase_lots pl ON sl.lot_id = pl.id WHERE sl.sale_order_id = ? AND sl.deleted_at IS NULL`).all(params.saleOrderId) as Array<Record<string, unknown>>;
+    if (lines.length === 0) throw new Error("Cette vente n'a aucune ligne");
+    const statusByType: Record<string, string> = { facture: 'unpaid', bon_livraison: 'pending', ticket: 'issued', devis: 'draft' };
+    return createDocument({
+      docType: params.docType,
+      date: new Date().toISOString().slice(0, 10),
+      clientId: (sale['client_id'] as string | null) ?? null,
+      clientName: (sale['client_name'] as string | null) ?? undefined,
+      clientPhone: (sale['client_phone'] as string | null) ?? undefined,
+      saleOrderId: sale['id'] as string,
+      status: statusByType[params.docType],
+      observation: (sale['observation'] as string | null) ?? undefined,
+      lines: lines.map(l => ({
+        lotId: l['lot_id'] as string,
+        designation: l['designation'] as string,
+        barcode: (l['barcode'] as string | null) ?? null,
+        quantity: l['quantity'] as number,
+        sellingUnitPrice: l['selling_unit_price'] as number,
+      })),
+    });
+  });
+
+  safeHandle('documents:update', (_event, data: DocInput & { id: string }) => {
+    validateDocInput(data);
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const existing = db.prepare('SELECT id, doc_type, ref_number FROM commercial_documents WHERE id = ? AND deleted_at IS NULL').get(data.id) as { id: string; doc_type: string; ref_number: string } | undefined;
+      if (!existing) throw new Error('Document introuvable');
+      const { clientId, snapshotName } = resolveDocClient(data, now);
+      const total = data.lines.reduce((s, l) => s + l.quantity * l.sellingUnitPrice, 0);
+
+      // Soft-delete old lines
+      const oldLines = db.prepare('SELECT id FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL').all(data.id) as Array<{ id: string }>;
+      db.prepare('UPDATE commercial_document_lines SET deleted_at = ?, updated_at = ? WHERE document_id = ? AND deleted_at IS NULL').run(now, now, data.id);
+      for (const ol of oldLines) addToOutbox(db, 'commercial_document_line', ol.id, 'DELETE', { id: ol.id });
+
+      db.prepare(`UPDATE commercial_documents SET date=?, client_id=?, client_name=?, client_address=?, client_ice=?, client_phone=?, status=?, payment_type=?, observation=?, valid_until=?, sale_order_id=?, total=?, updated_at=? WHERE id=?`).run(
+        data.date, clientId, snapshotName, data.clientAddress?.trim() || null, data.clientIce?.trim() || null, data.clientPhone?.trim() || null,
+        data.status || 'draft', data.paymentType || null, data.observation?.trim() || null, data.validUntil || null, data.saleOrderId || null, total, now, data.id,
+      );
+      addToOutbox(db, 'commercial_document', data.id, 'UPDATE', {
+        docType: existing.doc_type, refNumber: existing.ref_number, date: data.date, clientId,
+        clientName: snapshotName, clientAddress: data.clientAddress?.trim() || null, clientIce: data.clientIce?.trim() || null, clientPhone: data.clientPhone?.trim() || null,
+        status: data.status || 'draft', paymentType: data.paymentType || null, observation: data.observation?.trim() || null,
+        validUntil: data.validUntil || null, saleOrderId: data.saleOrderId || null, total,
+      });
+      insertDocLines(data.id, data.lines, now);
+      return { success: true };
+    })();
+  });
+
+  safeHandle('documents:update-status', (_event, data: { id: string; status: string }) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const existing = db.prepare('SELECT doc_type, ref_number, date FROM commercial_documents WHERE id = ? AND deleted_at IS NULL').get(data.id) as { doc_type: string; ref_number: string; date: string } | undefined;
+      if (!existing) throw new Error('Document introuvable');
+      db.prepare('UPDATE commercial_documents SET status = ?, updated_at = ? WHERE id = ?').run(data.status, now, data.id);
+      addToOutbox(db, 'commercial_document', data.id, 'UPDATE', { docType: existing.doc_type, refNumber: existing.ref_number, date: existing.date, status: data.status });
+      return { success: true };
+    })();
+  });
+
+  safeHandle('documents:delete', (_event, id: string) => {
+    const now = new Date().toISOString();
+    return db.transaction(() => {
+      const oldLines = db.prepare('SELECT id FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL').all(id) as Array<{ id: string }>;
+      db.prepare('UPDATE commercial_document_lines SET deleted_at = ?, updated_at = ? WHERE document_id = ? AND deleted_at IS NULL').run(now, now, id);
+      for (const ol of oldLines) addToOutbox(db, 'commercial_document_line', ol.id, 'DELETE', { id: ol.id });
+      const result = db.prepare('UPDATE commercial_documents SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL').run(now, now, id);
+      if (result.changes === 0) throw new Error('Document introuvable');
+      addToOutbox(db, 'commercial_document', id, 'DELETE', { id });
+      return { success: true };
+    })();
+  });
+
+  function loadDocumentWithLines(id: string): Record<string, unknown> | null {
+    const doc = db.prepare(`SELECT d.*, cl.name as client_live_name FROM commercial_documents d LEFT JOIN clients cl ON d.client_id = cl.id WHERE d.id = ? AND d.deleted_at IS NULL`).get(id) as Record<string, unknown> | undefined;
+    if (!doc) return null;
+    const lines = db.prepare(`SELECT id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC`).all(id);
+    return { ...doc, lines };
+  }
+
+  safeHandle('documents:get', (_event, id: string) => loadDocumentWithLines(id));
+
+  safeHandle('documents:list', (_event, params: { docType: string; search?: string; page?: number; limit?: number; status?: string }) => {
+    const limit = Math.min(Math.max(1, params?.limit ?? 50), 200);
+    const page = Math.max(1, params?.page ?? 1);
+    const offset = (page - 1) * limit;
+
+    let whereClauses = 'd.deleted_at IS NULL AND d.doc_type = ?';
+    const bindings: unknown[] = [params.docType];
+    if (params?.status) { whereClauses += ' AND d.status = ?'; bindings.push(params.status); }
+    if (params?.search) {
+      whereClauses += ` AND (d.ref_number LIKE ? ESCAPE '\\' OR d.date LIKE ? ESCAPE '\\' OR d.client_name LIKE ? ESCAPE '\\' OR d.observation LIKE ? ESCAPE '\\')`;
+      const s = `%${escapeLike(params.search)}%`;
+      bindings.push(s, s, s, s);
+    }
+
+    const total = (db.prepare(`SELECT COUNT(*) as total FROM commercial_documents d WHERE ${whereClauses}`).get(...bindings) as { total: number }).total;
+    const docs = db.prepare(`SELECT d.* FROM commercial_documents d WHERE ${whereClauses} ORDER BY d.date DESC, d.created_at DESC LIMIT ? OFFSET ?`).all(...bindings, limit, offset) as Array<Record<string, unknown>>;
+
+    const docIds = docs.map(d => d['id'] as string);
+    const linesMap = new Map<string, Array<Record<string, unknown>>>();
+    if (docIds.length > 0) {
+      const allLines = db.prepare(`SELECT id, document_id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id IN (${docIds.map(() => '?').join(',')}) AND deleted_at IS NULL`).all(...docIds) as Array<Record<string, unknown>>;
+      for (const l of allLines) {
+        const did = l['document_id'] as string;
+        if (!linesMap.has(did)) linesMap.set(did, []);
+        linesMap.get(did)!.push(l);
+      }
+    }
+    const items = docs.map(d => ({ ...d, lines: linesMap.get(d['id'] as string) || [] }));
+    return { items, total, page, limit };
   });
 
   // ─── Maintenance List ────────────────────────────────────────────

@@ -28,6 +28,8 @@ const PAGE_LABELS: Record<string, string> = {
   purchases: 'Achats',
   stock: 'Stock',
   sales: 'Ventes',
+  'customer-orders': 'Commandes',
+  documents: 'Documents',
   maintenance: 'Maintenance',
   'battery-repair': 'Réparation batteries',
   expenses: 'Dépenses',

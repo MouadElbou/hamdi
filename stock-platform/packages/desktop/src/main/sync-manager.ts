@@ -211,6 +211,31 @@ const ENTITY_COLUMNS: Record<string, ColDef[]> = {
     { key: 'isActive', col: 'is_active', fallback: 1 },
     { key: 'mustChangePassword', col: 'must_change_password', fallback: 0 },
   ],
+  commercial_document: [
+    { key: 'docType', col: 'doc_type' },
+    { key: 'refNumber', col: 'ref_number' },
+    { key: 'date', col: 'date' },
+    { key: 'clientId', col: 'client_id' },
+    { key: 'clientName', col: 'client_name' },
+    { key: 'clientAddress', col: 'client_address' },
+    { key: 'clientIce', col: 'client_ice' },
+    { key: 'clientPhone', col: 'client_phone' },
+    { key: 'status', col: 'status' },
+    { key: 'paymentType', col: 'payment_type' },
+    { key: 'observation', col: 'observation' },
+    { key: 'validUntil', col: 'valid_until' },
+    { key: 'saleOrderId', col: 'sale_order_id' },
+    { key: 'total', col: 'total', fallback: 0 },
+  ],
+  commercial_document_line: [
+    { key: 'documentId', col: 'document_id' },
+    { key: 'lotId', col: 'lot_id' },
+    { key: 'designation', col: 'designation' },
+    { key: 'barcode', col: 'barcode' },
+    { key: 'quantity', col: 'quantity' },
+    { key: 'sellingUnitPrice', col: 'selling_unit_price' },
+    { key: 'lineTotal', col: 'line_total', fallback: 0 },
+  ],
 };
 
 // Map entity type to local SQLite table name
@@ -246,6 +271,8 @@ const TABLE_MAP: Record<string, string> = {
   maintenance_service_type: 'maintenance_service_types',
   expense_designation: 'expense_designations',
   user: 'users',
+  commercial_document: 'commercial_documents',
+  commercial_document_line: 'commercial_document_lines',
 };
 
 // Validate all identifiers at module load — fail fast if any are unsafe
@@ -383,7 +410,7 @@ export class SyncManager {
     const pending = this.db.prepare(`
       SELECT *, CASE entity_type
         WHEN 'category' THEN 0 WHEN 'sub_category' THEN 0 WHEN 'supplier' THEN 0 WHEN 'boutique' THEN 0 WHEN 'client' THEN 0 WHEN 'employee' THEN 0 WHEN 'battery_tariff' THEN 0 WHEN 'category_alias' THEN 0
-        WHEN 'sale_line' THEN 2 WHEN 'sale_return_line' THEN 2 WHEN 'customer_order_line' THEN 2 WHEN 'monthly_summary_line' THEN 2
+        WHEN 'sale_line' THEN 2 WHEN 'sale_return_line' THEN 2 WHEN 'customer_order_line' THEN 2 WHEN 'monthly_summary_line' THEN 2 WHEN 'commercial_document_line' THEN 2
         WHEN 'customer_credit_payment' THEN 3 WHEN 'supplier_credit_payment' THEN 3 WHEN 'salary_payment' THEN 3 WHEN 'zakat_advance' THEN 3
         ELSE 1
       END AS priority

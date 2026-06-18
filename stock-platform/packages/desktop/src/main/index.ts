@@ -226,6 +226,54 @@ app.whenReady().then(async () => {
       return { success: true };
     });
 
+    // ─── Document printing / PDF export ───────────────────────────
+    const { buildDocumentHtml, renderToPdf, printHtml } = await import('./print.js');
+
+    const loadDocForPrint = (id: string) => {
+      const db = getDatabase();
+      const doc = db.prepare('SELECT * FROM commercial_documents WHERE id = ? AND deleted_at IS NULL').get(id) as Record<string, unknown> | undefined;
+      if (!doc) return null;
+      doc['lines'] = db.prepare('SELECT designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC').all(id);
+      const company = (db.prepare('SELECT * FROM company_profile WHERE id = 1').get() as Record<string, unknown> | undefined) ?? {};
+      return { doc, company };
+    };
+
+    ipcMain.handle('documents:export-pdf', async (_e, params: { id: string; target?: 'a4' | 'thermal' }) => {
+      if (!getCurrentSession()) throw new Error('Non authentifié');
+      if (!mainWindow) throw new Error('Fenêtre non disponible');
+      const data = loadDocForPrint(params.id);
+      if (!data) throw new Error('Document introuvable');
+      const target = params.target === 'thermal' ? 'thermal' : 'a4';
+      const html = buildDocumentHtml(data.doc as never, data.company as never, target);
+      const pdf = await renderToPdf(html, target);
+      const { filePath, canceled } = await dialog.showSaveDialog(mainWindow, {
+        title: 'Enregistrer le PDF',
+        defaultPath: `${String(data.doc['ref_number'])}.pdf`,
+        filters: [{ name: 'PDF', extensions: ['pdf'] }],
+      });
+      if (canceled || !filePath) return { canceled: true };
+      writeFileSync(filePath, pdf);
+      return { saved: true, path: filePath };
+    });
+
+    ipcMain.handle('documents:print', async (_e, params: { id: string; target?: 'a4' | 'thermal'; deviceName?: string }) => {
+      if (!getCurrentSession()) throw new Error('Non authentifié');
+      const data = loadDocForPrint(params.id);
+      if (!data) throw new Error('Document introuvable');
+      const target = params.target === 'thermal' ? 'thermal' : 'a4';
+      const deviceName = params.deviceName || (target === 'thermal' ? ((data.company['thermal_printer'] as string | null) || undefined) : undefined);
+      const html = buildDocumentHtml(data.doc as never, data.company as never, target);
+      await printHtml(html, target, deviceName);
+      return { printed: true };
+    });
+
+    ipcMain.handle('documents:list-printers', async () => {
+      if (!getCurrentSession()) throw new Error('Non authentifié');
+      if (!mainWindow) return [];
+      const printers = await mainWindow.webContents.getPrintersAsync();
+      return printers.map(p => ({ name: p.name, displayName: p.displayName }));
+    });
+
     // ─── Runtime config IPC (edit .env after install) ─────────────
     ipcMain.handle('config:get-path', () => getConfigFilePath());
     ipcMain.handle('config:open-file', async () => {

@@ -93,16 +93,17 @@ model CategoryAlias {
 }
 
 model Client {
-  id              String      @id @default(uuid())
-  name            String      @db.VarChar(200)
-  phone           String?     @db.VarChar(50)
-  version         Int         @default(1)
-  originDesktopId String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  deletedAt       DateTime?
-  saleOrders      SaleOrder[]
-  customerOrders  CustomerOrder[]
+  id                  String               @id @default(uuid())
+  name                String               @db.VarChar(200)
+  phone               String?              @db.VarChar(50)
+  version             Int                  @default(1)
+  originDesktopId     String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+  saleOrders          SaleOrder[]
+  customerOrders      CustomerOrder[]
+  commercialDocuments CommercialDocument[]
 
   @@index([name])
   @@index([deletedAt])
@@ -110,32 +111,33 @@ model Client {
 }
 
 model PurchaseLot {
-  id                String     @id
-  refNumber         String     @db.VarChar(100)
-  date              DateTime   @db.Date
-  designation       String     @db.VarChar(500)
-  initialQuantity   Int
-  purchaseUnitCost  Int
-  targetResalePrice Int?
-  categoryId        String
-  supplierId        String
-  boutiqueId        String
-  subCategoryId     String?
-  sellingPrice      Int?
-  version           Int          @default(1)
-  originDesktopId   String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-  deletedAt         DateTime?
-  blockPrice        Int?
-  barcode           String?      @db.VarChar(200)
-  boutique          Boutique     @relation(fields: [boutiqueId], references: [id])
-  category          Category     @relation(fields: [categoryId], references: [id])
-  supplier          Supplier     @relation(fields: [supplierId], references: [id])
-  subCategory       SubCategory? @relation(fields: [subCategoryId], references: [id])
-  saleLines         SaleLine[]
-  saleReturnLines   SaleReturnLine[]
-  customerOrderLines CustomerOrderLine[]
+  id                      String                   @id
+  refNumber               String                   @db.VarChar(100)
+  date                    DateTime                 @db.Date
+  designation             String                   @db.VarChar(500)
+  initialQuantity         Int
+  purchaseUnitCost        Int
+  targetResalePrice       Int?
+  categoryId              String
+  supplierId              String
+  boutiqueId              String
+  subCategoryId           String?
+  sellingPrice            Int?
+  version                 Int                      @default(1)
+  originDesktopId         String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  deletedAt               DateTime?
+  blockPrice              Int?
+  barcode                 String?                  @db.VarChar(200)
+  boutique                Boutique                 @relation(fields: [boutiqueId], references: [id])
+  category                Category                 @relation(fields: [categoryId], references: [id])
+  supplier                Supplier                 @relation(fields: [supplierId], references: [id])
+  subCategory             SubCategory?             @relation(fields: [subCategoryId], references: [id])
+  saleLines               SaleLine[]
+  saleReturnLines         SaleReturnLine[]
+  customerOrderLines      CustomerOrderLine[]
+  commercialDocumentLines CommercialDocumentLine[]
 
   @@index([categoryId])
   @@index([supplierId])
@@ -148,20 +150,21 @@ model PurchaseLot {
 }
 
 model SaleOrder {
-  id              String     @id
-  refNumber       String     @db.VarChar(100)
-  date            DateTime   @db.Date
-  observation     String?
-  version         Int        @default(1)
-  originDesktopId String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-  deletedAt       DateTime?
-  clientId        String?
-  lines           SaleLine[]
-  returns         SaleReturn[]
-  client          Client?          @relation(fields: [clientId], references: [id])
-  customerCredits CustomerCredit[]
+  id                  String               @id
+  refNumber           String               @db.VarChar(100)
+  date                DateTime             @db.Date
+  observation         String?
+  version             Int                  @default(1)
+  originDesktopId     String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+  clientId            String?
+  lines               SaleLine[]
+  returns             SaleReturn[]
+  client              Client?              @relation(fields: [clientId], references: [id])
+  customerCredits     CustomerCredit[]
+  commercialDocuments CommercialDocument[]
 
   @@index([clientId])
   @@index([date])
@@ -170,15 +173,15 @@ model SaleOrder {
 }
 
 model SaleLine {
-  id               String      @id
+  id               String           @id
   sellingUnitPrice Int
   quantity         Int
   saleOrderId      String
   lotId            String
-  version          Int         @default(1)
+  version          Int              @default(1)
   originDesktopId  String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
   deletedAt        DateTime?
   lot              PurchaseLot      @relation(fields: [lotId], references: [id])
   saleOrder        SaleOrder        @relation(fields: [saleOrderId], references: [id])
@@ -647,4 +650,60 @@ model UserPermission {
 enum UserRole {
   admin
   employee
+}
+
+model CommercialDocument {
+  id              String                   @id
+  docType         String                   @db.VarChar(20)
+  refNumber       String                   @db.VarChar(100)
+  date            DateTime                 @db.Date
+  clientId        String?
+  clientName      String?                  @db.VarChar(200)
+  clientAddress   String?
+  clientIce       String?                  @db.VarChar(50)
+  clientPhone     String?                  @db.VarChar(50)
+  status          String                   @default("draft") @db.VarChar(20)
+  paymentType     String?                  @db.VarChar(20)
+  observation     String?
+  validUntil      DateTime?                @db.Date
+  saleOrderId     String?
+  total           Int                      @default(0)
+  version         Int                      @default(1)
+  originDesktopId String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  deletedAt       DateTime?
+  client          Client?                  @relation(fields: [clientId], references: [id])
+  saleOrder       SaleOrder?               @relation(fields: [saleOrderId], references: [id])
+  lines           CommercialDocumentLine[]
+
+  @@index([docType])
+  @@index([clientId])
+  @@index([saleOrderId])
+  @@index([date])
+  @@index([deletedAt])
+  @@map("commercial_documents")
+}
+
+model CommercialDocumentLine {
+  id               String             @id
+  documentId       String
+  lotId            String?
+  designation      String             @db.VarChar(500)
+  barcode          String?            @db.VarChar(200)
+  quantity         Int
+  sellingUnitPrice Int                @default(0)
+  lineTotal        Int                @default(0)
+  version          Int                @default(1)
+  originDesktopId  String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+  document         CommercialDocument @relation(fields: [documentId], references: [id])
+  lot              PurchaseLot?       @relation(fields: [lotId], references: [id])
+
+  @@index([documentId])
+  @@index([lotId])
+  @@index([deletedAt])
+  @@map("commercial_document_lines")
 }

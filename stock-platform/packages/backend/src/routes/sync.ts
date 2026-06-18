@@ -53,6 +53,8 @@ const ENTITY_TYPE_MAP: Record<string, string> = {
   sub_category: 'subCategory',
   category_alias: 'categoryAlias',
   user: 'user',
+  commercial_document: 'commercialDocument',
+  commercial_document_line: 'commercialDocumentLine',
 };
 
 // Per-entity field allowlists to prevent payload injection
@@ -86,13 +88,15 @@ const ENTITY_ALLOWED_FIELDS: Record<string, Set<string>> = {
   sub_category: new Set(['name', 'categoryId']),
   category_alias: new Set(['rawValue', 'categoryId']),
   user: new Set(['username', 'passwordHash', 'displayName', 'role', 'isActive', 'mustChangePassword']),
+  commercial_document: new Set(['docType', 'refNumber', 'date', 'clientId', 'clientName', 'clientAddress', 'clientIce', 'clientPhone', 'status', 'paymentType', 'observation', 'validUntil', 'saleOrderId', 'total']),
+  commercial_document_line: new Set(['documentId', 'lotId', 'designation', 'barcode', 'quantity', 'sellingUnitPrice', 'lineTotal']),
 };
 
 // C5: All entities now use soft-delete (deletedAt added to Supplier, Boutique, Category)
 const NO_SOFT_DELETE_ENTITIES = new Set<string>();
 
 // Fields that are DateTime @db.Date in Prisma and need string → Date conversion
-const DATE_FIELDS = new Set(['date', 'startDate', 'closingDate', 'dueDate']);
+const DATE_FIELDS = new Set(['date', 'startDate', 'closingDate', 'dueDate', 'validUntil']);
 
 function sanitizePayload(entityType: string, payload: Record<string, unknown>): Record<string, unknown> {
   const allowed = ENTITY_ALLOWED_FIELDS[entityType];
@@ -118,8 +122,8 @@ const ENTITY_PRIORITY: Record<string, number> = {
   category_alias: 0,
   purchase_lot: 1, sale_order: 1, maintenance_job: 1, battery_repair_job: 1,
   expense: 1, customer_credit: 1, supplier_credit: 1, bank_movement: 1,
-  monthly_summary: 1, zakat_snapshot: 1, customer_order: 1,
-  sale_line: 2, sale_return: 2, monthly_summary_line: 2, customer_order_line: 2,
+  monthly_summary: 1, zakat_snapshot: 1, customer_order: 1, commercial_document: 1,
+  sale_line: 2, sale_return: 2, monthly_summary_line: 2, customer_order_line: 2, commercial_document_line: 2,
   customer_credit_payment: 3, supplier_credit_payment: 3, salary_payment: 3, zakat_advance: 3, sale_return_line: 3,
 };
 

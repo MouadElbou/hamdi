@@ -18,6 +18,8 @@ import { CategoriesPage } from './pages/CategoriesPage.js';
 import { ClientsPage } from './pages/ClientsPage.js';
 import { NotificationsPage } from './pages/NotificationsPage.js';
 import { CustomerOrdersPage } from './pages/CustomerOrdersPage.js';
+import { DocumentsPage } from './pages/DocumentsPage.js';
+import { CompanyProfilePage } from './pages/CompanyProfilePage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { SyncStatusBar } from './components/SyncStatusBar.js';
 import { ThemeToggle } from './components/ThemeToggle.js';
@@ -27,7 +29,7 @@ import { AuthProvider, useAuth } from './components/AuthContext.js';
 import { ChangePasswordModal } from './components/ChangePasswordModal.js';
 import './styles.css';
 
-type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'admin-suppliers' | 'admin-categories' | 'admin-clients' | 'import-data' | 'settings';
+type Page = 'dashboard' | 'notifications' | 'purchases' | 'stock' | 'sales' | 'customer-orders' | 'documents' | 'maintenance' | 'battery-repair' | 'expenses' | 'credits' | 'bank' | 'monthly-summary' | 'zakat' | 'admin-users' | 'admin-suppliers' | 'admin-categories' | 'admin-clients' | 'admin-company' | 'import-data' | 'settings';
 
 /* ── Icon components (18×18, stroke-based) ── */
 const icons: Record<Page, React.ReactNode> = {
@@ -62,6 +64,12 @@ const icons: Record<Page, React.ReactNode> = {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" />
       <line x1="9" y1="12" x2="15" y2="12" /><line x1="9" y1="16" x2="13" y2="16" />
+    </svg>
+  ),
+  documents: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" />
     </svg>
   ),
   maintenance: (
@@ -131,6 +139,12 @@ const icons: Record<Page, React.ReactNode> = {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
     </svg>
   ),
+  'admin-company': (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 21h18" /><path d="M5 21V7l8-4v18" /><path d="M19 21V11l-6-4" />
+      <line x1="9" y1="9" x2="9" y2="9.01" /><line x1="9" y1="13" x2="9" y2="13.01" /><line x1="9" y1="17" x2="9" y2="17.01" />
+    </svg>
+  ),
   settings: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -156,6 +170,7 @@ const NAV_SECTIONS: NavSection[] = [
       { key: 'stock', label: 'Stock' },
       { key: 'sales', label: 'Ventes' },
       { key: 'customer-orders', label: 'Commandes' },
+      { key: 'documents', label: 'Documents' },
     ],
   },
   {
@@ -189,6 +204,7 @@ const PAGE_MAP: Record<Page, React.ComponentType> = {
   stock: StockPage,
   sales: SalesPage,
   'customer-orders': CustomerOrdersPage,
+  documents: DocumentsPage,
   maintenance: MaintenancePage,
   'battery-repair': BatteryRepairPage,
   expenses: ExpensesPage,
@@ -200,6 +216,7 @@ const PAGE_MAP: Record<Page, React.ComponentType> = {
   'admin-suppliers': SuppliersPage,
   'admin-categories': CategoriesPage,
   'admin-clients': ClientsPage,
+  'admin-company': CompanyProfilePage,
   'import-data': ImportDataPage,
   settings: SettingsPage,
 };
@@ -226,7 +243,7 @@ function AppInner(): React.JSX.Element {
 
   // If user navigated to a page they no longer have access to, redirect to dashboard
   React.useEffect(() => {
-    const adminOnly = currentPage === 'admin-users' || currentPage === 'admin-suppliers' || currentPage === 'admin-categories' || currentPage === 'admin-clients' || currentPage === 'settings' || currentPage === 'import-data';
+    const adminOnly = currentPage === 'admin-users' || currentPage === 'admin-suppliers' || currentPage === 'admin-categories' || currentPage === 'admin-clients' || currentPage === 'admin-company' || currentPage === 'settings' || currentPage === 'import-data';
     if (adminOnly ? !isAdmin : !hasPermission(currentPage)) {
       setCurrentPage('dashboard');
     }
@@ -324,6 +341,16 @@ function AppInner(): React.JSX.Element {
                   >
                     {icons['import-data']}
                     Import de donnees
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`nav-item ${currentPage === 'admin-company' ? 'active' : ''}`}
+                    onClick={() => setCurrentPage('admin-company')}
+                    {...(currentPage === 'admin-company' ? { 'aria-current': 'page' as const } : {})}
+                  >
+                    {icons['admin-company']}
+                    Société
                   </button>
                 </li>
                 <li>

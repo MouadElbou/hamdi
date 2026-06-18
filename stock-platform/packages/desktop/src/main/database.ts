@@ -305,6 +305,79 @@ function createTables(): void {
     CREATE INDEX IF NOT EXISTS idx_customer_order_lines_lot ON customer_order_lines(lot_id);
     CREATE INDEX IF NOT EXISTS idx_customer_order_lines_deleted ON customer_order_lines(deleted_at) WHERE deleted_at IS NULL;
 
+    -- ─── Commercial Documents (Devis / Facture / Bon de livraison / Ticket reçu) ───
+    -- One synced table discriminated by doc_type. Client identity + line designation
+    -- are SNAPSHOT onto the document at issue time so an issued invoice stays legally
+    -- correct even if the client or stock lot is later edited/deleted. Totals are
+    -- stored (no live recompute) so the printed document is immutable.
+    CREATE TABLE IF NOT EXISTS commercial_documents (
+      id TEXT PRIMARY KEY,
+      doc_type TEXT NOT NULL CHECK(doc_type IN ('devis','facture','bon_livraison','ticket')),
+      ref_number TEXT NOT NULL,
+      date TEXT NOT NULL,
+      client_id TEXT REFERENCES clients(id),
+      client_name TEXT,
+      client_address TEXT,
+      client_ice TEXT,
+      client_phone TEXT,
+      status TEXT NOT NULL DEFAULT 'draft',
+      payment_type TEXT,
+      observation TEXT,
+      valid_until TEXT,
+      sale_order_id TEXT REFERENCES sale_orders(id),
+      total INTEGER NOT NULL DEFAULT 0,
+      version INTEGER NOT NULL DEFAULT 1,
+      origin_desktop_id TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_commercial_documents_type ON commercial_documents(doc_type);
+    CREATE INDEX IF NOT EXISTS idx_commercial_documents_date ON commercial_documents(date);
+    CREATE INDEX IF NOT EXISTS idx_commercial_documents_client ON commercial_documents(client_id);
+    CREATE INDEX IF NOT EXISTS idx_commercial_documents_sale ON commercial_documents(sale_order_id);
+    CREATE INDEX IF NOT EXISTS idx_commercial_documents_deleted ON commercial_documents(deleted_at) WHERE deleted_at IS NULL;
+
+    CREATE TABLE IF NOT EXISTS commercial_document_lines (
+      id TEXT PRIMARY KEY,
+      document_id TEXT NOT NULL REFERENCES commercial_documents(id),
+      lot_id TEXT REFERENCES purchase_lots(id),
+      designation TEXT NOT NULL,
+      barcode TEXT,
+      quantity INTEGER NOT NULL CHECK(quantity > 0),
+      selling_unit_price INTEGER NOT NULL DEFAULT 0 CHECK(selling_unit_price >= 0),
+      line_total INTEGER NOT NULL DEFAULT 0,
+      version INTEGER NOT NULL DEFAULT 1,
+      origin_desktop_id TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      deleted_at TEXT
+    );
+    CREATE INDEX IF NOT EXISTS idx_commercial_document_lines_doc ON commercial_document_lines(document_id);
+    CREATE INDEX IF NOT EXISTS idx_commercial_document_lines_lot ON commercial_document_lines(lot_id);
+    CREATE INDEX IF NOT EXISTS idx_commercial_document_lines_deleted ON commercial_document_lines(deleted_at) WHERE deleted_at IS NULL;
+
+    -- Per-install gapless yearly document numbering (DESKTOP-ONLY — not synced).
+    CREATE TABLE IF NOT EXISTS document_counters (
+      doc_type TEXT NOT NULL,
+      year INTEGER NOT NULL,
+      last_seq INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (doc_type, year)
+    );
+
+    -- Company / seller identity printed on documents (single row, DESKTOP-ONLY).
+    CREATE TABLE IF NOT EXISTS company_profile (
+      id INTEGER PRIMARY KEY CHECK(id = 1),
+      name TEXT, address TEXT, phone TEXT, email TEXT,
+      ice TEXT, rc TEXT, if_num TEXT, patente TEXT, cnss TEXT,
+      rib TEXT, bank_name TEXT,
+      footer_note TEXT,
+      logo TEXT,                 -- base64 data-URI
+      thermal_printer TEXT,      -- saved default 80mm printer device name
+      updated_at TEXT
+    );
+    INSERT OR IGNORE INTO company_profile (id) VALUES (1);
+
     -- Maintenance Jobs
     CREATE TABLE IF NOT EXISTS maintenance_jobs (
       id TEXT PRIMARY KEY,
@@ -735,13 +808,15 @@ function runMigrations(): void {
   // H3: composite (updatedAt, id) pull cursor — add the id half for existing DBs.
   addCol('sync_cursor', 'last_pull_id', "TEXT NOT NULL DEFAULT ''");
 
-  // Backfill 'customer-orders' permission for existing admin users who lack it
+  // Backfill new page permissions for existing admin users who lack them
   try {
     const admins = db.prepare("SELECT id FROM users WHERE role = 'admin' AND deleted_at IS NULL").all() as Array<{ id: string }>;
     for (const admin of admins) {
-      const has = db.prepare("SELECT 1 FROM user_permissions WHERE user_id = ? AND page_key = 'customer-orders'").get(admin.id);
-      if (!has) {
-        db.prepare("INSERT INTO user_permissions (id, user_id, page_key, created_at) VALUES (?, ?, 'customer-orders', datetime('now'))").run(uuidv7(), admin.id);
+      for (const pageKey of ['customer-orders', 'documents']) {
+        const has = db.prepare('SELECT 1 FROM user_permissions WHERE user_id = ? AND page_key = ?').get(admin.id, pageKey);
+        if (!has) {
+          db.prepare("INSERT INTO user_permissions (id, user_id, page_key, created_at) VALUES (?, ?, ?, datetime('now'))").run(uuidv7(), admin.id, pageKey);
+        }
       }
     }
   } catch { /* Safe to ignore on first run before users table exists */ }
@@ -807,7 +882,7 @@ function seedMasterData(): string | null {
 
     // ── Seed admin users (idempotent) ──
     const ALL_PAGES = [
-      'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'maintenance',
+      'dashboard', 'purchases', 'stock', 'sales', 'customer-orders', 'documents', 'maintenance',
       'battery-repair', 'expenses', 'credits', 'bank', 'monthly-summary', 'zakat',
     ];
     const userCount = (db.prepare('SELECT COUNT(*) as c FROM users WHERE deleted_at IS NULL').get() as { c: number }).c;
