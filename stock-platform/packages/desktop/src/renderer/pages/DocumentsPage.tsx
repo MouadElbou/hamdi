@@ -105,9 +105,9 @@ export function DocumentsPage(): React.JSX.Element {
       const doc = await window.api.documents.get(id) as Doc | null;
       if (!doc) { addToast('Document introuvable', 'error'); return; }
       setForm({
-        date: doc.date, clientName: doc.client_name || '', clientAddress: doc.client_address || '',
+        date: (doc.date || '').slice(0, 10), clientName: doc.client_name || '', clientAddress: doc.client_address || '',
         clientIce: doc.client_ice || '', clientPhone: doc.client_phone || '',
-        paymentType: doc.payment_type || 'comptant', validUntil: doc.valid_until || '',
+        paymentType: doc.payment_type || 'comptant', validUntil: (doc.valid_until || '').slice(0, 10),
         observation: doc.observation || '', status: doc.status,
       });
       setLines(doc.lines.map(l => ({ lotId: l.lot_id, designation: l.designation, barcode: l.barcode, quantity: String(l.quantity), price: (l.selling_unit_price / 100).toFixed(2) })));
@@ -252,7 +252,7 @@ export function DocumentsPage(): React.JSX.Element {
                 return (
                   <tr key={d.id}>
                     <td className="col-mono col-bold">{d.ref_number}</td>
-                    <td className="col-mono">{d.date}</td>
+                    <td className="col-mono">{(d.date || '').slice(0, 10)}</td>
                     <td className="text-muted">{d.client_name || '—'}</td>
                     <td className="text-right col-mono col-bold">{fm(d.total)}</td>
                     <td>
@@ -328,11 +328,11 @@ export function DocumentsPage(): React.JSX.Element {
             <div className="form-row" key={i} style={{ alignItems: 'flex-end', marginBottom: 6 }}>
               <div className="form-group" style={{ flex: 3 }}>
                 {i === 0 && <label>Désignation</label>}
-                <input value={line.designation} onChange={e => updateLine(i, 'designation', e.target.value)} placeholder="Désignation" required />
+                <input value={line.designation} onChange={e => updateLine(i, 'designation', e.target.value)} placeholder="Désignation" />
               </div>
               <div className="form-group" style={{ width: 80 }}>
                 {i === 0 && <label>Qté</label>}
-                <input type="number" min="1" value={line.quantity} onChange={e => updateLine(i, 'quantity', e.target.value)} required />
+                <input type="number" min="1" value={line.quantity} onChange={e => updateLine(i, 'quantity', e.target.value)} />
               </div>
               {SHOW_PRICE[docType] && (
                 <div className="form-group" style={{ width: 130 }}>

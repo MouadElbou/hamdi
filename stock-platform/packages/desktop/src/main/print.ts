@@ -190,8 +190,11 @@ async function withHiddenWindow<T>(html: string, fn: (win: BrowserWindow) => Pro
 
 export async function renderToPdf(html: string, target: PrintTarget): Promise<Buffer> {
   return withHiddenWindow(html, async (win) => {
+    // Thermal: let the HTML's `@page { size: 80mm auto }` drive page size — printToPDF's
+    // numeric pageSize is interpreted in inches, so a microns-style {width:80000} would yield
+    // an enormous page. preferCSSPageSize gives a true 80mm-wide, variable-height receipt.
     const opts = target === 'thermal'
-      ? { printBackground: true, pageSize: { width: 80000, height: 297000 }, margins: { top: 0, bottom: 0, left: 0, right: 0 } }
+      ? { printBackground: true, preferCSSPageSize: true, margins: { top: 0, bottom: 0, left: 0, right: 0 } }
       : { printBackground: true, pageSize: 'A4' as const, margins: { top: 0.4, bottom: 0.4, left: 0.4, right: 0.4 } };
     return await win.webContents.printToPDF(opts as Electron.PrintToPDFOptions);
   });

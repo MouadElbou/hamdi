@@ -2358,6 +2358,13 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   const DOC_PREFIX: Record<string, string> = { devis: 'DEV', facture: 'FAC', bon_livraison: 'BL', ticket: 'TKT' };
 
   // Atomic gapless per-year sequence — call INSIDE the create transaction.
+  // NOTE: document_counters is per-install and NOT synced, so two desktops billing
+  // the same docType+year independently produce the same ref (FAC-2026-0001 on each).
+  // Do NOT add a UNIQUE(doc_type, ref_number) constraint to fix this: the per-row
+  // sync SAVEPOINT would catch the UNIQUE violation and silently SKIP the pulled
+  // remote document → data loss on pull. Globally-unique numbering needs a synced
+  // counter or a per-desktop prefix — a product decision, not a constraint. Until
+  // then, bill from a single designated desktop for gapless legal numbering.
   function nextDocNumber(docType: string, dateStr: string): string {
     const year = parseInt(dateStr.slice(0, 4), 10) || new Date().getFullYear();
     db.prepare('INSERT INTO document_counters (doc_type, year, last_seq) VALUES (?, ?, 1) ON CONFLICT(doc_type, year) DO UPDATE SET last_seq = last_seq + 1').run(docType, year);
@@ -2381,7 +2388,10 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     for (const l of data.lines) {
       validateString(l.designation, 'Désignation');
       validatePositive(l.quantity, 'Quantité');
+      if (!Number.isInteger(l.quantity)) throw new Error('Quantité doit être un entier');
       validateAmount(l.sellingUnitPrice, 'Prix unitaire');
+      // Money is stored as integer centimes — reject fractional input so totals stay exact.
+      if (!Number.isInteger(l.sellingUnitPrice)) throw new Error('Prix unitaire doit être en centimes (entier)');
     }
   }
 
@@ -2532,7 +2542,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   function loadDocumentWithLines(id: string): Record<string, unknown> | null {
     const doc = db.prepare(`SELECT d.*, cl.name as client_live_name FROM commercial_documents d LEFT JOIN clients cl ON d.client_id = cl.id WHERE d.id = ? AND d.deleted_at IS NULL`).get(id) as Record<string, unknown> | undefined;
     if (!doc) return null;
-    const lines = db.prepare(`SELECT id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC`).all(id);
+    const lines = db.prepare(`SELECT id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC, id ASC`).all(id);
     return { ...doc, lines };
   }
 
@@ -2558,7 +2568,7 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
     const docIds = docs.map(d => d['id'] as string);
     const linesMap = new Map<string, Array<Record<string, unknown>>>();
     if (docIds.length > 0) {
-      const allLines = db.prepare(`SELECT id, document_id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id IN (${docIds.map(() => '?').join(',')}) AND deleted_at IS NULL`).all(...docIds) as Array<Record<string, unknown>>;
+      const allLines = db.prepare(`SELECT id, document_id, lot_id, designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id IN (${docIds.map(() => '?').join(',')}) AND deleted_at IS NULL ORDER BY document_id, created_at ASC, id ASC`).all(...docIds) as Array<Record<string, unknown>>;
       for (const l of allLines) {
         const did = l['document_id'] as string;
         if (!linesMap.has(did)) linesMap.set(did, []);

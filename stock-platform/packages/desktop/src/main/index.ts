@@ -229,17 +229,26 @@ app.whenReady().then(async () => {
     // ─── Document printing / PDF export ───────────────────────────
     const { buildDocumentHtml, renderToPdf, printHtml } = await import('./print.js');
 
+    // Print/export/list-printers must enforce the same 'documents' permission as the
+    // documents:* data handlers, otherwise a non-admin without that page could still
+    // render and export any document via these inline channels.
+    const requireDocsPerm = () => {
+      const s = getCurrentSession();
+      if (!s) throw new Error('Non authentifié');
+      if (s.role !== 'admin' && !s.permissions.includes('documents')) throw new Error('Accès non autorisé');
+    };
+
     const loadDocForPrint = (id: string) => {
       const db = getDatabase();
       const doc = db.prepare('SELECT * FROM commercial_documents WHERE id = ? AND deleted_at IS NULL').get(id) as Record<string, unknown> | undefined;
       if (!doc) return null;
-      doc['lines'] = db.prepare('SELECT designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC').all(id);
+      doc['lines'] = db.prepare('SELECT designation, barcode, quantity, selling_unit_price, line_total FROM commercial_document_lines WHERE document_id = ? AND deleted_at IS NULL ORDER BY created_at ASC, id ASC').all(id);
       const company = (db.prepare('SELECT * FROM company_profile WHERE id = 1').get() as Record<string, unknown> | undefined) ?? {};
       return { doc, company };
     };
 
     ipcMain.handle('documents:export-pdf', async (_e, params: { id: string; target?: 'a4' | 'thermal' }) => {
-      if (!getCurrentSession()) throw new Error('Non authentifié');
+      requireDocsPerm();
       if (!mainWindow) throw new Error('Fenêtre non disponible');
       const data = loadDocForPrint(params.id);
       if (!data) throw new Error('Document introuvable');
@@ -257,7 +266,7 @@ app.whenReady().then(async () => {
     });
 
     ipcMain.handle('documents:print', async (_e, params: { id: string; target?: 'a4' | 'thermal'; deviceName?: string }) => {
-      if (!getCurrentSession()) throw new Error('Non authentifié');
+      requireDocsPerm();
       const data = loadDocForPrint(params.id);
       if (!data) throw new Error('Document introuvable');
       const target = params.target === 'thermal' ? 'thermal' : 'a4';
@@ -268,7 +277,7 @@ app.whenReady().then(async () => {
     });
 
     ipcMain.handle('documents:list-printers', async () => {
-      if (!getCurrentSession()) throw new Error('Non authentifié');
+      requireDocsPerm();
       if (!mainWindow) return [];
       const printers = await mainWindow.webContents.getPrintersAsync();
       return printers.map(p => ({ name: p.name, displayName: p.displayName }));
