@@ -2336,18 +2336,21 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('company:save', (_event, data: {
     name?: string; address?: string; phone?: string; email?: string;
     ice?: string; rc?: string; ifNum?: string; patente?: string; cnss?: string;
-    rib?: string; bankName?: string; footerNote?: string; logo?: string; thermalPrinter?: string;
+    rib?: string; bankName?: string; headerNote?: string; footerNote?: string; logo?: string; thermalPrinter?: string;
   }) => {
     // Guard against an oversized logo (base64 data-URI) bloating the DB.
     if (data.logo && data.logo.length > 800_000) throw new Error('Logo trop volumineux (max ~500 Ko)');
+    // Free-text header/footer are printed verbatim — cap length so a paste can't bloat the DB.
+    if (data.headerNote && data.headerNote.length > 2000) throw new Error('En-tête trop long (max 2000 caractères)');
+    if (data.footerNote && data.footerNote.length > 2000) throw new Error('Note de bas de page trop longue (max 2000 caractères)');
     const s = (v?: string) => (typeof v === 'string' ? v.trim() : null) || null;
     const now = new Date().toISOString();
     db.prepare(`UPDATE company_profile SET
       name=?, address=?, phone=?, email=?, ice=?, rc=?, if_num=?, patente=?, cnss=?,
-      rib=?, bank_name=?, footer_note=?, logo=?, thermal_printer=?, updated_at=? WHERE id = 1`).run(
+      rib=?, bank_name=?, header_note=?, footer_note=?, logo=?, thermal_printer=?, updated_at=? WHERE id = 1`).run(
       s(data.name), s(data.address), s(data.phone), s(data.email), s(data.ice), s(data.rc),
       s(data.ifNum), s(data.patente), s(data.cnss), s(data.rib), s(data.bankName),
-      s(data.footerNote), data.logo || null, s(data.thermalPrinter), now,
+      s(data.headerNote), s(data.footerNote), data.logo || null, s(data.thermalPrinter), now,
     );
     return { success: true };
   }, { requireAdmin: true });

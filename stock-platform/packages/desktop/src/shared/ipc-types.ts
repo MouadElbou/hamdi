@@ -544,6 +544,7 @@ export interface CompanySaveParams {
   cnss?: string;
   rib?: string;
   bankName?: string;
+  headerNote?: string;
   footerNote?: string;
   logo?: string;
   thermalPrinter?: string;

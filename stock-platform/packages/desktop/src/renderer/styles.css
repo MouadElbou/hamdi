@@ -693,7 +693,8 @@ body {
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   padding: var(--space-2) var(--space-3);
   background: var(--bg-base);
   border: 1px solid var(--border);
@@ -704,18 +705,27 @@ body {
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.form-group input::placeholder {
+.form-group textarea {
+  resize: vertical;
+  min-height: 2.4em;
+  line-height: 1.5;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
   color: var(--text-muted);
 }
 
 .form-group input:hover,
-.form-group select:hover {
+.form-group select:hover,
+.form-group textarea:hover {
   border-color: rgba(255, 255, 255, 0.1);
   background: rgba(9, 9, 11, 0.8);
 }
 
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-dim), 0 0 16px rgba(245, 158, 11, 0.08);

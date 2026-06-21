@@ -371,6 +371,7 @@ function createTables(): void {
       name TEXT, address TEXT, phone TEXT, email TEXT,
       ice TEXT, rc TEXT, if_num TEXT, patente TEXT, cnss TEXT,
       rib TEXT, bank_name TEXT,
+      header_note TEXT,          -- free-form text printed under the company block (slogan, mentions…)
       footer_note TEXT,
       logo TEXT,                 -- base64 data-URI
       thermal_printer TEXT,      -- saved default 80mm printer device name
@@ -807,6 +808,9 @@ function runMigrations(): void {
 
   // H3: composite (updatedAt, id) pull cursor — add the id half for existing DBs.
   addCol('sync_cursor', 'last_pull_id', "TEXT NOT NULL DEFAULT ''");
+
+  // Client-editable invoice header text (footer_note already existed). Desktop-only config.
+  addCol('company_profile', 'header_note', 'TEXT');
 
   // Backfill new page permissions for existing admin users who lack them
   try {

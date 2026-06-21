@@ -24,7 +24,7 @@ export interface PrintDoc {
 export interface PrintCompany {
   name?: string | null; address?: string | null; phone?: string | null; email?: string | null;
   ice?: string | null; rc?: string | null; if_num?: string | null; patente?: string | null; cnss?: string | null;
-  rib?: string | null; bank_name?: string | null; footer_note?: string | null; logo?: string | null;
+  rib?: string | null; bank_name?: string | null; header_note?: string | null; footer_note?: string | null; logo?: string | null;
 }
 
 const DOC_TITLE: Record<string, string> = { facture: 'FACTURE', devis: 'DEVIS', bon_livraison: 'BON DE LIVRAISON', ticket: 'TICKET' };
@@ -32,6 +32,11 @@ const PRICED: Record<string, boolean> = { facture: true, devis: true, ticket: tr
 
 function esc(v: unknown): string {
   return String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' } as Record<string, string>)[c]!);
+}
+// Escape first (XSS-safe), then turn the client's literal newlines into line breaks so
+// multi-line header/footer notes render as typed.
+function multiline(v: unknown): string {
+  return esc(v).replace(/\r?\n/g, '<br>');
 }
 function dh(cents: number): string {
   return (cents / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
@@ -86,7 +91,8 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
     .totals td { padding: 8px 12px; }
     .totals .grand { font-size: 15px; font-weight: 700; border-top: 2px solid #222; }
     .obs { margin-top: 18px; color: #333; }
-    .foot { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; color: #555; font-size: 10.5px; line-height: 1.6; }
+    .subhead { margin-top: 10px; color: #333; font-size: 11.5px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+    .foot { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; color: #555; font-size: 10.5px; line-height: 1.6; overflow-wrap: anywhere; }
   </style></head><body>
     <div class="head">
       <div>
@@ -107,6 +113,8 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
       </div>
     </div>
 
+    ${c.header_note ? `<div class="subhead" dir="auto">${multiline(c.header_note)}</div>` : ''}
+
     <div class="parties">
       <div class="client">
         <h4>Client</h4>
@@ -126,9 +134,11 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
 
     ${doc.observation ? `<div class="obs"><strong>Observation:</strong> ${esc(doc.observation)}</div>` : ''}
 
-    <div class="foot">
-      ${c.footer_note ? esc(c.footer_note) + '<br>' : ''}
-      ${c.rib ? 'RIB: ' + esc(c.rib) + (c.bank_name ? ' (' + esc(c.bank_name) + ')' : '') : ''}
+    <div class="foot" dir="auto">
+      ${[
+        c.footer_note ? multiline(c.footer_note) : '',
+        c.rib ? 'RIB: ' + esc(c.rib) + (c.bank_name ? ' (' + esc(c.bank_name) + ')' : '') : '',
+      ].filter(Boolean).join('<br>')}
     </div>
   </body></html>`;
 }
@@ -143,7 +153,7 @@ function buildThermal(doc: PrintDoc, c: PrintCompany): string {
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
     @page { size: 80mm auto; margin: 0; }
     * { box-sizing: border-box; }
-    body { width: 72mm; margin: 0 auto; padding: 4mm 2mm; font-family: 'Courier New', monospace; font-size: 11px; color: #000; }
+    body { width: 72mm; margin: 0 auto; padding: 4mm 2mm; font-family: 'Courier New', monospace; font-size: 11px; color: #000; overflow-wrap: anywhere; }
     .ct { text-align: center; }
     .co { font-size: 14px; font-weight: 700; }
     .sm { font-size: 10px; }
@@ -158,10 +168,11 @@ function buildThermal(doc: PrintDoc, c: PrintCompany): string {
   </style></head><body>
     <div class="ct">
       ${c.logo ? `<img class="logo" src="${esc(c.logo)}"><br>` : ''}
-      <div class="co">${esc(c.name || '')}</div>
+      ${c.name ? `<div class="co">${esc(c.name)}</div>` : ''}
       ${c.address ? `<div class="sm">${esc(c.address)}</div>` : ''}
       ${c.phone ? `<div class="sm">Tél: ${esc(c.phone)}</div>` : ''}
       ${c.ice ? `<div class="sm">ICE: ${esc(c.ice)}</div>` : ''}
+      ${c.header_note ? `<div class="sm" style="margin-top:3px" dir="auto">${multiline(c.header_note)}</div>` : ''}
     </div>
     <div class="hr"></div>
     <div class="row"><span>${esc(DOC_TITLE[doc.doc_type] || '')} ${esc(doc.ref_number)}</span></div>
@@ -171,7 +182,7 @@ function buildThermal(doc: PrintDoc, c: PrintCompany): string {
     <div class="hr"></div>
     ${priced ? `<div class="tot"><span>TOTAL</span><span>${dh(doc.total)}</span></div>` : ''}
     <div class="hr"></div>
-    <div class="ct sm">${c.footer_note ? esc(c.footer_note) : 'Merci de votre visite'}</div>
+    <div class="ct sm" dir="auto">${c.footer_note ? multiline(c.footer_note) : 'Merci de votre visite'}</div>
   </body></html>`;
 }
 

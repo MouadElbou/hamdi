@@ -4,12 +4,12 @@ import { useToast } from '../components/Toast.js';
 interface CompanyProfileRow {
   name?: string; address?: string; phone?: string; email?: string;
   ice?: string; rc?: string; if_num?: string; patente?: string; cnss?: string;
-  rib?: string; bank_name?: string; footer_note?: string; logo?: string; thermal_printer?: string;
+  rib?: string; bank_name?: string; header_note?: string; footer_note?: string; logo?: string; thermal_printer?: string;
 }
 
 const EMPTY = {
   name: '', address: '', phone: '', email: '', ice: '', rc: '', ifNum: '', patente: '', cnss: '',
-  rib: '', bankName: '', footerNote: '', logo: '', thermalPrinter: '',
+  rib: '', bankName: '', headerNote: '', footerNote: '', logo: '', thermalPrinter: '',
 };
 
 export function CompanyProfilePage(): React.JSX.Element {
@@ -24,7 +24,7 @@ export function CompanyProfilePage(): React.JSX.Element {
       if (c) setForm({
         name: c.name || '', address: c.address || '', phone: c.phone || '', email: c.email || '',
         ice: c.ice || '', rc: c.rc || '', ifNum: c.if_num || '', patente: c.patente || '', cnss: c.cnss || '',
-        rib: c.rib || '', bankName: c.bank_name || '', footerNote: c.footer_note || '',
+        rib: c.rib || '', bankName: c.bank_name || '', headerNote: c.header_note || '', footerNote: c.footer_note || '',
         logo: c.logo || '', thermalPrinter: c.thermal_printer || '',
       });
     }).catch(() => addToast('Erreur lors du chargement du profil', 'error'));
@@ -85,7 +85,16 @@ export function CompanyProfilePage(): React.JSX.Element {
           <div className="form-group"><label>Banque</label><input value={form.bankName} onChange={e => set('bankName', e.target.value)} /></div>
         </div>
         <div className="form-row">
-          <div className="form-group" style={{ flex: 1 }}><label>Note de bas de page (conditions, mentions légales…)</label><input value={form.footerNote} onChange={e => set('footerNote', e.target.value)} placeholder="Merci de votre confiance" /></div>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>En-tête personnalisé (slogan, message… imprimé en haut du document)</label>
+            <textarea value={form.headerNote} onChange={e => set('headerNote', e.target.value)} rows={2} maxLength={2000} placeholder="Spécialiste informatique & accessoires — Vente, réparation, maintenance" />
+          </div>
+        </div>
+        <div className="form-row">
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Note de bas de page (conditions, mentions légales… imprimé en bas)</label>
+            <textarea value={form.footerNote} onChange={e => set('footerNote', e.target.value)} rows={3} maxLength={2000} placeholder="Merci de votre confiance" />
+          </div>
         </div>
         <div className="form-row">
           <div className="form-group">
