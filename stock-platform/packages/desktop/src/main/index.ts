@@ -156,6 +156,10 @@ app.whenReady().then(async () => {
 
   // Initialize local SQLite database (graceful if native module missing)
   let dbAvailable = false;
+  // Tracks whether the auto-updater was started inside the init try-block. If init
+  // throws before that point, a fallback after the catch starts it anyway so a broken
+  // build can still pull a fix instead of being permanently stuck on the bad version.
+  let updaterStarted = false;
   try {
     const userDataPath = app.getPath('userData');
     console.log('[INIT] userData path:', userDataPath);
@@ -321,6 +325,7 @@ app.whenReady().then(async () => {
     if (getUpdateFeedUrl() && app.isPackaged) {
       try {
         initAutoUpdater(() => mainWindow);
+        updaterStarted = true;
         console.log('[INIT] Auto-updater initialized');
       } catch (err) {
         console.error('[INIT] Auto-updater init failed:', (err as Error).message);
@@ -360,9 +365,32 @@ app.whenReady().then(async () => {
   } catch (err) {
     console.error('[INIT] DATABASE INIT FAILED:', (err as Error).message);
     console.error('[INIT] Stack:', (err as Error).stack);
+    // Surface the failure instead of silently showing a login screen whose handlers
+    // were never registered (the user would otherwise just see "No handler registered
+    // for 'auth:login'"). A visible message turns a mystery into an actionable report.
+    try {
+      dialog.showErrorBox(
+        "Erreur d'initialisation",
+        `La base de données locale n'a pas pu démarrer :\n\n${(err as Error).message}\n\n` +
+        `L'application va vérifier les mises à jour. Si le problème persiste, contactez le support.`,
+      );
+    } catch { /* dialog may be unavailable very early */ }
   }
 
   createWindow();
+
+  // Self-heal: if init threw before the auto-updater started, start it now so a broken
+  // build can still download a fix. Without this, a failed migration would leave the app
+  // with no IPC handlers AND no updater — permanently stuck until a manual reinstall.
+  if (!updaterStarted && getUpdateFeedUrl() && app.isPackaged) {
+    try {
+      initAutoUpdater(() => mainWindow);
+      updaterStarted = true;
+      console.log('[INIT] Auto-updater initialized (post-failure fallback)');
+    } catch (err) {
+      console.error('[INIT] Fallback auto-updater init failed:', (err as Error).message);
+    }
+  }
 
   if (!dbAvailable && mainWindow) {
     mainWindow.webContents.on('did-finish-load', () => {

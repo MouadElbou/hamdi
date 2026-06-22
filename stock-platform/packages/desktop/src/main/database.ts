@@ -209,7 +209,10 @@ function createTables(): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_sale_orders_date ON sale_orders(date);
-    CREATE INDEX IF NOT EXISTS idx_sale_orders_client ON sale_orders(client_id);
+    -- NOTE: idx_sale_orders_client (on client_id) is created in runMigrations() AFTER the
+    -- client_id repair ALTER. client_id is a late-added column; on an upgraded DB it does
+    -- not exist when this no-op CREATE TABLE IF NOT EXISTS runs, so indexing it here would
+    -- throw "no such column: client_id" and abort the whole init.
     CREATE INDEX IF NOT EXISTS idx_sale_orders_deleted ON sale_orders(deleted_at) WHERE deleted_at IS NULL;
 
     -- Sale Lines
@@ -664,7 +667,11 @@ function createTables(): void {
       last_pull_id TEXT NOT NULL DEFAULT ''
     );
 
-    INSERT OR IGNORE INTO sync_cursor (id, last_pull_at, last_pull_id) VALUES ('main', '1970-01-01T00:00:00.000Z', '');
+    -- Seed only base columns. On an upgraded DB the table pre-exists WITHOUT last_pull_id
+    -- (CREATE IF NOT EXISTS above is a no-op), and that column is added later in
+    -- runMigrations(); naming it here would throw "no column named last_pull_id" and abort
+    -- the whole init. The column's DEFAULT '' covers both fresh and upgraded rows.
+    INSERT OR IGNORE INTO sync_cursor (id, last_pull_at) VALUES ('main', '1970-01-01T00:00:00.000Z');
 
     -- Desktop identity
     CREATE TABLE IF NOT EXISTS desktop_meta (
@@ -698,6 +705,10 @@ function createTables(): void {
   if (!soCols.some(c => c.name === 'client_id')) {
     db.exec('ALTER TABLE sale_orders ADD COLUMN client_id TEXT REFERENCES clients(id)');
   }
+  // client_id now exists (fresh or repaired) — safe to index it. Must be created HERE,
+  // not in the createTables() exec, because that exec is a no-op for the pre-existing
+  // sale_orders table on an upgraded DB (see note at the idx_sale_orders_date block).
+  try { db.exec('CREATE INDEX IF NOT EXISTS idx_sale_orders_client ON sale_orders(client_id)'); } catch { /* index may already exist */ }
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
