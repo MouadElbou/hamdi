@@ -60,6 +60,12 @@ const STATUS_OPTIONS: Record<DocType, Array<{ value: string; label: string; cls:
 const fm = (c: number) => (c / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
 const statusInfo = (type: DocType, value: string) => STATUS_OPTIONS[type].find(s => s.value === value) || { value, label: value, cls: 'badge-info' };
 
+// Factures & devis are billed with 20% TVA on top of the HT prices (see print.ts).
+const TVA_RATE = 0.20;
+const HAS_TVA: Record<DocType, boolean> = { facture: true, devis: true, bon_livraison: false, ticket: false };
+const tvaOf = (ht: number, type: DocType) => (HAS_TVA[type] ? Math.round(ht * TVA_RATE) : 0);
+const ttcOf = (ht: number, type: DocType) => ht + tvaOf(ht, type);
+
 export function DocumentsPage(): React.JSX.Element {
   const { addToast } = useToast();
   const [confirm, confirmDialog] = useConfirm();
@@ -254,7 +260,7 @@ export function DocumentsPage(): React.JSX.Element {
                     <td className="col-mono col-bold">{d.ref_number}</td>
                     <td className="col-mono">{(d.date || '').slice(0, 10)}</td>
                     <td className="text-muted">{d.client_name || '—'}</td>
-                    <td className="text-right col-mono col-bold">{fm(d.total)}</td>
+                    <td className="text-right col-mono col-bold">{fm(ttcOf(d.total, d.doc_type))}{HAS_TVA[d.doc_type] ? ' TTC' : ''}</td>
                     <td>
                       <select className={`status-badge ${si.cls}`} style={{ border: 'none', cursor: 'pointer' }}
                         value={d.status} onChange={e => handleStatus(d.id, e.target.value)}>
@@ -348,7 +354,15 @@ export function DocumentsPage(): React.JSX.Element {
           {lines.length === 0 && <p className="text-muted" style={{ fontSize: 13, padding: '4px 0' }}>Ajoutez un article du stock ou une ligne libre.</p>}
 
           {SHOW_PRICE[docType] && formTotal > 0 && (
-            <div className="sale-summary"><span>Total: {fm(formTotal)}</span></div>
+            HAS_TVA[docType] ? (
+              <div className="sale-summary" style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                <span>Total HT: {fm(formTotal)}</span>
+                <span>TVA (20%): {fm(tvaOf(formTotal, docType))}</span>
+                <span style={{ fontWeight: 700 }}>Total TTC: {fm(ttcOf(formTotal, docType))}</span>
+              </div>
+            ) : (
+              <div className="sale-summary"><span>Total: {fm(formTotal)}</span></div>
+            )
           )}
 
           <div className="form-actions">

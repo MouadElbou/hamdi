@@ -46,6 +46,74 @@ function frDate(iso: string): string {
   return m ? `${m[3]}/${m[2]}/${m[1]}` : iso;
 }
 
+// TVA (Moroccan VAT). Prices stored on documents are treated as HT (hors taxe);
+// the 20% tax is added on top to obtain the TTC total shown on Factures / Devis.
+const TVA_RATE = 0.20;
+const TVA_DOC_TYPES = new Set(['facture', 'devis']);
+
+function computeTotals(totalHt: number, withTva: boolean): { ht: number; tva: number; ttc: number } {
+  const tva = withTva ? Math.round(totalHt * TVA_RATE) : 0;
+  return { ht: totalHt, tva, ttc: totalHt + tva };
+}
+
+// ── Montant en toutes lettres (French number-to-words) ────────────
+const FR_UNITS = [
+  'zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+  'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf',
+];
+const FR_TENS = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+
+// 0..99. `noPlural` suppresses the plural "s" on "quatre-vingts" when the word is
+// followed by another scale word (e.g. "quatre-vingt mille").
+function frTwoDigits(n: number, noPlural = false): string {
+  if (n < 20) return FR_UNITS[n];
+  const t = Math.floor(n / 10);
+  const u = n % 10;
+  if (t === 7 || t === 9) {
+    const base = t === 7 ? 'soixante' : 'quatre-vingt';
+    if (t === 7 && u === 1) return 'soixante et onze';
+    return base + '-' + FR_UNITS[10 + u];
+  }
+  if (u === 0) return t === 8 && !noPlural ? 'quatre-vingts' : FR_TENS[t];
+  if (u === 1 && t !== 8) return FR_TENS[t] + ' et un';
+  return FR_TENS[t] + '-' + FR_UNITS[u];
+}
+
+// 0..999. "cent" takes a plural "s" only when it ends the number (deux cents),
+// not when followed by another word (deux cent un, deux cent mille → noPlural).
+function frThreeDigits(n: number, noPlural = false): string {
+  if (n < 100) return frTwoDigits(n, noPlural);
+  const h = Math.floor(n / 100);
+  const r = n % 100;
+  if (r === 0) return h === 1 ? 'cent' : FR_UNITS[h] + (noPlural ? ' cent' : ' cents');
+  const head = h === 1 ? 'cent' : FR_UNITS[h] + ' cent';
+  return head + ' ' + frTwoDigits(r, noPlural);
+}
+
+function frInteger(n: number): string {
+  if (n <= 0) return 'zéro';
+  const parts: string[] = [];
+  const milliards = Math.floor(n / 1_000_000_000);
+  const millions = Math.floor((n % 1_000_000_000) / 1_000_000);
+  const thousands = Math.floor((n % 1_000_000) / 1000);
+  const rest = n % 1000;
+  if (milliards > 0) parts.push(frThreeDigits(milliards) + (milliards === 1 ? ' milliard' : ' milliards'));
+  if (millions > 0) parts.push(frThreeDigits(millions) + (millions === 1 ? ' million' : ' millions'));
+  if (thousands > 0) parts.push(thousands === 1 ? 'mille' : frThreeDigits(thousands, true) + ' mille');
+  if (rest > 0) parts.push(frThreeDigits(rest));
+  return parts.join(' ');
+}
+
+// e.g. 72050 → "SEPT CENT VINGT DIRHAMS ET CINQUANTE CENTIMES"
+function amountInWords(cents: number): string {
+  const safe = Math.max(0, Math.round(cents));
+  const dirhams = Math.floor(safe / 100);
+  const centimes = safe % 100;
+  let out = frInteger(dirhams) + (dirhams <= 1 ? ' dirham' : ' dirhams');
+  if (centimes > 0) out += ' et ' + frInteger(centimes) + (centimes === 1 ? ' centime' : ' centimes');
+  return out.toUpperCase();
+}
+
 function legalLine(c: PrintCompany): string {
   const parts: Array<[string, string | null | undefined]> = [['ICE', c.ice], ['RC', c.rc], ['IF', c.if_num], ['Patente', c.patente], ['CNSS', c.cnss]];
   return parts.filter(([, v]) => v).map(([k, v]) => `${k}: ${esc(v)}`).join(' &nbsp;•&nbsp; ');
@@ -66,6 +134,20 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
       ${priced ? `<td class="r">${dh(l.selling_unit_price)}</td><td class="r">${dh(l.line_total)}</td>` : ''}
     </tr>`).join('');
   const legal = legalLine(c);
+  const withTva = priced && TVA_DOC_TYPES.has(doc.doc_type);
+  const t = computeTotals(doc.total, withTva);
+  const totalsBlock = !priced ? '' : withTva
+    ? `<div class="totals"><table>
+        <tr><td>Total HT</td><td class="r">${dh(t.ht)}</td></tr>
+        <tr><td>TVA (20%)</td><td class="r">${dh(t.tva)}</td></tr>
+        <tr class="grand"><td>Total TTC</td><td class="r">${dh(t.ttc)}</td></tr>
+      </table></div>`
+    : `<div class="totals"><table><tr class="grand"><td>TOTAL</td><td class="r">${dh(doc.total)}</td></tr></table></div>`;
+  const wordsBlock = withTva && t.ttc > 0
+    ? `<div class="amount-words">${doc.doc_type === 'facture'
+        ? 'LA PRÉSENTE FACTURE EST ARRÊTÉE À LA SOMME DE'
+        : 'LE PRÉSENT DEVIS EST ARRÊTÉ À LA SOMME DE'} : <strong>${amountInWords(t.ttc)}</strong></div>`
+    : '';
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
     * { box-sizing: border-box; }
     @page { size: A4; margin: 14mm; }
@@ -87,9 +169,11 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
     .r { text-align: right; } .c { text-align: center; width: 28px; }
     .muted { color: #888; font-size: 10px; }
     .totals { display: flex; justify-content: flex-end; margin-top: 14px; }
-    .totals table { border-collapse: collapse; min-width: 240px; }
-    .totals td { padding: 8px 12px; }
+    .totals table { border-collapse: collapse; min-width: 260px; }
+    .totals td { padding: 6px 12px; }
     .totals .grand { font-size: 15px; font-weight: 700; border-top: 2px solid #222; }
+    .amount-words { margin-top: 14px; font-size: 12px; line-height: 1.5; }
+    .amount-words strong { font-weight: 700; }
     .obs { margin-top: 18px; color: #333; }
     .subhead { margin-top: 10px; color: #333; font-size: 11.5px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
     .foot { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; color: #555; font-size: 10.5px; line-height: 1.6; overflow-wrap: anywhere; }
@@ -130,7 +214,8 @@ function buildA4(doc: PrintDoc, c: PrintCompany): string {
       <tbody>${rows || '<tr><td colspan="5" class="c muted">Aucune ligne</td></tr>'}</tbody>
     </table>
 
-    ${priced ? `<div class="totals"><table><tr class="grand"><td>TOTAL</td><td class="r">${dh(doc.total)}</td></tr></table></div>` : ''}
+    ${totalsBlock}
+    ${wordsBlock}
 
     ${doc.observation ? `<div class="obs"><strong>Observation:</strong> ${esc(doc.observation)}</div>` : ''}
 
