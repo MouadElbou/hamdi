@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { HeroBanner } from '@/components/HeroBanner';
 import { CategoryStrip } from '@/components/CategoryGrid';
 import { ProductSection } from '@/components/ProductSection';
-import { fetchCatalog } from '@/lib/api';
+import { getCatalogItems } from '@/lib/catalog';
 
 export const metadata: Metadata = {
   title: 'HAMDI PC — Informatique & High-Tech a Oujda',
@@ -81,12 +81,14 @@ const nouveautes = [
   },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  // Try API first, fall back to demo data
+  // Query the site's own DB; fall back to demo data if it's unavailable.
   let newItems = nouveautes;
 
   try {
-    const apiNew = await fetchCatalog({ page: 1, limit: 8, inStockOnly: true });
+    const apiNew = await getCatalogItems({ page: 1, limit: 8, inStockOnly: true });
     if (apiNew.items.length > 0) {
       newItems = apiNew.items.map(i => ({
         lotId: i.lotId, designation: i.designation, category: i.category,

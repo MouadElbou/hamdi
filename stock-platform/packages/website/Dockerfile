@@ -22,7 +22,8 @@ COPY packages/website/ ./packages/website/
 # Build Next.js (standalone output enabled in next.config.mjs for production)
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api
+# The website now has its OWN backend at same-origin /api (no external backend).
+ARG NEXT_PUBLIC_API_URL=/api
 ARG NEXT_PUBLIC_STORE_PHONE=212536690306
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_STORE_PHONE=${NEXT_PUBLIC_STORE_PHONE}

@@ -2,7 +2,8 @@
  * Admin API client — handles JWT auth and backend communication
  */
 
-const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '';
+// Same-origin by default: the admin talks to the site's own /api/admin/* routes.
+const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '/api';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -100,7 +101,7 @@ export interface AdminUser {
 }
 
 export async function login(username: string, password: string): Promise<{ token: string; user: AdminUser }> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`${API_BASE}/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
@@ -117,7 +118,7 @@ export async function login(username: string, password: string): Promise<{ token
 }
 
 export async function getMe(signal?: AbortSignal): Promise<AdminUser> {
-  return adminGet<AdminUser>('/auth/me', { signal });
+  return adminGet<AdminUser>('/admin/me', { signal });
 }
 
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {

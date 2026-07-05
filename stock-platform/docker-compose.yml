@@ -60,7 +60,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:3001/api
+      # The website now has its OWN backend (Next.js /api). It needs its own
+      # database + R2 image storage. Supply these if deploying via compose:
+      #   DATABASE_URL: postgresql://...   (its own DB, e.g. Neon or a separate db)
+      #   R2_ENDPOINT / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET / R2_PUBLIC_URL
+      DATABASE_URL: ${WEBSITE_DATABASE_URL:?WEBSITE_DATABASE_URL is required}
       NEXT_PUBLIC_STORE_PHONE: ${NEXT_PUBLIC_STORE_PHONE:-212536690306}
       # H4: secret must be supplied (no insecure default). Fails closed if unset.
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}

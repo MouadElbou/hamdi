@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
-
-const secret = process.env['JWT_SECRET'];
-if (!secret && process.env['NODE_ENV'] !== 'development') {
-  throw new Error('FATAL: JWT_SECRET environment variable is required in non-development environments');
-}
-const JWT_SECRET = new TextEncoder().encode(secret ?? 'dev-jwt-secret-' + Math.random().toString(36));
+import { getJwtSecret } from './lib/jwt-secret';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -26,7 +21,7 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
 
     // Restrict /admin/users to admin role only
     if (pathname.startsWith('/admin/users')) {

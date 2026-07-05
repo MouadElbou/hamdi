@@ -1,0 +1,39 @@
+// Website's own database — independent of the desktop-sync backend.
+// Holds only what the public storefront + product admin need.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Neon: pooled URL for the app, direct URL for migrations.
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  description String?
+  priceCents  Int? // null = "Sur demande" (price on request)
+  stock       Int? // null = not tracked / always available
+  imageUrl    String? // Cloudflare R2 public URL
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([published])
+  @@map("products")
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  @@map("admin_users")
+}

@@ -2,12 +2,10 @@
  * API client for fetching catalog data from the central backend.
  */
 
-export const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '';
+// Same-origin by default: the site talks to its own Next.js backend at /api.
+export const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '/api';
 
 export function getApiBase(): string {
-  if (!API_BASE) {
-    throw new Error('NEXT_PUBLIC_API_URL environment variable is required');
-  }
   return API_BASE;
 }
 
@@ -21,6 +19,7 @@ export interface CatalogItem {
   boutique: string;
   remainingQuantity: number;
   targetResalePrice: number | null;
+  imageUrl?: string | null;
 }
 
 export interface CatalogResponse {
