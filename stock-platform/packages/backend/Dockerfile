@@ -49,9 +49,10 @@ COPY --from=builder /app/packages/shared/dist/ ./packages/shared/dist/
 # Copy built backend
 COPY --from=builder /app/packages/backend/dist/ ./packages/backend/dist/
 
-# Copy Prisma schema + migrations + generated client
+# Copy Prisma schema + generated client. In this monorepo the client is
+# generated into the HOISTED root node_modules/.prisma (the package-level
+# path does not exist), so copy it from there.
 COPY --from=builder /app/packages/backend/prisma/ ./packages/backend/prisma/
-COPY --from=builder /app/packages/backend/node_modules/.prisma/ ./packages/backend/node_modules/.prisma/
 COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/
 
 ENV NODE_ENV=production
