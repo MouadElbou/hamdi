@@ -61,5 +61,7 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD wget -qO- http://localhost:3001/api/health || exit 1
 
-# Run migrations then start the server
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=packages/backend/prisma/schema.prisma && node packages/backend/dist/server.js"]
+# Start the server. The DB schema is applied once out-of-band via
+# `prisma db push` (the CLI isn't shipped in this production image), exactly
+# like the website — see deploy docs.
+CMD ["node", "packages/backend/dist/server.js"]
