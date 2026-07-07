@@ -5,17 +5,18 @@ import { CartProvider } from '@/lib/cart';
 import './globals.css';
 import { LayoutShell } from '@/components/LayoutShell';
 
-const lexend = Lexend({ subsets: ['latin'], weight: ['400', '700', '800', '900'], variable: '--font-lexend', display: 'swap' });
-const workSans = Work_Sans({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--font-work-sans', display: 'swap' });
-const inter = Inter({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800', '900'], variable: '--font-inter', display: 'swap' });
+// "Precision" type system — Lexend display, Work Sans body, Inter labels.
+const headline = Lexend({ subsets: ['latin'], weight: ['400', '700', '800', '900'], variable: '--ff-display', display: 'swap' });
+const body = Work_Sans({ subsets: ['latin'], weight: ['300', '400', '500', '600'], variable: '--ff-body', display: 'swap' });
+const label = Inter({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--ff-label', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'HAMDI PC — Informatique & High-Tech',
-  description: 'Hamdi PC — Votre destination pour les produits informatiques, electroniques et accessoires au meilleur prix.',
+  title: 'HAMDI PC — Pièces & Réparation PC portable au Maroc',
+  description: 'Écrans, batteries, chargeurs, claviers et réparation pour ordinateurs portables. Trouvez la pièce exacte de votre PC — livraison rapide partout au Maroc.',
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'HAMDI PC — Informatique & High-Tech',
-    description: 'Produits informatiques, electroniques et accessoires au meilleur prix.',
+    title: 'HAMDI PC — Pièces & Réparation PC portable',
+    description: 'Écrans, batteries, chargeurs, claviers & réparation. Trouvez la pièce exacte de votre PC portable.',
     type: 'website',
     locale: 'fr_FR',
   },
@@ -23,9 +24,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" className={`${lexend.variable} ${workSans.variable} ${inter.variable}`}>
+    <html lang="fr" className={`${headline.variable} ${body.variable} ${label.variable}`}>
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block"
+        />
       </head>
       <body>
         <CartProvider>

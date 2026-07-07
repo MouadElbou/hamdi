@@ -4,214 +4,136 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
-import {
-  MenuIcon,
-  XIcon,
-  PhoneIcon,
-  HomeIcon,
-  PackageIcon,
-  ArrowUpIcon,
-  ShoppingCartIcon,
-} from '@/components/icons';
 
-/* -- Nav links ---- */
+const WA = 'https://wa.me/212622265053';
+
 const NAV_LINKS = [
   { label: 'Accueil', href: '/' },
   { label: 'Catalogue', href: '/catalogue' },
-  { label: 'A propos', href: '/a-propos' },
+  { label: 'Réparation', href: '/catalogue?category=Services%20%26%20R%C3%A9paration' },
+  { label: 'À propos', href: '/a-propos' },
   { label: 'Contact', href: '/contact' },
 ];
+
+const FOOTER_CATS: [string, string][] = [
+  ['Écrans & Dalles', 'Écrans & Dalles'],
+  ['Batteries & Chargeurs', 'Batteries'],
+  ['Claviers & Touches', 'Claviers & Touches'],
+  ['PC Portables', 'PC Portables'],
+];
+const FOOTER_SERVICES = ['Réparation logicielle', 'Réparation matérielle', 'Électronique / Carte mère', 'Développement & web'];
+
+const sym = (name: string, filled = false, cls = '') => (
+  <span className={`material-symbols-outlined ${cls}`} style={filled ? { fontVariationSettings: "'FILL' 1" } : undefined}>{name}</span>
+);
 
 export function LayoutShell({ children }: { children: React.ReactNode }): React.JSX.Element {
   const pathname = usePathname();
   const { totalItems } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [showScroll, setShowScroll] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
-
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [mobileOpen]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setShowScroll(window.scrollY > 400);
-    };
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Admin routes bypass the shell
-  if (pathname.startsWith('/admin')) {
-    return <>{children}</>;
-  }
+  if (pathname.startsWith('/admin')) return <>{children}</>;
+
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href.split('?')[0] ?? href));
 
   return (
     <>
-      <a href="#main-content" className="skip-to-content">
-        Passer au contenu principal
-      </a>
-
-      {/* -- Fixed glass-effect nav bar (matches example.html) -- */}
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md shadow-sm">
-        <div className="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden flex items-center justify-center p-2 text-blue-700 hover:opacity-80 transition-opacity"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Ouvrir le menu"
-            aria-expanded={mobileOpen}
-          >
-            <MenuIcon size={24} />
-          </button>
-
-          {/* Brand */}
-          <Link href="/" className="text-2xl font-black text-blue-800 tracking-tighter font-headline">
-            HAMDI PC
+      {/* NAV */}
+      <nav className={`site-nav fixed top-0 w-full z-50 bg-background/85 glass-effect ${scrolled ? 'scrolled' : ''}`}>
+        <div className="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-screen-2xl mx-auto">
+          <Link href="/" className="flex items-center gap-2.5">
+            {sym('memory', true, 'text-primary')}
+            <span className="text-2xl font-black text-primary tracking-tighter font-headline">HAMDI PC</span>
           </Link>
 
-          {/* Center nav links (desktop) */}
-          <div className="hidden md:flex items-center space-x-8">
-            {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`font-headline font-bold uppercase tracking-tight transition-colors ${
-                    isActive
-                      ? 'text-blue-700 border-b-2 border-blue-700 pb-1'
-                      : 'text-slate-600 hover:text-blue-600'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+          <div className="hidden lg:flex items-center space-x-9 font-headline font-bold uppercase tracking-tight text-sm">
+            {NAV_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className={`navlink transition-colors ${isActive(l.href) ? 'active text-primary' : 'text-on-surface-variant hover:text-primary'}`}>{l.label}</Link>
+            ))}
           </div>
 
-          {/* Right icons */}
-          <div className="flex items-center space-x-6">
-            <button className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
-              <span className="material-symbols-outlined">favorite</span>
-            </button>
-            <Link href="/cart" className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700 relative" aria-label={`Panier (${totalItems} articles)`}>
-              <span className="material-symbols-outlined">shopping_cart</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-error text-on-error rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">
-                  {totalItems}
-                </span>
-              )}
+          <div className="flex items-center gap-2 md:gap-4">
+            <a className="hidden sm:flex items-center gap-2 bg-whatsapp text-white px-4 py-2.5 rounded-xl font-headline font-bold text-sm tracking-tight hover:brightness-95 active:scale-95 transition" href={WA} target="_blank" rel="noopener noreferrer">
+              {sym('chat', true, 'text-[20px]')} Commander
+            </a>
+            <Link href="/cart" className="relative w-10 h-10 grid place-items-center rounded-xl text-primary hover:bg-surface-container transition active:scale-95" aria-label={`Panier (${totalItems})`}>
+              {sym('shopping_cart')}
+              {totalItems > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 grid place-items-center rounded-full bg-primary text-white text-[10px] font-bold font-label">{totalItems}</span>}
             </Link>
-            <Link href="/admin" className="hover:opacity-80 transition-opacity duration-300 active:scale-95 transition-transform text-blue-700">
-              <span className="material-symbols-outlined">person</span>
-            </Link>
+            <Link href="/admin" className="hidden sm:grid w-10 h-10 place-items-center rounded-xl text-primary hover:bg-surface-container transition active:scale-95" aria-label="Compte">{sym('person')}</Link>
+            <button className="lg:hidden w-10 h-10 grid place-items-center rounded-xl text-primary hover:bg-surface-container transition" onClick={() => setMobileOpen((v) => !v)} aria-label="Menu">{sym(mobileOpen ? 'close' : 'menu')}</button>
           </div>
         </div>
-        {/* Subtle 1px separator */}
-        <div className="bg-slate-100 h-[1px] w-full absolute bottom-0"></div>
-      </nav>
+        <div className="bg-outline-variant/60 h-px w-full absolute bottom-0" />
 
-      {/* -- Mobile overlay + drawer -- */}
-      <div
-        className={`mobile-nav-overlay ${mobileOpen ? 'open' : ''}`}
-        onClick={() => setMobileOpen(false)}
-        aria-hidden="true"
-      />
-      <nav
-        className={`mobile-nav-drawer ${mobileOpen ? 'open' : ''}`}
-        aria-label="Menu mobile"
-        role="dialog"
-        aria-modal={mobileOpen}
-      >
-        <div className="mobile-nav-header">
-          <Link href="/" className="text-xl font-black text-white tracking-tighter font-headline" onClick={() => setMobileOpen(false)}>
-            HAMDI PC
-          </Link>
-          <button className="text-white/50 hover:text-white p-2" onClick={() => setMobileOpen(false)} aria-label="Fermer le menu">
-            <XIcon size={22} />
-          </button>
-        </div>
-        <div className="mobile-nav-links">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} onClick={() => setMobileOpen(false)}>
-              {link.label === 'Accueil' && <HomeIcon size={18} />}
-              {link.label === 'Catalogue' && <PackageIcon size={18} />}
-              {link.label === 'Contact' && <PhoneIcon size={18} />}
-              {link.label}
-            </Link>
-          ))}
-          <Link href="/cart" onClick={() => setMobileOpen(false)}>
-            <ShoppingCartIcon size={18} /> Panier {totalItems > 0 && `(${totalItems})`}
-          </Link>
-        </div>
-        <div className="mobile-nav-contact">
-          <a href="tel:+212536690306"><PhoneIcon size={14} /> +212 536 69 03 06</a>
-          <a href="https://wa.me/212622265053" target="_blank" rel="noopener noreferrer">WhatsApp: +212 622 26 50 53</a>
-          <a href="https://wa.me/212672532998" target="_blank" rel="noopener noreferrer">WhatsApp: +212 672 53 29 98</a>
-        </div>
+        {/* mobile drawer */}
+        {mobileOpen && (
+          <div className="lg:hidden bg-surface-container-lowest border-t border-outline-variant/40 px-6 py-4 space-y-1 font-headline font-bold uppercase tracking-tight text-sm">
+            {NAV_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className={`block py-2.5 ${isActive(l.href) ? 'text-primary' : 'text-on-surface-variant'}`}>{l.label}</Link>
+            ))}
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="mt-2 flex items-center gap-2 bg-whatsapp text-white px-4 py-3 rounded-xl">{sym('chat', true)} Commander sur WhatsApp</a>
+          </div>
+        )}
       </nav>
 
       <main id="main-content" className="pt-20">{children}</main>
 
-      {/* -- Footer (matches example.html: bg-slate-50, border-t, 4-col grid) -- */}
-      <footer className="bg-slate-50 w-full py-16 px-8 border-t border-slate-200">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
-          {/* Col 1: Brand + description */}
-          <div className="space-y-6">
-            <div className="text-xl font-black text-blue-800 font-headline">HAMDI PC</div>
-            <p className="text-sm tracking-wide text-slate-500">
-              Votre partenaire informatique depuis 1997. Vente de materiel
-              informatique, telephones, accessoires et composants. Un large
-              choix de produits neufs et d&apos;occasion aux meilleurs prix a Oujda.
-            </p>
+      {/* FOOTER */}
+      <footer className="bg-surface-container-lowest w-full py-16 px-6 md:px-8 border-t border-outline-variant/50">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-screen-2xl mx-auto">
+          <div className="space-y-5 col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2">{sym('memory', true, 'text-primary')}<span className="text-xl font-black text-primary font-headline">HAMDI PC</span></div>
+            <p className="font-body text-sm tracking-wide text-on-surface-variant max-w-xs">Pièces détachées &amp; réparation PC portable. Oujda, Maroc. Commande simple par WhatsApp.</p>
+            <a className="inline-flex items-center gap-2 text-whatsapp font-headline font-bold text-sm" href={WA} target="_blank" rel="noopener noreferrer">{sym('chat', true)} +212 622 265 053</a>
           </div>
-
-          {/* Col 2: Company */}
           <div className="space-y-4">
-            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Entreprise</h4>
-            <ul className="space-y-2 text-sm tracking-wide">
-              <li><Link className="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="/a-propos">A propos</Link></li>
-              <li><Link className="text-slate-500 hover:text-blue-600 transition-all hover:underline" href="/contact">Contactez-nous</Link></li>
-              <li><span className="text-slate-500">Conditions de service</span></li>
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Catalogue</h4>
+            <ul className="space-y-2.5 font-body text-sm tracking-wide">
+              {FOOTER_CATS.map(([label, cat]) => (
+                <li key={label}><Link className="text-on-surface-variant hover:text-primary transition-colors" href={`/catalogue?category=${encodeURIComponent(cat)}`}>{label}</Link></li>
+              ))}
             </ul>
           </div>
-
-          {/* Col 3: Support */}
           <div className="space-y-4">
-            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Support</h4>
-            <ul className="space-y-2 text-sm tracking-wide">
-              <li><span className="text-slate-500">Politique de livraison</span></li>
-              <li><span className="text-slate-500">Suivi de commande</span></li>
-              <li><span className="text-slate-500">Politique de confidentialite</span></li>
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Services</h4>
+            <ul className="space-y-2.5 font-body text-sm tracking-wide">
+              {FOOTER_SERVICES.map((s) => (
+                <li key={s}><Link className="text-on-surface-variant hover:text-primary transition-colors" href="/catalogue?category=Services%20%26%20R%C3%A9paration">{s}</Link></li>
+              ))}
             </ul>
           </div>
-
-          {/* Col 4: Social */}
-          <div className="space-y-6">
-            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Suivez-nous</h4>
-            <div className="flex space-x-4">
-              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">share</span>
-              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">language</span>
-              <span className="material-symbols-outlined text-blue-700 cursor-pointer hover:scale-110 transition-transform">alternate_email</span>
+          <div className="space-y-5">
+            <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-sm">Horaires</h4>
+            <ul className="space-y-2.5 font-body text-sm tracking-wide text-on-surface-variant">
+              <li>Oujda, Maroc</li>
+              <li>Lun – Sam · 9h – 19h</li>
+            </ul>
+            <div className="flex space-x-3 pt-1">
+              <a href={WA} target="_blank" rel="noopener noreferrer" className="w-9 h-9 grid place-items-center rounded-xl bg-surface-container text-primary hover:bg-primary hover:text-white transition" aria-label="WhatsApp">{sym('chat', false, 'text-[20px]')}</a>
+              <Link href="/contact" className="w-9 h-9 grid place-items-center rounded-xl bg-surface-container text-primary hover:bg-primary hover:text-white transition" aria-label="Contact">{sym('alternate_email', false, 'text-[20px]')}</Link>
             </div>
-            <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-slate-400">
-              &copy; {new Date().getFullYear()} HAMDI PC. TOUS DROITS RESERVES.
-            </p>
           </div>
+        </div>
+        <div className="max-w-screen-2xl mx-auto mt-14 pt-8 border-t border-outline-variant/40 flex flex-wrap justify-between gap-3">
+          <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-on-surface-variant/70 font-label">© {new Date().getFullYear()} HAMDI PC · Tous droits réservés</p>
+          <p className="text-[11px] font-bold tracking-[0.2em] uppercase text-on-surface-variant/70 font-label">Oujda · Maroc</p>
         </div>
       </footer>
 
-      {/* -- Scroll to top -- */}
-      <button
-        className={`scroll-top-btn ${showScroll ? 'visible' : ''}`}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        aria-label="Remonter en haut"
-      >
-        <ArrowUpIcon size={20} />
-      </button>
+      {/* floating WhatsApp */}
+      <a href={WA} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-whatsapp text-white grid place-items-center shadow-2xl shadow-whatsapp/40 hover:scale-110 transition-transform" aria-label="WhatsApp">
+        <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
+      </a>
     </>
   );
 }

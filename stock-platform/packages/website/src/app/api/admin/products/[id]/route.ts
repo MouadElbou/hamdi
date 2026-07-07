@@ -2,13 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import { getAdminFromRequest } from '@/lib/auth';
-import { toIntOrNull } from '@/lib/validate';
+import { toIntOrNull, trimOrNull, toStringArray } from '@/lib/validate';
 
 export const dynamic = 'force-dynamic';
 
 interface ProductPatch {
   name?: unknown;
   category?: unknown;
+  subCategory?: unknown;
+  brand?: unknown;
+  deviceType?: unknown;
+  compatibleModels?: unknown;
   description?: unknown;
   priceCents?: unknown;
   stock?: unknown;
@@ -32,7 +36,11 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   const data: Record<string, unknown> = {};
   if (typeof b.name === 'string') data['name'] = b.name.trim();
   if (typeof b.category === 'string') data['category'] = b.category.trim();
-  if (b.description !== undefined) data['description'] = typeof b.description === 'string' && b.description.trim() ? b.description.trim() : null;
+  if (b.subCategory !== undefined) data['subCategory'] = trimOrNull(b.subCategory);
+  if (b.brand !== undefined) data['brand'] = trimOrNull(b.brand);
+  if (b.deviceType !== undefined) data['deviceType'] = trimOrNull(b.deviceType);
+  if (b.compatibleModels !== undefined) data['compatibleModels'] = toStringArray(b.compatibleModels);
+  if (b.description !== undefined) data['description'] = trimOrNull(b.description);
   if (b.priceCents !== undefined) data['priceCents'] = toIntOrNull(b.priceCents);
   if (b.stock !== undefined) data['stock'] = toIntOrNull(b.stock);
   if (b.imageUrl !== undefined) data['imageUrl'] = typeof b.imageUrl === 'string' && b.imageUrl.trim() ? b.imageUrl.trim() : null;

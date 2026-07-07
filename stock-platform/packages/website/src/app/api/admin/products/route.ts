@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getAdminFromRequest } from '@/lib/auth';
-import { toIntOrNull } from '@/lib/validate';
+import { toIntOrNull, trimOrNull, toStringArray } from '@/lib/validate';
 
 export const dynamic = 'force-dynamic';
 
 interface ProductInput {
   name?: unknown;
   category?: unknown;
+  subCategory?: unknown;
+  brand?: unknown;
+  deviceType?: unknown;
+  compatibleModels?: unknown;
   description?: unknown;
   priceCents?: unknown;
   stock?: unknown;
@@ -39,10 +43,14 @@ export async function POST(req: NextRequest) {
     data: {
       name,
       category,
-      description: typeof b.description === 'string' && b.description.trim() ? b.description.trim() : null,
+      subCategory: trimOrNull(b.subCategory),
+      brand: trimOrNull(b.brand),
+      deviceType: trimOrNull(b.deviceType),
+      compatibleModels: toStringArray(b.compatibleModels),
+      description: trimOrNull(b.description),
       priceCents: toIntOrNull(b.priceCents),
       stock: toIntOrNull(b.stock),
-      imageUrl: typeof b.imageUrl === 'string' && b.imageUrl.trim() ? b.imageUrl.trim() : null,
+      imageUrl: trimOrNull(b.imageUrl),
       published: b.published !== false,
     },
   });

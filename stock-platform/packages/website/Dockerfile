@@ -24,7 +24,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 # The website now has its OWN backend at same-origin /api (no external backend).
 ARG NEXT_PUBLIC_API_URL=/api
-ARG NEXT_PUBLIC_STORE_PHONE=212536690306
+ARG NEXT_PUBLIC_STORE_PHONE=212622265053
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV NEXT_PUBLIC_STORE_PHONE=${NEXT_PUBLIC_STORE_PHONE}
 
@@ -42,6 +42,11 @@ COPY --from=builder /app/packages/website/.next/standalone/ ./
 # Copy static assets and public files
 COPY --from=builder /app/packages/website/.next/static/ ./packages/website/.next/static/
 COPY --from=builder /app/packages/website/public/ ./packages/website/public/
+# Ensure the Prisma client + query-engine binary are present in the image.
+# (Next's standalone tracing frequently misses the engine .node file, which
+# causes a runtime "Query engine binary not found" crash.)
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

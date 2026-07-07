@@ -13,18 +13,25 @@ datasource db {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
-  category    String
-  description String?
-  priceCents  Int? // null = "Sur demande" (price on request)
-  stock       Int? // null = not tracked / always available
-  imageUrl    String? // Cloudflare R2 public URL
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(uuid())
+  name             String
+  category         String // top-level category (e.g. "Batteries", "Écrans PC portable")
+  subCategory      String? // finer bucket (e.g. "15.6\"", "65W")
+  brand            String? // "HP", "Dell", "Lenovo"…
+  deviceType       String? // "Ordinateur portable", "Smartphone"… (for batteries/chargers)
+  compatibleModels String[] @default([]) // laptop/device models this part fits
+  description      String?
+  priceCents       Int? // null = "Sur demande" (price on request)
+  stock            Int? // null = not tracked / always available
+  imageUrl         String? // Cloudflare R2 public URL
+  published        Boolean  @default(true)
+  featured         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([category])
+  @@index([brand])
+  @@index([deviceType])
   @@index([published])
   @@map("products")
 }

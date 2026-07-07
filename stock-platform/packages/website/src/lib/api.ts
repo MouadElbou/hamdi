@@ -20,6 +20,10 @@ export interface CatalogItem {
   remainingQuantity: number;
   targetResalePrice: number | null;
   imageUrl?: string | null;
+  subCategory?: string | null;
+  brand?: string | null;
+  deviceType?: string | null;
+  compatibleModels?: string[];
 }
 
 export interface CatalogResponse {

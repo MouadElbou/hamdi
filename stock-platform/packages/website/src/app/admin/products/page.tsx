@@ -6,11 +6,16 @@ import { useToast } from '../components/Toast';
 import { useConfirm } from '../components/ConfirmDialog';
 import { adminGet, adminPost, adminPut, adminDelete } from '@/lib/admin-api';
 import { EditIcon, Trash2Icon, PlusIcon, SearchIcon, PackageIcon } from '@/components/icons';
+import { CATEGORIES, BRANDS, DEVICE_TYPES } from '@/lib/catalog-taxonomy';
 
 interface Product {
   id: string;
   name: string;
   category: string;
+  subCategory: string | null;
+  brand: string | null;
+  deviceType: string | null;
+  compatibleModels: string[];
   description: string | null;
   priceCents: number | null;
   stock: number | null;
@@ -25,10 +30,10 @@ const fmtPrice = (c: number | null) =>
   c == null ? 'Sur demande' : (c / 100).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
 
 interface FormState {
-  name: string; category: string; description: string;
-  price: string; stock: string; imageUrl: string; published: boolean;
+  name: string; category: string; subCategory: string; brand: string; deviceType: string; models: string;
+  description: string; price: string; stock: string; imageUrl: string; published: boolean;
 }
-const EMPTY: FormState = { name: '', category: '', description: '', price: '', stock: '', imageUrl: '', published: true };
+const EMPTY: FormState = { name: '', category: '', subCategory: '', brand: '', deviceType: '', models: '', description: '', price: '', stock: '', imageUrl: '', published: true };
 
 export default function ProductsAdminPage(): React.JSX.Element {
   const { addToast } = useToast();
@@ -67,7 +72,9 @@ export default function ProductsAdminPage(): React.JSX.Element {
   const openCreate = () => { setForm(EMPTY); setEditingId(null); setShowForm(true); };
   const openEdit = (p: Product) => {
     setForm({
-      name: p.name, category: p.category, description: p.description ?? '',
+      name: p.name, category: p.category, subCategory: p.subCategory ?? '',
+      brand: p.brand ?? '', deviceType: p.deviceType ?? '', models: (p.compatibleModels ?? []).join(', '),
+      description: p.description ?? '',
       price: p.priceCents != null ? (p.priceCents / 100).toFixed(2) : '',
       stock: p.stock != null ? String(p.stock) : '',
       imageUrl: p.imageUrl ?? '', published: p.published,
@@ -107,6 +114,10 @@ export default function ProductsAdminPage(): React.JSX.Element {
       const payload = {
         name: form.name.trim(),
         category: form.category.trim(),
+        subCategory: form.subCategory.trim() || null,
+        brand: form.brand.trim() || null,
+        deviceType: form.deviceType.trim() || null,
+        compatibleModels: form.models.split(',').map((s) => s.trim()).filter(Boolean),
         description: form.description.trim() || null,
         priceCents: form.price.trim() ? Math.round(parseFloat(form.price) * 100) : null,
         stock: form.stock.trim() ? parseInt(form.stock, 10) : null,
@@ -248,7 +259,41 @@ export default function ProductsAdminPage(): React.JSX.Element {
             </div>
             <div className="form-group">
               <label>Catégorie *</label>
-              <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex: Batteries" required />
+              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} required>
+                <option value="">— Choisir —</option>
+                {CATEGORIES.map((c) => <option key={c.key} value={c.label}>{c.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Sous-catégorie</label>
+              <input list="admin-subcats" value={form.subCategory} onChange={(e) => setForm({ ...form, subCategory: e.target.value })} placeholder="Optionnel" />
+              <datalist id="admin-subcats">
+                {(CATEGORIES.find((c) => c.label === form.category)?.subCategories ?? []).map((s) => <option key={s} value={s} />)}
+              </datalist>
+            </div>
+            <div className="form-group">
+              <label>Marque</label>
+              <input list="admin-brands" value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Ex: HP" />
+              <datalist id="admin-brands">
+                {BRANDS.map((b) => <option key={b} value={b} />)}
+              </datalist>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Type d&apos;appareil</label>
+              <select value={form.deviceType} onChange={(e) => setForm({ ...form, deviceType: e.target.value })}>
+                <option value="">—</option>
+                {DEVICE_TYPES.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div className="form-group" style={{ flex: 2 }}>
+              <label>Modèles compatibles</label>
+              <input value={form.models} onChange={(e) => setForm({ ...form, models: e.target.value })} placeholder="séparés par des virgules" />
             </div>
           </div>
 

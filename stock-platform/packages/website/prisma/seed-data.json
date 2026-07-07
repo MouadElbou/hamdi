@@ -1,0 +1,3122 @@
+[
+  {
+    "name": "Dalle écran 15.6\" HD Lenovo IdeaPad 3 15IIL05",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Lenovo",
+    "deviceType": null,
+    "compatibleModels": [
+      "IdeaPad 3 15IIL05",
+      "IdeaPad 3 15ADA05",
+      "IdeaPad L340-15"
+    ],
+    "description": "Dalle 15.6\" HD 1366x768, LED, 30 broches, finition mate, compatible IdeaPad 3 série 15",
+    "priceCents": 45000,
+    "stock": 18
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD IPS Dell Inspiron 15 3511",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Dell",
+    "deviceType": null,
+    "compatibleModels": [
+      "Inspiron 15 3511",
+      "Inspiron 15 3510",
+      "Inspiron 15 3520"
+    ],
+    "description": "Dalle 15.6\" Full HD 1920x1080 IPS, LED slim 30 broches, angles larges, pour Inspiron 15 série 3000",
+    "priceCents": 69000,
+    "stock": 22
+  },
+  {
+    "name": "Dalle écran 14\" FHD IPS HP ProBook 440 G8",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [
+      "ProBook 440 G8",
+      "ProBook 440 G9",
+      "ProBook 445 G8"
+    ],
+    "description": "Dalle 14\" Full HD 1920x1080 IPS mate, LED slim 30 broches, luminosité 250 nits, pour ProBook 440",
+    "priceCents": 72000,
+    "stock": 14
+  },
+  {
+    "name": "Dalle écran 13.3\" FHD IPS Asus ZenBook UX333FA",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "13.3\"",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [
+      "ZenBook UX333FA",
+      "ZenBook UX333FN",
+      "ZenBook 13 UX331"
+    ],
+    "description": "Dalle 13.3\" Full HD IPS ultra-fine, bords étroits, 30 broches, pour ZenBook 13 série UX333",
+    "priceCents": 88000,
+    "stock": 9
+  },
+  {
+    "name": "Dalle écran 17.3\" FHD Acer Aspire 5 A517-52",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "17.3\"",
+    "brand": "Acer",
+    "deviceType": null,
+    "compatibleModels": [
+      "Aspire 5 A517-52",
+      "Aspire 5 A517-51",
+      "Aspire 3 A317"
+    ],
+    "description": "Dalle 17.3\" Full HD 1920x1080 mate, LED slim 30 broches, grand format, pour Aspire 5 A517",
+    "priceCents": 94000,
+    "stock": 8
+  },
+  {
+    "name": "Dalle écran 11.6\" HD Acer Aspire One / TravelMate B117",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "11.6\"",
+    "brand": "Acer",
+    "deviceType": null,
+    "compatibleModels": [
+      "Aspire One 11",
+      "TravelMate B117",
+      "Aspire ES1-131"
+    ],
+    "description": "Dalle 11.6\" HD 1366x768 LED slim 30 broches, format compact netbook, pour Aspire One et TravelMate B117",
+    "priceCents": 36000,
+    "stock": 16
+  },
+  {
+    "name": "Dalle écran tactile 15.6\" FHD HP Pavilion x360 15",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [
+      "Pavilion x360 15-er",
+      "Pavilion x360 15-dq",
+      "Pavilion x360 15-cr"
+    ],
+    "description": "Ensemble dalle tactile 15.6\" Full HD IPS avec vitre digitizer, convertible 2-en-1, pour Pavilion x360 15",
+    "priceCents": 115000,
+    "stock": 6
+  },
+  {
+    "name": "Dalle écran 13.3\" OLED FHD Samsung Galaxy Book Pro",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "13.3\"",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [
+      "Galaxy Book Pro 13",
+      "Galaxy Book Pro 360 13"
+    ],
+    "description": "Dalle 13.3\" AMOLED Full HD 1920x1080, couleurs profondes et noirs absolus, pour Galaxy Book Pro 13\"",
+    "priceCents": 195000,
+    "stock": 4
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD Asus VivoBook 15 X512",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [
+      "VivoBook 15 X512FA",
+      "VivoBook 15 X512DA",
+      "VivoBook 15 X515"
+    ],
+    "description": "Dalle 15.6\" Full HD 1920x1080 mate, LED slim 30 broches, NanoEdge, pour VivoBook 15 X512/X515",
+    "priceCents": 61000,
+    "stock": 20
+  },
+  {
+    "name": "Dalle écran 14\" HD Lenovo ThinkPad E14 Gen 2",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "Lenovo",
+    "deviceType": null,
+    "compatibleModels": [
+      "ThinkPad E14 Gen 2",
+      "ThinkPad E14 Gen 3",
+      "ThinkPad L14"
+    ],
+    "description": "Dalle 14\" HD 1366x768 mate anti-reflet, LED slim 30 broches, pour ThinkPad E14 et L14",
+    "priceCents": 56000,
+    "stock": 12
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD IPS MSI GF63 Thin",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "MSI",
+    "deviceType": null,
+    "compatibleModels": [
+      "GF63 Thin 9SC",
+      "GF63 Thin 10SC",
+      "GF63 Thin 11UC"
+    ],
+    "description": "Dalle 15.6\" Full HD IPS mate, LED slim 30 broches, dédiée gaming fin, pour MSI GF63 Thin",
+    "priceCents": 76000,
+    "stock": 10
+  },
+  {
+    "name": "Dalle écran 13.3\" QHD+ Dell XPS 13 9370 (non tactile)",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "13.3\"",
+    "brand": "Dell",
+    "deviceType": null,
+    "compatibleModels": [
+      "XPS 13 9370",
+      "XPS 13 9380",
+      "XPS 13 9360"
+    ],
+    "description": "Dalle 13.3\" QHD+ 3200x1800 IPS InfinityEdge non tactile, bords ultra-fins, pour XPS 13 9370/9380",
+    "priceCents": 165000,
+    "stock": 5
+  },
+  {
+    "name": "Dalle écran 15.6\" 4K UHD OLED Asus VivoBook Pro 15",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [
+      "VivoBook Pro 15 M3500",
+      "VivoBook Pro 15 K3500"
+    ],
+    "description": "Dalle 15.6\" OLED 4K UHD 3840x2160, DCI-P3 100%, rendu couleur professionnel, pour VivoBook Pro 15",
+    "priceCents": 215000,
+    "stock": 3
+  },
+  {
+    "name": "Dalle écran 14\" FHD IPS Dell Latitude 7400",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "Dell",
+    "deviceType": null,
+    "compatibleModels": [
+      "Latitude 7400",
+      "Latitude 7410",
+      "Latitude 5400"
+    ],
+    "description": "Dalle 14\" Full HD IPS mate, LED slim 30 broches, angles larges, pour Latitude série 7400/5400",
+    "priceCents": 81000,
+    "stock": 9
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD 144Hz Acer Nitro 5 AN515",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Acer",
+    "deviceType": null,
+    "compatibleModels": [
+      "Nitro 5 AN515-54",
+      "Nitro 5 AN515-55",
+      "Nitro 5 AN515-57"
+    ],
+    "description": "Dalle gaming 15.6\" Full HD IPS 144Hz mate, LED slim 40 broches, fluidité élevée, pour Nitro 5 AN515",
+    "priceCents": 98000,
+    "stock": 7
+  },
+  {
+    "name": "Dalle écran 17.3\" FHD 144Hz Asus TUF Gaming F17",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "17.3\"",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [
+      "TUF Gaming F17 FX706",
+      "TUF Gaming FX705"
+    ],
+    "description": "Dalle gaming 17.3\" Full HD IPS 144Hz mate, 40 broches, grand format immersif, pour TUF Gaming F17",
+    "priceCents": 125000,
+    "stock": 5
+  },
+  {
+    "name": "Dalle écran 14\" HD Toshiba Satellite C40-A",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "Toshiba",
+    "deviceType": null,
+    "compatibleModels": [
+      "Satellite C40-A",
+      "Satellite C40-B",
+      "Satellite L40"
+    ],
+    "description": "Dalle 14\" HD 1366x768 LED brillante 40 broches, pour Toshiba Satellite série C40/L40",
+    "priceCents": 51000,
+    "stock": 11
+  },
+  {
+    "name": "Dalle écran 15.6\" HD Dynabook Satellite Pro C50",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Dynabook",
+    "deviceType": null,
+    "compatibleModels": [
+      "Satellite Pro C50-H",
+      "Satellite Pro L50",
+      "Satellite Pro C50-E"
+    ],
+    "description": "Dalle 15.6\" HD 1366x768 mate, LED slim 30 broches, pour Dynabook/Toshiba Satellite Pro C50",
+    "priceCents": 48000,
+    "stock": 13
+  },
+  {
+    "name": "Ensemble écran 13.3\" Retina MacBook Air A1466",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "13.3\"",
+    "brand": "Apple",
+    "deviceType": null,
+    "compatibleModels": [
+      "MacBook Air 13 A1466",
+      "MacBook Air 13 A1369"
+    ],
+    "description": "Dalle LCD 13.3\" 1440x900 pour MacBook Air A1466 (2013-2017), remplacement écran seul haute qualité",
+    "priceCents": 185000,
+    "stock": 4
+  },
+  {
+    "name": "Dalle écran tactile 15.6\" FHD Lenovo Yoga 7 15",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Lenovo",
+    "deviceType": null,
+    "compatibleModels": [
+      "Yoga 7 15ITL5",
+      "Yoga C740-15",
+      "Yoga 730-15"
+    ],
+    "description": "Ensemble dalle tactile 15.6\" Full HD IPS avec digitizer, convertible 360°, pour Yoga 7 / C740 15\"",
+    "priceCents": 120000,
+    "stock": 5
+  },
+  {
+    "name": "Dalle écran 14\" FHD IPS Huawei MateBook D14",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "Huawei",
+    "deviceType": null,
+    "compatibleModels": [
+      "MateBook D14",
+      "MateBook D14 2021",
+      "MateBook D14 2022"
+    ],
+    "description": "Dalle 14\" Full HD IPS mate FullView, bords fins, 30 broches, pour Huawei MateBook D14",
+    "priceCents": 79000,
+    "stock": 8
+  },
+  {
+    "name": "Dalle écran tactile 11.6\" HD HP Chromebook x360 11",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "11.6\"",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [
+      "Chromebook x360 11 G1",
+      "Chromebook x360 11 G2",
+      "Chromebook x360 11 G3"
+    ],
+    "description": "Ensemble dalle tactile 11.6\" HD avec vitre, convertible éducation, pour HP Chromebook x360 11",
+    "priceCents": 62000,
+    "stock": 7
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD Sony VAIO Fit 15 / SVF15",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Sony",
+    "deviceType": null,
+    "compatibleModels": [
+      "VAIO Fit 15 SVF15",
+      "VAIO SVF152",
+      "VAIO SVF153"
+    ],
+    "description": "Dalle 15.6\" Full HD LED 40 broches, pour Sony VAIO Fit série SVF15",
+    "priceCents": 65000,
+    "stock": 6
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD IPS HP EliteBook 850 G5",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [
+      "EliteBook 850 G5",
+      "EliteBook 850 G6",
+      "ProBook 650 G5"
+    ],
+    "description": "Dalle 15.6\" Full HD IPS mate, LED slim 30 broches, luminosité élevée, pour EliteBook 850 G5/G6",
+    "priceCents": 83000,
+    "stock": 9
+  },
+  {
+    "name": "Dalle écran 14\" FHD Fujitsu Lifebook U748 / E549",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "Fujitsu",
+    "deviceType": null,
+    "compatibleModels": [
+      "Lifebook U748",
+      "Lifebook E549",
+      "Lifebook U749"
+    ],
+    "description": "Dalle 14\" Full HD IPS mate, LED slim 30 broches, pour Fujitsu Lifebook série U748/E549",
+    "priceCents": 74000,
+    "stock": 6
+  },
+  {
+    "name": "Dalle écran 17.3\" HD+ Packard Bell EasyNote LG81",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "17.3\"",
+    "brand": "Packard Bell",
+    "deviceType": null,
+    "compatibleModels": [
+      "EasyNote LG81",
+      "EasyNote LE69",
+      "EasyNote LG71"
+    ],
+    "description": "Dalle 17.3\" HD+ 1600x900 LED brillante 30 broches, grand format, pour Packard Bell EasyNote LG81",
+    "priceCents": 70000,
+    "stock": 5
+  },
+  {
+    "name": "Dalle écran 14\" FHD IPS LG Gram 14Z90",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "14\"",
+    "brand": "LG",
+    "deviceType": null,
+    "compatibleModels": [
+      "Gram 14Z90N",
+      "Gram 14Z90P",
+      "Gram 14Z980"
+    ],
+    "description": "Dalle ultra-légère 14\" Full HD IPS mate, faible épaisseur, 30 broches, pour LG Gram 14Z90",
+    "priceCents": 130000,
+    "stock": 4
+  },
+  {
+    "name": "Dalle écran 15.6\" FHD Medion Akoya E15 / S15",
+    "category": "Écrans & Dalles",
+    "categoryKey": "ecrans",
+    "subCategory": "15.6\"",
+    "brand": "Medion",
+    "deviceType": null,
+    "compatibleModels": [
+      "Akoya E15301",
+      "Akoya S15449",
+      "Akoya E15302"
+    ],
+    "description": "Dalle 15.6\" Full HD 1920x1080 mate, LED slim 30 broches, pour Medion Akoya E15/S15",
+    "priceCents": 58000,
+    "stock": 10
+  },
+  {
+    "name": "Batterie HP Pavilion 15-ab / 15-ac / 14-ab - 6 cellules 47Wh (PI06)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion 15-ab",
+      "HP Pavilion 15-ac",
+      "HP Pavilion 14-ab",
+      "HP Envy 15-ae"
+    ],
+    "description": "Batterie interne Li-ion 10.8V 47Wh 6 cellules, référence PI06 / HSTNN-DB7B, compatible séries Pavilion et Envy 15.",
+    "priceCents": 35000,
+    "stock": 24
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G3 / 840 G4 - 46Wh (CS03XL)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G3",
+      "HP EliteBook 840 G4",
+      "HP EliteBook 848 G3",
+      "HP ZBook 14u G4"
+    ],
+    "description": "Batterie interne 11.55V 46.5Wh 3 cellules, réf. CS03XL / HSTNN-IB6Z, pour EliteBook 840 G3/G4 et ZBook 14u.",
+    "priceCents": 48000,
+    "stock": 15
+  },
+  {
+    "name": "Batterie HP ProBook 450 G5 / 470 G5 - 48Wh (RR03XL)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP ProBook 450 G5",
+      "HP ProBook 455 G5",
+      "HP ProBook 470 G5",
+      "HP ProBook 430 G5"
+    ],
+    "description": "Batterie interne 11.55V 48Wh 3 cellules, réf. RR03XL / HSTNN-LB7I, pour ProBook 430/450/470 G5.",
+    "priceCents": 46000,
+    "stock": 12
+  },
+  {
+    "name": "Batterie HP Pavilion 14 / 15 - 41Wh (SI03XL)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion 14-cd",
+      "HP Pavilion 15-cs",
+      "HP Pavilion x360 14-cd"
+    ],
+    "description": "Batterie interne 11.55V 41.04Wh 3 cellules, réf. SI03XL / HSTNN-LB8M, pour Pavilion 14/15 et x360.",
+    "priceCents": 34000,
+    "stock": 18
+  },
+  {
+    "name": "Batterie Dell Latitude E6440 / E6540 - 9 cellules 97Wh (8858X)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Longue autonomie (> 65 Wh)",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Latitude E6440",
+      "Dell Latitude E6540",
+      "Dell Latitude E5440",
+      "Dell Latitude E5540"
+    ],
+    "description": "Batterie externe amovible 11.1V 97Wh 9 cellules, réf. 8858X / 71R31, longue autonomie pour Latitude E-series.",
+    "priceCents": 62000,
+    "stock": 8
+  },
+  {
+    "name": "Batterie Dell XPS 13 9360 - 60Wh (PW23Y)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell XPS 13 9360",
+      "Dell XPS 13 9350",
+      "Dell XPS 13 9343"
+    ],
+    "description": "Batterie interne 7.6V 60Wh 4 cellules, réf. PW23Y / RNP72, pour ultrabook XPS 13 (2015-2017).",
+    "priceCents": 69000,
+    "stock": 9
+  },
+  {
+    "name": "Batterie Dell Inspiron 15 3521 / 5537 - 40Wh (MR90Y)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Inspiron 15 3521",
+      "Dell Inspiron 15 3537",
+      "Dell Inspiron 15 5537",
+      "Dell Vostro 2521"
+    ],
+    "description": "Batterie externe amovible 11.1V 40Wh 4 cellules, réf. MR90Y / VR7HM, pour Inspiron 15 3000/5000 et Vostro.",
+    "priceCents": 32000,
+    "stock": 26
+  },
+  {
+    "name": "Batterie Dell Latitude 5490 / 5590 - 51Wh (DV9NT)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Latitude 5490",
+      "Dell Latitude 5590",
+      "Dell Latitude 5480",
+      "Dell Precision 3520"
+    ],
+    "description": "Batterie interne 11.4V 51Wh 3 cellules, réf. DV9NT / 93FTF, pour Latitude 5480/5490/5590.",
+    "priceCents": 54000,
+    "stock": 11
+  },
+  {
+    "name": "Batterie Lenovo ThinkPad T440 / T450 - 48Wh (45N1128)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad T440",
+      "Lenovo ThinkPad T450",
+      "Lenovo ThinkPad T440s",
+      "Lenovo ThinkPad T460"
+    ],
+    "description": "Batterie externe amovible 11.1V 48Wh 6 cellules, réf. 45N1128 / 45N1129, pour ThinkPad T440/T450/T460.",
+    "priceCents": 43000,
+    "stock": 14
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad 320 / 330 - 35Wh (L17L2PF1)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 320-15",
+      "Lenovo IdeaPad 330-15",
+      "Lenovo IdeaPad 520-15"
+    ],
+    "description": "Batterie interne 7.6V 35Wh 2 cellules, réf. L17L2PF1 / L17C2PF0, pour IdeaPad 320/330/520.",
+    "priceCents": 33000,
+    "stock": 22
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad 3 15 - 52.5Wh (L19L3PF3)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15IIL05",
+      "Lenovo IdeaPad 3 15ADA05",
+      "Lenovo IdeaPad 5 15IIL05"
+    ],
+    "description": "Batterie interne 11.25V 52.5Wh 3 cellules, réf. L19L3PF3 / L19M3PF3, pour IdeaPad 3 et 5 (15 pouces).",
+    "priceCents": 36000,
+    "stock": 19
+  },
+  {
+    "name": "Batterie Lenovo Legion Y540 / Y545 - 57Wh (L17M3PG2)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo Legion Y540-15",
+      "Lenovo Legion Y545",
+      "Lenovo Legion Y7000",
+      "Lenovo IdeaPad Y7000P"
+    ],
+    "description": "Batterie interne gaming 11.34V 57Wh 3 cellules, réf. L17M3PG2 / L17C3PG2, pour Legion Y540/Y545 et Y7000.",
+    "priceCents": 62000,
+    "stock": 7
+  },
+  {
+    "name": "Batterie Acer Aspire E15 E5-575 / E5-573 - 37Wh (AL15A32)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Aspire E5-575",
+      "Acer Aspire E5-573",
+      "Acer Aspire E5-573G",
+      "Acer Aspire ES1-572"
+    ],
+    "description": "Batterie interne 11.1V 37Wh 3 cellules, réf. AL15A32 / KT.0030G.001, pour Aspire E15 E5-573/E5-575.",
+    "priceCents": 31000,
+    "stock": 28
+  },
+  {
+    "name": "Batterie Acer Nitro 5 AN515 - 57Wh (AP18E7M)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Nitro 5 AN515-54",
+      "Acer Nitro 5 AN515-55",
+      "Acer Aspire 7 A715-74G",
+      "Acer Predator Helios 300"
+    ],
+    "description": "Batterie interne gaming 15.4V 58.75Wh 4 cellules, réf. AP18E7M / AP18E8M, pour Nitro 5 et Predator Helios 300.",
+    "priceCents": 59000,
+    "stock": 10
+  },
+  {
+    "name": "Batterie Acer Swift 3 SF314 - 48Wh (AP15O5L)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Swift 3 SF314-52",
+      "Acer Swift 5 SF514-51",
+      "Acer Spin 5 SP513"
+    ],
+    "description": "Batterie interne 11.55V 48Wh 3 cellules, réf. AP15O5L, pour ultrabooks Swift 3/5 et Spin 5.",
+    "priceCents": 47000,
+    "stock": 9
+  },
+  {
+    "name": "Batterie ASUS X550 / X540 - 44Wh (A41-X550A)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "ASUS X550",
+      "ASUS X550C",
+      "ASUS X540L",
+      "ASUS R510C",
+      "ASUS F550"
+    ],
+    "description": "Batterie externe amovible 14.4V 44Wh 4 cellules, réf. A41-X550A / A41-X550, pour X450/X550/F550.",
+    "priceCents": 30000,
+    "stock": 30
+  },
+  {
+    "name": "Batterie ASUS ZenBook UX430 / UX3400 - 50Wh (C31N1620)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "ASUS ZenBook UX430",
+      "ASUS ZenBook UX430U",
+      "ASUS ZenBook UX3400",
+      "ASUS Pro P5440"
+    ],
+    "description": "Batterie interne 11.55V 50Wh 3 cellules, réf. C31N1620, pour ultrabook ZenBook UX430/UX3400.",
+    "priceCents": 56000,
+    "stock": 8
+  },
+  {
+    "name": "Batterie ASUS VivoBook 15 X512 / X509 - 42Wh (B31N1732)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "ASUS VivoBook 15 X512",
+      "ASUS VivoBook X509",
+      "ASUS VivoBook S15 S530",
+      "ASUS X412"
+    ],
+    "description": "Batterie interne 11.52V 42Wh 3 cellules, réf. B31N1732, pour VivoBook 14/15 X409/X509/X512.",
+    "priceCents": 36000,
+    "stock": 17
+  },
+  {
+    "name": "Batterie MacBook Pro 13\" Retina A1502 - 71.8Wh (A1493)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Longue autonomie (> 65 Wh)",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Apple MacBook Pro 13\" Retina A1502 (2013)",
+      "Apple MacBook Pro 13\" Retina A1502 (2014)",
+      "Apple MacBook Pro 13\" Retina A1502 (2015)"
+    ],
+    "description": "Batterie interne 11.34V 71.8Wh, réf. A1493, pour MacBook Pro 13 pouces Retina A1502 (fin 2013 à début 2015).",
+    "priceCents": 78000,
+    "stock": 6
+  },
+  {
+    "name": "Batterie MacBook Air 13\" A1466 - 54Wh (A1496)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Apple MacBook Air 13\" A1466 (2013)",
+      "Apple MacBook Air 13\" A1466 (2014)",
+      "Apple MacBook Air 13\" A1466 (2015)",
+      "Apple MacBook Air 13\" A1466 (2017)"
+    ],
+    "description": "Batterie interne 7.6V 54Wh, réf. A1496 / A1405, pour MacBook Air 13 pouces A1466 (2013-2017).",
+    "priceCents": 69000,
+    "stock": 7
+  },
+  {
+    "name": "Batterie Toshiba Satellite C50 / C55 - 48Wh (PA5109U)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Toshiba",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Toshiba Satellite C50",
+      "Toshiba Satellite C55",
+      "Toshiba Satellite L50",
+      "Toshiba Satellite C70"
+    ],
+    "description": "Batterie externe amovible 10.8V 48Wh 6 cellules, réf. PA5109U-1BRS, pour Satellite C50/C55/L50.",
+    "priceCents": 34000,
+    "stock": 16
+  },
+  {
+    "name": "Batterie Samsung NP300E5 / NP350V5 - 48Wh (AA-PB9NC6B)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Samsung",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Samsung NP300E5",
+      "Samsung NP350V5C",
+      "Samsung NP355V5C",
+      "Samsung R540",
+      "Samsung RV511"
+    ],
+    "description": "Batterie externe amovible 11.1V 48Wh 6 cellules, réf. AA-PB9NC6B / AA-PB9NS6B, pour séries NP300/NP350/R540.",
+    "priceCents": 33000,
+    "stock": 13
+  },
+  {
+    "name": "Batterie MSI GE62 / GE72 Apache - 61Wh (BTY-L76)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "MSI",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MSI GE62 Apache",
+      "MSI GE72 Apache",
+      "MSI GS70",
+      "MSI PE60",
+      "MSI PE70"
+    ],
+    "description": "Batterie interne gaming 10.8V 61Wh 6 cellules, réf. BTY-L76, pour MSI GE62/GE72 et GS70.",
+    "priceCents": 65000,
+    "stock": 6
+  },
+  {
+    "name": "Batterie Sony VAIO VPC-EB / EE - 47Wh (VGP-BPS22)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Haute capacité (46-65 Wh)",
+    "brand": "Sony",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Sony VAIO VPC-EB",
+      "Sony VAIO VPC-EE",
+      "Sony VAIO VGP-BPS22A"
+    ],
+    "description": "Batterie externe amovible 11.1V 47Wh 6 cellules, réf. VGP-BPS22 / VGP-BPS22A, pour VAIO série VPC-EB/EE.",
+    "priceCents": 40000,
+    "stock": 9
+  },
+  {
+    "name": "Batterie Huawei MateBook D15 - 42Wh (HB4692J5ECW)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Standard (≤ 45 Wh)",
+    "brand": "Huawei",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Huawei MateBook D15",
+      "Huawei MateBook D14",
+      "Honor MagicBook 14",
+      "Honor MagicBook 15"
+    ],
+    "description": "Batterie interne 11.46V 42Wh 3 cellules, réf. HB4692J5ECW-31A, pour MateBook D14/D15 et Honor MagicBook.",
+    "priceCents": 52000,
+    "stock": 10
+  },
+  {
+    "name": "Batterie Samsung Galaxy J5 / Grand Prime - 2600 mAh (EB-BG530BBC)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Smartphone (2000-3500 mAh)",
+    "brand": "Samsung",
+    "deviceType": "Smartphone",
+    "compatibleModels": [
+      "Samsung Galaxy J5 (2015)",
+      "Samsung Galaxy J3 (2016)",
+      "Samsung Galaxy Grand Prime",
+      "Samsung Galaxy J2 Prime"
+    ],
+    "description": "Batterie interne Li-ion 3.85V 2600 mAh, réf. EB-BG530BBC, pour Galaxy J3/J5 et Grand Prime.",
+    "priceCents": 13000,
+    "stock": 35
+  },
+  {
+    "name": "Batterie iPhone 11 - 3110 mAh (interne)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Smartphone (2000-3500 mAh)",
+    "brand": "Apple",
+    "deviceType": "Smartphone",
+    "compatibleModels": [
+      "Apple iPhone 11"
+    ],
+    "description": "Batterie interne Li-ion 3.83V 3110 mAh 11.91Wh avec nappe BMS, pour iPhone 11 (remplacement).",
+    "priceCents": 26000,
+    "stock": 20
+  },
+  {
+    "name": "Batterie iPad Air 2 - 7340 mAh (A1547)",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": "Tablette (> 5000 mAh)",
+    "brand": "Apple",
+    "deviceType": "Tablette",
+    "compatibleModels": [
+      "Apple iPad Air 2 A1566",
+      "Apple iPad Air 2 A1567"
+    ],
+    "description": "Batterie interne 3.76V 7340 mAh 27.62Wh, réf. A1547, pour iPad Air 2 (A1566 / A1567).",
+    "priceCents": 42000,
+    "stock": 11
+  },
+  {
+    "name": "Chargeur HP 65W 4.5x3.0mm embout bleu",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion 15",
+      "HP EliteBook 840",
+      "HP ProBook 450",
+      "HP Envy 13"
+    ],
+    "description": "Adaptateur secteur 65W 19.5V 3.33A, connecteur barrel 4.5x3.0mm à embout bleu, câble d'alimentation inclus.",
+    "priceCents": 19900,
+    "stock": 34
+  },
+  {
+    "name": "Chargeur Dell 65W 4.5x3.0mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Inspiron 15 3000",
+      "Dell Latitude 5490",
+      "Dell Vostro 3500",
+      "Dell XPS 13"
+    ],
+    "description": "Bloc d'alimentation 65W 19.5V 3.34A, fiche barrel 4.5x3.0mm à broche centrale, compatible LA65NM.",
+    "priceCents": 20900,
+    "stock": 28
+  },
+  {
+    "name": "Chargeur Lenovo 65W USB-C Type-C PD",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad T14",
+      "Lenovo IdeaPad 5",
+      "Lenovo Yoga Slim 7",
+      "Lenovo ThinkPad X1 Carbon"
+    ],
+    "description": "Chargeur USB-C Power Delivery 65W (20V 3.25A), connecteur Type-C réversible, charge rapide ThinkPad/IdeaPad.",
+    "priceCents": 28900,
+    "stock": 22
+  },
+  {
+    "name": "Chargeur Asus 65W 4.0x1.35mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Asus VivoBook 15",
+      "Asus ZenBook UX430",
+      "Asus X509",
+      "Asus VivoBook S15"
+    ],
+    "description": "Adaptateur 65W 19V 3.42A, connecteur barrel fin 4.0x1.35mm, idéal séries VivoBook et ZenBook.",
+    "priceCents": 18900,
+    "stock": 31
+  },
+  {
+    "name": "Chargeur Acer 65W 5.5x1.7mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Aspire 3",
+      "Acer Aspire 5",
+      "Acer Swift 3",
+      "Acer Extensa 15"
+    ],
+    "description": "Chargeur secteur 65W 19V 3.42A, fiche barrel 5.5x1.7mm, compatible gammes Aspire et Swift.",
+    "priceCents": 17900,
+    "stock": 37
+  },
+  {
+    "name": "Chargeur Apple MagSafe 2 45W MacBook Air",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "45W",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MacBook Air 11 (2012-2017)",
+      "MacBook Air 13 (2012-2017)"
+    ],
+    "description": "Adaptateur secteur MagSafe 2 45W pour MacBook Air, connecteur magnétique en T, protection anti-arrachement.",
+    "priceCents": 34900,
+    "stock": 14
+  },
+  {
+    "name": "Chargeur Apple USB-C 96W MacBook Pro 16",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "96W",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MacBook Pro 16 (2019-2021)",
+      "MacBook Pro 15",
+      "MacBook Pro 14 M1 Pro"
+    ],
+    "description": "Adaptateur USB-C 96W Power Delivery, câble USB-C vers MagSafe/USB-C selon modèle, charge rapide MacBook Pro.",
+    "priceCents": 74900,
+    "stock": 9
+  },
+  {
+    "name": "Chargeur Dell 90W 4.5x3.0mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "90W",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Latitude E7450",
+      "Dell Precision 3540",
+      "Dell Inspiron 7000",
+      "Dell Vostro 5590"
+    ],
+    "description": "Bloc secteur 90W 19.5V 4.62A, connecteur barrel 4.5x3.0mm à broche, pour Latitude et Precision.",
+    "priceCents": 24900,
+    "stock": 24
+  },
+  {
+    "name": "Chargeur HP 90W 7.4x5.0mm à broche",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "90W",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP EliteBook 8460p",
+      "HP ProBook 6470b",
+      "HP Pavilion DV6",
+      "HP ZBook 15"
+    ],
+    "description": "Adaptateur 90W 19V 4.74A, fiche barrel 7.4x5.0mm avec broche centrale, ancien standard HP.",
+    "priceCents": 23900,
+    "stock": 26
+  },
+  {
+    "name": "Chargeur Lenovo 90W embout Slim Tip rectangulaire",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "90W",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad T450",
+      "Lenovo ThinkPad L540",
+      "Lenovo ThinkPad E560",
+      "Lenovo ThinkPad W550s"
+    ],
+    "description": "Chargeur 90W 20V 4.5A, connecteur Slim Tip rectangulaire à broche, pour ThinkPad série T/L/E.",
+    "priceCents": 25900,
+    "stock": 19
+  },
+  {
+    "name": "Chargeur Asus 120W 6.0x3.7mm ROG/TUF Gaming",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "120W",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Asus TUF Gaming FX505",
+      "Asus ROG Strix G15",
+      "Asus VivoBook Pro 15",
+      "Asus TUF A15"
+    ],
+    "description": "Adaptateur gaming 120W 20V 6A, connecteur barrel 6.0x3.7mm à broche, pour TUF Gaming et ROG.",
+    "priceCents": 42900,
+    "stock": 16
+  },
+  {
+    "name": "Chargeur MSI 120W 5.5x2.5mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "120W",
+    "brand": "MSI",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MSI GF63 Thin",
+      "MSI GL62M",
+      "MSI Modern 15",
+      "MSI GV62"
+    ],
+    "description": "Bloc alimentation 120W 20V 6A, fiche barrel 5.5x2.5mm, pour PC portables gaming MSI GF/GL.",
+    "priceCents": 43900,
+    "stock": 13
+  },
+  {
+    "name": "Chargeur Acer 135W 5.5x1.7mm Nitro 5",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "135W",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Nitro 5 AN515",
+      "Acer Aspire 7",
+      "Acer Predator Helios 300",
+      "Acer Nitro 7"
+    ],
+    "description": "Adaptateur 135W 19V 7.1A, connecteur barrel 5.5x1.7mm, alimentation gaming Nitro et Predator.",
+    "priceCents": 45900,
+    "stock": 15
+  },
+  {
+    "name": "Chargeur HP 150W 7.4x5.0mm Omen/Victus",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "150W",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Omen 15",
+      "HP Victus 16",
+      "HP Pavilion Gaming 15",
+      "HP ZBook 17"
+    ],
+    "description": "Bloc secteur 150W 19.5V 7.7A, fiche barrel 7.4x5.0mm à broche bleue, pour Omen et Victus.",
+    "priceCents": 54900,
+    "stock": 11
+  },
+  {
+    "name": "Chargeur Lenovo 170W Slim Tip Legion",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "170W",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo Legion 5",
+      "Lenovo Legion Y540",
+      "Lenovo Legion Y7000",
+      "Lenovo ThinkPad P51"
+    ],
+    "description": "Chargeur gaming 170W 20V 8.5A, connecteur Slim Tip rectangulaire, pour Legion et stations ThinkPad P.",
+    "priceCents": 62900,
+    "stock": 8
+  },
+  {
+    "name": "Chargeur Dell 130W USB-C Type-C PD",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "130W",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell XPS 15",
+      "Dell XPS 17",
+      "Dell Precision 5540",
+      "Dell Latitude 7420"
+    ],
+    "description": "Adaptateur USB-C 130W Power Delivery (20V 6.5A), connecteur Type-C, charge rapide XPS et Precision.",
+    "priceCents": 59900,
+    "stock": 10
+  },
+  {
+    "name": "Chargeur universel USB-C GaN 65W compact",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Chargeur GaN 65W USB-C Power Delivery PPS, ultra compact, charge portables USB-C, tablettes et smartphones.",
+    "priceCents": 22900,
+    "stock": 40
+  },
+  {
+    "name": "Chargeur universel USB-C GaN 100W 2 ports",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "100W",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Chargeur GaN 100W double port USB-C PD, technologie GaN à faible chaleur, charge simultanée PC portable et téléphone.",
+    "priceCents": 39900,
+    "stock": 27
+  },
+  {
+    "name": "Chargeur universel USB-C GaN 140W PD 3.1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "140W",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MacBook Pro 16 M1/M2/M3",
+      "Dell XPS 17",
+      "Asus ROG USB-C"
+    ],
+    "description": "Chargeur GaN 140W USB-C Power Delivery 3.1, charge complète MacBook Pro 16 en environ 90 minutes.",
+    "priceCents": 64900,
+    "stock": 12
+  },
+  {
+    "name": "Chargeur Samsung 65W USB-C Galaxy Book",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Samsung",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Samsung Galaxy Book 3",
+      "Samsung Galaxy Book Pro",
+      "Samsung Galaxy Book Flex",
+      "Samsung Notebook 9"
+    ],
+    "description": "Chargeur USB-C 65W Super Fast Charging, connecteur Type-C, compatible Galaxy Book et smartphones Galaxy.",
+    "priceCents": 26900,
+    "stock": 18
+  },
+  {
+    "name": "Chargeur Microsoft Surface Connect 65W",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Microsoft",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Surface Pro 7",
+      "Surface Laptop 3",
+      "Surface Pro 6",
+      "Surface Book 2"
+    ],
+    "description": "Adaptateur Surface Connect 65W 15V 4A à connecteur magnétique, port USB de charge intégré pour Surface.",
+    "priceCents": 32900,
+    "stock": 13
+  },
+  {
+    "name": "Chargeur Toshiba Dynabook 45W 4.0x1.7mm",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "45W",
+    "brand": "Toshiba",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Toshiba Satellite C55",
+      "Toshiba Satellite L50",
+      "Dynabook Tecra A40",
+      "Toshiba Portege Z30"
+    ],
+    "description": "Adaptateur secteur 45W 19V 2.37A, connecteur barrel 4.0x1.7mm, pour Satellite et Dynabook Tecra.",
+    "priceCents": 16900,
+    "stock": 21
+  },
+  {
+    "name": "Chargeur Huawei 65W USB-C SuperCharge MateBook",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "65W",
+    "brand": "Huawei",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Huawei MateBook D14",
+      "Huawei MateBook D15",
+      "Huawei MateBook X Pro",
+      "Huawei MateBook 14"
+    ],
+    "description": "Chargeur USB-C 65W SuperCharge avec câble Type-C, charge rapide MateBook et smartphones Huawei/Honor.",
+    "priceCents": 27900,
+    "stock": 17
+  },
+  {
+    "name": "Chargeur universel portable 90W multi-embouts",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": "90W",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Chargeur universel 90W tension réglable 15-20V, kit 8 embouts interchangeables, compatible la plupart des portables à connecteur barrel.",
+    "priceCents": 24900,
+    "stock": 33
+  },
+  {
+    "name": "Clavier portable HP Pavilion 15 - AZERTY FR Noir",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion 15-cs",
+      "HP Pavilion 15-cw",
+      "HP 250 G7",
+      "HP 255 G7"
+    ],
+    "description": "Clavier de remplacement AZERTY français pour HP Pavilion 15, disposition FR, sans rétroéclairage, neuf compatible.",
+    "priceCents": 22000,
+    "stock": 18
+  },
+  {
+    "name": "Clavier portable Dell Latitude E6440 - AZERTY FR rétroéclairé",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Latitude E6440",
+      "Dell Latitude E6430",
+      "Dell Latitude E5440"
+    ],
+    "description": "Clavier AZERTY FR rétroéclairé avec trackpoint pour Dell Latitude E6440, neuf, cadre gris.",
+    "priceCents": 32000,
+    "stock": 9
+  },
+  {
+    "name": "Clavier portable Lenovo IdeaPad 330-15 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 330-15IKB",
+      "Lenovo IdeaPad 320-15",
+      "Lenovo IdeaPad L340-15"
+    ],
+    "description": "Clavier de remplacement AZERTY français pour Lenovo IdeaPad 330 15 pouces, touches noires, sans cadre.",
+    "priceCents": 20000,
+    "stock": 22
+  },
+  {
+    "name": "Clavier portable Asus X540 / R540 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Asus X540",
+      "Asus R540",
+      "Asus X540L",
+      "Asus D540"
+    ],
+    "description": "Clavier AZERTY FR neuf pour Asus X540 et R540, disposition française, touches noires, livré sans cadre.",
+    "priceCents": 19000,
+    "stock": 25
+  },
+  {
+    "name": "Clavier portable Acer Aspire E5-575 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Aspire E5-575",
+      "Acer Aspire E5-573",
+      "Acer Aspire F5-573"
+    ],
+    "description": "Clavier de remplacement AZERTY français pour Acer Aspire E5-575, pavé numérique, touches noires.",
+    "priceCents": 21000,
+    "stock": 14
+  },
+  {
+    "name": "Clavier portable Toshiba Satellite C650 / C660 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Toshiba",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Toshiba Satellite C650",
+      "Toshiba Satellite C660",
+      "Toshiba Satellite L650",
+      "Toshiba Satellite L670"
+    ],
+    "description": "Clavier AZERTY FR compatible Toshiba Satellite C650 et C660, neuf, touches noires, disposition française.",
+    "priceCents": 23000,
+    "stock": 11
+  },
+  {
+    "name": "Clavier portable HP EliteBook 840 G3 - AZERTY FR rétroéclairé",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G3",
+      "HP EliteBook 840 G4",
+      "HP EliteBook 745 G3"
+    ],
+    "description": "Clavier AZERTY FR rétroéclairé avec trackpoint pour HP EliteBook 840 G3/G4, cadre inclus, neuf.",
+    "priceCents": 35000,
+    "stock": 7
+  },
+  {
+    "name": "Clavier portable Lenovo ThinkPad T440 / T450 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad T440",
+      "Lenovo ThinkPad T450",
+      "Lenovo ThinkPad T440s",
+      "Lenovo ThinkPad L440"
+    ],
+    "description": "Clavier AZERTY FR avec trackpoint pour Lenovo ThinkPad T440/T450, touches noires, qualité d'origine.",
+    "priceCents": 34000,
+    "stock": 8
+  },
+  {
+    "name": "Clavier portable Dell Inspiron 15 3521 / 5521 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Inspiron 3521",
+      "Dell Inspiron 5521",
+      "Dell Inspiron 3537",
+      "Dell Vostro 2521"
+    ],
+    "description": "Clavier de remplacement AZERTY français pour Dell Inspiron 15 série 3521/5521, touches noires, neuf.",
+    "priceCents": 20000,
+    "stock": 16
+  },
+  {
+    "name": "Clavier portable Asus VivoBook S15 X512 - AZERTY FR rétroéclairé",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Asus VivoBook S15 X512",
+      "Asus VivoBook X512F",
+      "Asus VivoBook X512DA",
+      "Asus VivoBook F512"
+    ],
+    "description": "Clavier AZERTY FR rétroéclairé pour Asus VivoBook S15 X512, touches gris argenté, neuf compatible.",
+    "priceCents": 27000,
+    "stock": 10
+  },
+  {
+    "name": "Clavier portable MSI GF63 Gaming - AZERTY FR rétroéclairé rouge",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "MSI",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "MSI GF63 Thin",
+      "MSI GF63 8RD",
+      "MSI GF63 9SC"
+    ],
+    "description": "Clavier gaming AZERTY FR rétroéclairé rouge pour MSI GF63, touches noires, disposition française, neuf.",
+    "priceCents": 42000,
+    "stock": 5
+  },
+  {
+    "name": "Clavier portable Samsung NP300E5 - AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Samsung",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Samsung NP300E5A",
+      "Samsung NP300E5C",
+      "Samsung NP305E5",
+      "Samsung NP550P5C"
+    ],
+    "description": "Clavier AZERTY FR avec pavé numérique pour Samsung NP300E5, touches noires, neuf compatible.",
+    "priceCents": 21000,
+    "stock": 12
+  },
+  {
+    "name": "Clavier portable Apple MacBook Pro Retina 13\" A1502 - Topcase AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Apple MacBook Pro Retina 13 A1502 (2013-2015)",
+      "Apple MacBook Pro A1425"
+    ],
+    "description": "Topcase avec clavier AZERTY FR rétroéclairé pour MacBook Pro Retina 13\" A1502, coque incluse, occasion testée.",
+    "priceCents": 65000,
+    "stock": 4
+  },
+  {
+    "name": "Clavier portable HP ProBook 450 G5 - AZERTY FR rétroéclairé",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Clavier portable",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP ProBook 450 G5",
+      "HP ProBook 455 G5",
+      "HP ProBook 470 G5"
+    ],
+    "description": "Clavier AZERTY FR rétroéclairé avec cadre pour HP ProBook 450 G5, pavé numérique, neuf compatible.",
+    "priceCents": 30000,
+    "stock": 9
+  },
+  {
+    "name": "Touche de clavier HP Pavilion / ProBook - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion 15",
+      "HP ProBook 450 G3",
+      "HP 250 G6",
+      "HP EliteBook 840"
+    ],
+    "description": "Touche individuelle de remplacement avec clip ciseau pour claviers HP Pavilion et ProBook, AZERTY FR.",
+    "priceCents": 4000,
+    "stock": 40
+  },
+  {
+    "name": "Touche de clavier Dell Latitude / Inspiron - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Dell Latitude E6440",
+      "Dell Inspiron 15 3521",
+      "Dell Latitude E7450"
+    ],
+    "description": "Touche unitaire avec mécanisme ciseau et clip pour claviers Dell Latitude et Inspiron, disposition AZERTY FR.",
+    "priceCents": 4000,
+    "stock": 38
+  },
+  {
+    "name": "Touche de clavier Lenovo ThinkPad - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad T440",
+      "Lenovo ThinkPad T450",
+      "Lenovo ThinkPad L450",
+      "Lenovo ThinkPad X240"
+    ],
+    "description": "Touche de remplacement avec ciseau pour claviers Lenovo ThinkPad série T/L, AZERTY FR, montage clipsable.",
+    "priceCents": 5000,
+    "stock": 30
+  },
+  {
+    "name": "Touche de clavier Asus VivoBook / X540 - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Asus X540",
+      "Asus VivoBook X512",
+      "Asus R540",
+      "Asus F512"
+    ],
+    "description": "Touche individuelle avec clip ciseau pour claviers Asus VivoBook et X540, AZERTY FR, remplacement facile.",
+    "priceCents": 3500,
+    "stock": 42
+  },
+  {
+    "name": "Touche de clavier Acer Aspire - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Acer Aspire E5-575",
+      "Acer Aspire E5-573",
+      "Acer Aspire 3 A315",
+      "Acer Aspire 5 A515"
+    ],
+    "description": "Touche de remplacement unitaire avec mécanisme ciseau pour claviers Acer Aspire, disposition AZERTY FR.",
+    "priceCents": 3500,
+    "stock": 45
+  },
+  {
+    "name": "Touche de clavier MacBook Pro / Air papillon - Unité AZERTY FR",
+    "category": "Claviers & Touches",
+    "categoryKey": "claviers",
+    "subCategory": "Touche de clavier",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Apple MacBook Pro A1706",
+      "Apple MacBook Pro A1708",
+      "Apple MacBook Air A1932",
+      "Apple MacBook Pro A1989"
+    ],
+    "description": "Touche individuelle mécanisme papillon pour MacBook Pro/Air (A1706/A1708/A1932), AZERTY FR, clip fourni.",
+    "priceCents": 8000,
+    "stock": 20
+  },
+  {
+    "name": "HP EliteBook 840 G5 reconditionné 14\" i5-8250U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Ultrabook pro reconditionné grade A : Intel Core i5-8250U, 8 Go RAM, SSD 256 Go, écran 14\" Full HD, Windows 11 Pro.",
+    "priceCents": 329000,
+    "stock": 12
+  },
+  {
+    "name": "Dell Latitude 5490 reconditionné 14\" i5-8350U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "PC portable pro reconditionné : Core i5-8350U, 8 Go RAM, SSD 256 Go, dalle 14\" HD, clavier rétroéclairé, Windows 11 Pro.",
+    "priceCents": 305000,
+    "stock": 15
+  },
+  {
+    "name": "Lenovo ThinkPad T480 reconditionné 14\" i7-8650U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "ThinkPad reconditionné haut de gamme : Core i7-8650U, 16 Go RAM, SSD 512 Go, écran 14\" Full HD IPS, double batterie.",
+    "priceCents": 429000,
+    "stock": 8
+  },
+  {
+    "name": "HP ProBook 450 G6 reconditionné 15.6\" i3-8145U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable bureautique reconditionné : Core i3-8145U, 8 Go RAM, SSD 256 Go, grand écran 15.6\" HD, idéal travail au bureau.",
+    "priceCents": 259000,
+    "stock": 20
+  },
+  {
+    "name": "Dell Latitude 3400 reconditionné 14\" i3-8145U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Entrée de gamme reconditionné : Core i3-8145U, 4 Go RAM, SSD 128 Go, écran 14\" HD, parfait pour la bureautique quotidienne.",
+    "priceCents": 215000,
+    "stock": 18
+  },
+  {
+    "name": "Lenovo ThinkPad X260 reconditionné 12.5\" i5-6300U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Ultraportable pro reconditionné : Core i5-6300U, 8 Go RAM, SSD 256 Go, écran compact 12.5\", très léger et robuste.",
+    "priceCents": 249000,
+    "stock": 14
+  },
+  {
+    "name": "Acer Aspire 5 A515 reconditionné 15.6\" i5-1035G1",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable polyvalent reconditionné : Core i5-1035G1, 8 Go RAM, SSD 512 Go, dalle 15.6\" Full HD, châssis fin en aluminium.",
+    "priceCents": 295000,
+    "stock": 16
+  },
+  {
+    "name": "ASUS VivoBook 15 X512 reconditionné 15.6\" i3-1005G1",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "PC portable reconditionné : Core i3-1005G1, 8 Go RAM, SSD 256 Go, écran 15.6\" Full HD NanoEdge, design compact et léger.",
+    "priceCents": 269000,
+    "stock": 13
+  },
+  {
+    "name": "Apple MacBook Air 13\" 2017 reconditionné i5",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "MacBook Air reconditionné : Core i5 1.8 GHz, 8 Go RAM, SSD 128 Go, écran 13.3\", macOS, autonomie exceptionnelle.",
+    "priceCents": 379000,
+    "stock": 9
+  },
+  {
+    "name": "Apple MacBook Pro 13\" 2015 reconditionné i5 Retina",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Apple",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "MacBook Pro reconditionné : Core i5 2.7 GHz, 8 Go RAM, SSD 256 Go, écran Retina 13.3\", idéal création et bureautique pro.",
+    "priceCents": 459000,
+    "stock": 6
+  },
+  {
+    "name": "HP EliteBook 820 G3 reconditionné 12.5\" i5-6300U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Ultraportable pro reconditionné : Core i5-6300U, 8 Go RAM, SSD 256 Go, écran 12.5\" HD, compact et endurant pour les déplacements.",
+    "priceCents": 229000,
+    "stock": 17
+  },
+  {
+    "name": "Dell XPS 13 9360 reconditionné 13.3\" i7-8550U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Ultrabook premium reconditionné : Core i7-8550U, 16 Go RAM, SSD 512 Go, écran InfinityEdge 13.3\" Full HD, châssis ultrafin.",
+    "priceCents": 489000,
+    "stock": 7
+  },
+  {
+    "name": "Lenovo ThinkPad L390 reconditionné 13.3\" i5-8265U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable pro compact reconditionné : Core i5-8265U, 8 Go RAM, SSD 256 Go, écran 13.3\" Full HD, clavier confortable ThinkPad.",
+    "priceCents": 289000,
+    "stock": 11
+  },
+  {
+    "name": "MSI GF63 Thin reconditionné 15.6\" i7 GTX 1650",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Gamer",
+    "brand": "MSI",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable gaming reconditionné : Core i7-9750H, 16 Go RAM, SSD 512 Go, GeForce GTX 1650 4 Go, écran 15.6\" Full HD 60 Hz.",
+    "priceCents": 649000,
+    "stock": 5
+  },
+  {
+    "name": "Dell G3 15 3590 reconditionné 15.6\" i5 GTX 1650",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Gamer",
+    "brand": "Dell",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "PC gamer reconditionné : Core i5-9300H, 16 Go RAM, SSD 512 Go, GeForce GTX 1650 4 Go, écran 15.6\" Full HD, refroidissement dual-fan.",
+    "priceCents": 579000,
+    "stock": 6
+  },
+  {
+    "name": "Lenovo Legion Y540 reconditionné 15.6\" i7 GTX 1660 Ti",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Gamer",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Gaming reconditionné puissant : Core i7-9750H, 16 Go RAM, SSD 512 Go, GeForce GTX 1660 Ti 6 Go, dalle 15.6\" Full HD 144 Hz.",
+    "priceCents": 729000,
+    "stock": 4
+  },
+  {
+    "name": "HP Pavilion Gaming 15 reconditionné 15.6\" i5 GTX 1650",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Gamer",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable gamer reconditionné : Core i5-9300H, 8 Go RAM, SSD 512 Go, GeForce GTX 1650 4 Go, écran 15.6\" Full HD IPS.",
+    "priceCents": 549000,
+    "stock": 7
+  },
+  {
+    "name": "Dynabook Tecra A40-E reconditionné 14\" i5-8250U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Bureautique",
+    "brand": "Toshiba",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Portable pro reconditionné Toshiba/Dynabook : Core i5-8250U, 8 Go RAM, SSD 256 Go, écran 14\" HD, léger et fiable pour le bureau.",
+    "priceCents": 265000,
+    "stock": 10
+  },
+  {
+    "name": "Fujitsu Lifebook U728 reconditionné 12.5\" i5-8250U",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Fujitsu",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Ultraportable pro reconditionné : Core i5-8250U, 8 Go RAM, SSD 256 Go, écran 12.5\" Full HD, très compact, idéal mobilité.",
+    "priceCents": 279000,
+    "stock": 8
+  },
+  {
+    "name": "Microsoft Surface Laptop 3 reconditionné 13.5\" i5-1035G7",
+    "category": "PC Portables",
+    "categoryKey": "laptops",
+    "subCategory": "Pro",
+    "brand": "Microsoft",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Surface Laptop reconditionné : Core i5-1035G7, 8 Go RAM, SSD 256 Go, écran tactile PixelSense 13.5\", finition premium alcantara.",
+    "priceCents": 459000,
+    "stock": 6
+  },
+  {
+    "name": "Écran PC Dell SE2222H 21.5\" Full HD VA",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "21.5\"",
+    "brand": "Dell",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Moniteur 21.5 pouces Full HD 1920x1080, dalle VA, 60Hz, HDMI/VGA — idéal bureautique.",
+    "priceCents": 109000,
+    "stock": 18
+  },
+  {
+    "name": "Écran PC HP M24f 23.8\" Full HD IPS 75Hz",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "23.8\"",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Moniteur IPS 23.8\" Full HD 1080p, 75Hz, AMD FreeSync, bords fins, HDMI + VGA.",
+    "priceCents": 149000,
+    "stock": 22
+  },
+  {
+    "name": "Écran Gaming ASUS TUF VG27AQ 27\" QHD 165Hz",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "27\"",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Moniteur gaming 27\" QHD 2560x1440, IPS 165Hz, 1ms, G-Sync Compatible, HDR.",
+    "priceCents": 429000,
+    "stock": 9
+  },
+  {
+    "name": "Écran PC LG 27UP650 27\" 4K UHD IPS USB-C",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "27\"",
+    "brand": "LG",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Moniteur 27\" 4K UHD 3840x2160, IPS, HDR400, USB-C — création et bureautique.",
+    "priceCents": 399000,
+    "stock": 7
+  },
+  {
+    "name": "Écran incurvé Samsung Odyssey G5 34\" UWQHD 165Hz",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "34\"",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Moniteur incurvé ultra-large 34\" UWQHD 3440x1440, 165Hz, 1ms, courbure 1000R.",
+    "priceCents": 549000,
+    "stock": 5
+  },
+  {
+    "name": "PC de bureau HP ProDesk 400 G7 Core i5 8Go 256Go SSD",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Tour",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Unité centrale Core i5-10500, 8 Go DDR4, SSD 256 Go NVMe, Windows 11 Pro.",
+    "priceCents": 649000,
+    "stock": 11
+  },
+  {
+    "name": "PC de bureau Dell OptiPlex 7090 Core i7 16Go 512Go SSD",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Tour",
+    "brand": "Dell",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Unité centrale Core i7-11700, 16 Go DDR4, SSD 512 Go NVMe, Windows 11 Pro.",
+    "priceCents": 899000,
+    "stock": 6
+  },
+  {
+    "name": "PC Gamer MSI MAG Core i5 16Go RTX 3050 512Go SSD",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Tour Gaming",
+    "brand": "MSI",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "PC gaming Core i5-12400F, 16 Go DDR4, RTX 3050 8 Go, SSD 512 Go, Windows 11.",
+    "priceCents": 1199000,
+    "stock": 4
+  },
+  {
+    "name": "Mini PC Lenovo ThinkCentre M75q Ryzen 3 8Go 256Go SSD",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Mini PC",
+    "brand": "Lenovo",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Mini PC compact Ryzen 3, 8 Go DDR4, SSD 256 Go, WiFi — idéal espace réduit.",
+    "priceCents": 399000,
+    "stock": 13
+  },
+  {
+    "name": "PC Tout-en-un HP 24-cb1 23.8\" Core i5 8Go 512Go SSD",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Tout-en-un",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "All-in-One 23.8\" FHD, Core i5, 8 Go, SSD 512 Go, webcam, clavier + souris inclus.",
+    "priceCents": 749000,
+    "stock": 8
+  },
+  {
+    "name": "PC Tout-en-un Lenovo IdeaCentre AIO 3 24\" Ryzen 5 8Go 512Go",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Tout-en-un",
+    "brand": "Lenovo",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "All-in-One 23.8\" FHD, Ryzen 5, 8 Go DDR4, SSD 512 Go, design sans bords.",
+    "priceCents": 699000,
+    "stock": 7
+  },
+  {
+    "name": "Onduleur APC Back-UPS BX650LI 650VA / 390W",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Onduleur",
+    "brand": "APC",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Onduleur line-interactive 650VA, 4 prises, protection surtension, autonomie de secours.",
+    "priceCents": 69000,
+    "stock": 20
+  },
+  {
+    "name": "Onduleur Eaton 5E 1500VA / 900W USB",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Onduleur",
+    "brand": "Eaton",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Onduleur 1500VA line-interactive, 4 prises, port USB, protection PC + réseau.",
+    "priceCents": 169000,
+    "stock": 9
+  },
+  {
+    "name": "Multiprise parasurtenseur Brennenstuhl 6 prises 1.5m",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Prise / Multiprise",
+    "brand": "Brennenstuhl",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Bloc 6 prises avec parasurtenseur, interrupteur, câble 1.5 m — protège vos appareils.",
+    "priceCents": 24900,
+    "stock": 30
+  },
+  {
+    "name": "Licence Microsoft Windows 11 Professionnel (clé numérique)",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Système d'exploitation",
+    "brand": "Microsoft",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Licence Windows 11 Pro 64 bits, clé d'activation numérique authentique, installation incluse.",
+    "priceCents": 199000,
+    "stock": 40
+  },
+  {
+    "name": "Microsoft Office 2021 Famille et Petite Entreprise",
+    "category": "PC de Bureau & Composants",
+    "categoryKey": "ordinateurs",
+    "subCategory": "Logiciel bureautique",
+    "brand": "Microsoft",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Suite Office 2021 (Word, Excel, PowerPoint, Outlook), licence perpétuelle 1 PC.",
+    "priceCents": 279000,
+    "stock": 25
+  },
+  {
+    "name": "Imprimante HP LaserJet Pro M404dn monochrome",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes laser",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Imprimante laser monochrome A4, 38 ppm, recto-verso automatique, port Ethernet et USB, idéale bureau.",
+    "priceCents": 229000,
+    "stock": 14
+  },
+  {
+    "name": "Imprimante multifonction Epson EcoTank L3250 Wi-Fi",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes jet d'encre",
+    "brand": "Epson",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Multifonction 3-en-1 à réservoirs rechargeables, impression/copie/scan couleur, Wi-Fi et Wi-Fi Direct.",
+    "priceCents": 215000,
+    "stock": 22
+  },
+  {
+    "name": "Imprimante multifonction Canon PIXMA G2420 à réservoir",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes jet d'encre",
+    "brand": "Canon",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Jet d'encre 3-en-1 avec réservoirs d'encre haute capacité, impression couleur, copie et numérisation A4.",
+    "priceCents": 149000,
+    "stock": 18
+  },
+  {
+    "name": "Imprimante Brother HL-L2375DW laser monochrome Wi-Fi",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes laser",
+    "brand": "Brother",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Laser monochrome A4, 34 ppm, recto-verso automatique, connexion Wi-Fi, Ethernet et USB.",
+    "priceCents": 189000,
+    "stock": 11
+  },
+  {
+    "name": "Imprimante multifonction laser couleur HP Color LaserJet Pro MFP M283fdw",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes laser",
+    "brand": "HP",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Multifonction laser couleur 4-en-1 (impression, copie, scan, fax), recto-verso, ADF, Wi-Fi et Ethernet.",
+    "priceCents": 559000,
+    "stock": 6
+  },
+  {
+    "name": "Photocopieur multifonction Canon imageRUNNER 2425i A3",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Photocopieurs",
+    "brand": "Canon",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Copieur multifonction A3 monochrome 25 ppm, impression réseau, numérisation couleur et chargeur de documents.",
+    "priceCents": 2790000,
+    "stock": 3
+  },
+  {
+    "name": "Photocopieur Ricoh IM 2702 A3 monochrome",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Photocopieurs",
+    "brand": "Ricoh",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Multifonction A3 laser monochrome 27 ppm, écran tactile, impression et scan réseau pour PME.",
+    "priceCents": 2350000,
+    "stock": 2
+  },
+  {
+    "name": "Scanner à plat Epson Perfection V39 II",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Scanners",
+    "brand": "Epson",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Scanner à plat A4 couleur 4800 dpi, alimenté par USB, restauration de photos et numérisation de documents.",
+    "priceCents": 99000,
+    "stock": 16
+  },
+  {
+    "name": "Scanner de documents recto-verso Fujitsu ScanSnap iX1600",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Scanners",
+    "brand": "Fujitsu",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Scanner de documents à défilement 40 ppm, recto-verso automatique, Wi-Fi et écran tactile, ADF 50 feuilles.",
+    "priceCents": 649000,
+    "stock": 4
+  },
+  {
+    "name": "Fax laser Brother FAX-2840 monochrome",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Fax",
+    "brand": "Brother",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Télécopieur laser monochrome avec combiné, fonction copie, chargeur automatique de documents et mémoire de pages.",
+    "priceCents": 165000,
+    "stock": 7
+  },
+  {
+    "name": "Imprimante multifonction Samsung Xpress M2070 laser monochrome",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Imprimantes laser",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Laser monochrome 3-en-1 A4, 20 ppm, impression, copie et numérisation, connexion USB compacte.",
+    "priceCents": 175000,
+    "stock": 9
+  },
+  {
+    "name": "Serveur d'impression Wi-Fi USB TP-Link TL-WPS510U",
+    "category": "Impression & Scan",
+    "categoryKey": "impression",
+    "subCategory": "Accessoires imprimante",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Serveur d'impression sans fil pour partager une imprimante USB sur le réseau, compatible la plupart des imprimantes.",
+    "priceCents": 42000,
+    "stock": 25
+  },
+  {
+    "name": "Routeur WiFi 6 ASUS RT-AX53U AX1800 Dual Band",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Routeurs",
+    "brand": "ASUS",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Routeur WiFi 6 double bande AX1800 (574 + 1201 Mbps), 4 ports Gigabit, ports USB, AiMesh et contrôle parental.",
+    "priceCents": 89900,
+    "stock": 14
+  },
+  {
+    "name": "Routeur TP-Link Archer C6 AC1200 Gigabit MU-MIMO",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Routeurs",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Routeur bi-bande AC1200 (300 + 867 Mbps), 4 antennes, technologie MU-MIMO et Beamforming, 4 ports LAN Gigabit.",
+    "priceCents": 34900,
+    "stock": 26
+  },
+  {
+    "name": "Point d'accès WiFi 6 Ubiquiti UniFi U6 Lite",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Points d'accès",
+    "brand": "Ubiquiti",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Borne WiFi 6 double bande AX jusqu'à 1,5 Gbps, montage plafond, alimentation PoE, gestion via contrôleur UniFi.",
+    "priceCents": 129000,
+    "stock": 9
+  },
+  {
+    "name": "Point d'accès plafond TP-Link Omada EAP225 AC1350",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Points d'accès",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Borne WiFi bi-bande AC1350, gestion centralisée Omada, alimentation PoE 802.3af, idéale bureaux et commerces.",
+    "priceCents": 69000,
+    "stock": 12
+  },
+  {
+    "name": "Switch réseau Gigabit TP-Link TL-SG1008D 8 ports",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Switches",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Switch non administrable 8 ports 10/100/1000 Mbps, boîtier plastique, plug & play, économie d'énergie verte.",
+    "priceCents": 39900,
+    "stock": 34
+  },
+  {
+    "name": "Switch Gigabit Netgear GS308 8 ports boîtier métal",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Switches",
+    "brand": "Netgear",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Switch 8 ports Gigabit non administrable, châssis métallique compact, silencieux sans ventilateur, installation instantanée.",
+    "priceCents": 42900,
+    "stock": 19
+  },
+  {
+    "name": "Clé WiFi USB TP-Link Archer T2U Plus AC600",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Clés WiFi",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Adaptateur WiFi USB bi-bande AC600 (2,4 + 5 GHz) avec antenne à gain élevé, compatible Windows et macOS.",
+    "priceCents": 15900,
+    "stock": 42
+  },
+  {
+    "name": "Clé WiFi USB D-Link DWA-131 N300",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Clés WiFi",
+    "brand": "D-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Nano adaptateur WiFi USB N300 (jusqu'à 300 Mbps), format compact, idéal PC portable et fixe sans carte réseau.",
+    "priceCents": 9900,
+    "stock": 48
+  },
+  {
+    "name": "Vidéoprojecteur Epson EB-X06 XGA 3600 lumens",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Vidéoprojecteurs",
+    "brand": "Epson",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Vidéoprojecteur 3LCD XGA 1024x768, 3600 lumens, contraste 16000:1, HDMI et VGA, lampe jusqu'à 12000 h.",
+    "priceCents": 399000,
+    "stock": 7
+  },
+  {
+    "name": "Vidéoprojecteur BenQ TH585 Full HD 1080p 3500 lumens",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Vidéoprojecteurs",
+    "brand": "BenQ",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Vidéoprojecteur gaming Full HD 1920x1080, 3500 lumens, faible latence 16 ms, double HDMI, mode football.",
+    "priceCents": 649000,
+    "stock": 5
+  },
+  {
+    "name": "Écran de projection manuel 100\" 4:3 (200x150 cm)",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Écrans de projection",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Écran de projection mural/plafond à déroulement manuel, diagonale 100 pouces format 4:3, toile blanche mate à gain 1.1.",
+    "priceCents": 54900,
+    "stock": 16
+  },
+  {
+    "name": "Support plafond universel orientable pour vidéoprojecteur",
+    "category": "Réseau & Connectique",
+    "categoryKey": "reseaux",
+    "subCategory": "Accessoires vidéoprojection",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Support de fixation plafond inclinable et rotatif 360°, bras extensible, charge jusqu'à 10 kg, compatible la plupart des vidéoprojecteurs.",
+    "priceCents": 24900,
+    "stock": 22
+  },
+  {
+    "name": "Power bank Anker PowerCore 20000mAh 20W USB-C PD",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Power banks",
+    "brand": "Anker",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Batterie externe 20000mAh, charge rapide 20W USB-C Power Delivery, double sortie USB, recharge smartphone et tablette.",
+    "priceCents": 49900,
+    "stock": 24
+  },
+  {
+    "name": "Power bank Xiaomi Redmi 10000mAh 18W Fast Charge",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Power banks",
+    "brand": "Xiaomi",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Batterie externe compacte 10000mAh, charge rapide 18W, entrées micro-USB et USB-C, coque anti-rayures.",
+    "priceCents": 19900,
+    "stock": 40
+  },
+  {
+    "name": "Barrette mémoire RAM Kingston Fury Impact 8Go DDR4 3200MHz SODIMM",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Mémoire RAM",
+    "brand": "Kingston",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Module SODIMM 8Go DDR4 3200MHz CL20 pour PC portable, mise à niveau plug-and-play, faible latence.",
+    "priceCents": 34900,
+    "stock": 30
+  },
+  {
+    "name": "Barrette mémoire RAM Crucial 16Go DDR5 4800MHz SODIMM",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Mémoire RAM",
+    "brand": "Crucial",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Module SODIMM 16Go DDR5 4800MHz pour PC portable récent, meilleure bande passante, économie d'énergie.",
+    "priceCents": 79900,
+    "stock": 18
+  },
+  {
+    "name": "Tapis de souris gaming Razer Goliathus Speed Cosmic XL",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Tapis de souris",
+    "brand": "Razer",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Grand tapis gaming 920x294mm, surface micro-texturée rapide, base antidérapante, bords cousus.",
+    "priceCents": 24900,
+    "stock": 22
+  },
+  {
+    "name": "Station d'accueil USB-C 11-en-1 Baseus (HDMI 4K / VGA / RJ45 / SD)",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stations d'accueil / Hub USB",
+    "brand": "Baseus",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Dock USB-C 11 ports : HDMI 4K, VGA, RJ45 Gigabit, 3x USB 3.0, lecteur SD/TF, Power Delivery 100W.",
+    "priceCents": 64900,
+    "stock": 12
+  },
+  {
+    "name": "Hub USB 3.0 4 ports Ugreen (5Gbps)",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stations d'accueil / Hub USB",
+    "brand": "Ugreen",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Répartiteur USB 3.0 à 4 ports, transfert 5Gbps, câble 25cm, compatible PC portable et bureau.",
+    "priceCents": 14900,
+    "stock": 45
+  },
+  {
+    "name": "Pack clavier + souris sans fil Logitech MK270 (AZERTY)",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Claviers & Souris",
+    "brand": "Logitech",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Ensemble sans fil 2.4GHz clavier AZERTY + souris optique, un seul récepteur USB, jusqu'à 24 mois d'autonomie.",
+    "priceCents": 29900,
+    "stock": 26
+  },
+  {
+    "name": "Souris sans fil Logitech M330 Silent Plus",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Claviers & Souris",
+    "brand": "Logitech",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Souris sans fil silencieuse 1000 DPI, clics réduits de 90%, récepteur USB nano, 24 mois d'autonomie.",
+    "priceCents": 17900,
+    "stock": 34
+  },
+  {
+    "name": "Clavier mécanique gaming Redragon Kumara K552 RGB (AZERTY)",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Claviers & Souris",
+    "brand": "Redragon",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Clavier mécanique compact TKL switches bleus, rétroéclairage RGB, châssis métal, anti-ghosting.",
+    "priceCents": 39900,
+    "stock": 15
+  },
+  {
+    "name": "Casque gaming HyperX Cloud Stinger 2",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Casques & Enceintes",
+    "brand": "HyperX",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Casque gaming filaire son surround DTS, micro antibruit relevable, coussinets mémoire de forme, jack 3.5mm.",
+    "priceCents": 54900,
+    "stock": 20
+  },
+  {
+    "name": "Enceinte Bluetooth portable JBL Go 3",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Casques & Enceintes",
+    "brand": "JBL",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Mini enceinte Bluetooth étanche IP67, son JBL Pro, 5h d'autonomie, format compact et coloré.",
+    "priceCents": 34900,
+    "stock": 28
+  },
+  {
+    "name": "SSD interne SATA 2.5\" Samsung 870 EVO 500Go",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stockage",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "SSD SATA III 2.5\" 500Go, lecture jusqu'à 560Mo/s, idéal upgrade PC portable et bureau.",
+    "priceCents": 69900,
+    "stock": 21
+  },
+  {
+    "name": "SSD NVMe M.2 Kingston NV2 1To PCIe 4.0",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stockage",
+    "brand": "Kingston",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "SSD NVMe M.2 2280 1To PCIe Gen 4.0, lecture jusqu'à 3500Mo/s, faible consommation.",
+    "priceCents": 74900,
+    "stock": 17
+  },
+  {
+    "name": "Disque dur externe Seagate Expansion 1To USB 3.0",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stockage",
+    "brand": "Seagate",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Disque dur portable 1To USB 3.0, plug-and-play, sauvegarde et transfert rapides, format 2.5\".",
+    "priceCents": 59900,
+    "stock": 25
+  },
+  {
+    "name": "Clé USB SanDisk Ultra 64Go USB 3.0",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Stockage",
+    "brand": "SanDisk",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Clé USB 3.0 64Go, lecture jusqu'à 130Mo/s, capuchon rétractable, compatible PC et TV.",
+    "priceCents": 9900,
+    "stock": 50
+  },
+  {
+    "name": "Adaptateur USB-C vers HDMI 4K + USB 3.0 Ugreen",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Adaptateurs",
+    "brand": "Ugreen",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Adaptateur multiport USB-C : sortie HDMI 4K@30Hz + port USB 3.0, compact, compatible MacBook et PC portable USB-C.",
+    "priceCents": 17900,
+    "stock": 32
+  },
+  {
+    "name": "Câble HDMI 2.0 4K 2m tressé",
+    "category": "Périphériques & Accessoires",
+    "categoryKey": "peripheriques",
+    "subCategory": "Câbles & Connectiques",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Câble HDMI 2.0 haut débit 2m, résolution 4K@60Hz, gaine tressée, connecteurs plaqués or, retour audio ARC.",
+    "priceCents": 6900,
+    "stock": 48
+  },
+  {
+    "name": "Smartphone Samsung Galaxy A15 128 Go Bleu",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Smartphones",
+    "brand": "Samsung",
+    "deviceType": "Smartphone",
+    "compatibleModels": [],
+    "description": "Ecran Super AMOLED 6.5\" 90Hz, 4 Go RAM, 128 Go, triple capteur 50 MP, batterie 5000 mAh",
+    "priceCents": 179900,
+    "stock": 24
+  },
+  {
+    "name": "Smartphone Xiaomi Redmi Note 13 Pro 256 Go",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Smartphones",
+    "brand": "Xiaomi",
+    "deviceType": "Smartphone",
+    "compatibleModels": [],
+    "description": "AMOLED 6.67\" 120Hz, 8 Go RAM, 256 Go, capteur 200 MP, charge rapide 67W",
+    "priceCents": 289900,
+    "stock": 18
+  },
+  {
+    "name": "Smartphone Apple iPhone 13 128 Go Minuit",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Smartphones",
+    "brand": "Apple",
+    "deviceType": "Smartphone",
+    "compatibleModels": [],
+    "description": "Ecran Super Retina XDR 6.1\", puce A15 Bionic, double capteur 12 MP, 5G, iOS",
+    "priceCents": 749900,
+    "stock": 9
+  },
+  {
+    "name": "Tablette Apple iPad 9e generation 10.2\" 64 Go WiFi",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Tablettes",
+    "brand": "Apple",
+    "deviceType": "Tablette",
+    "compatibleModels": [],
+    "description": "Ecran Retina 10.2\", puce A13 Bionic, 64 Go, compatible Apple Pencil, iPadOS",
+    "priceCents": 399900,
+    "stock": 12
+  },
+  {
+    "name": "Tablette Samsung Galaxy Tab A9+ 11\" 64 Go",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Tablettes",
+    "brand": "Samsung",
+    "deviceType": "Tablette",
+    "compatibleModels": [],
+    "description": "Ecran 11\" 90Hz, 4 Go RAM, 64 Go extensible, double haut-parleur, batterie 7040 mAh",
+    "priceCents": 249900,
+    "stock": 15
+  },
+  {
+    "name": "Televiseur LG 43\" UHD 4K Smart TV UR78",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "TV & Televiseurs",
+    "brand": "LG",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Dalle LED 43\" 4K UHD, processeur a5 Gen6, webOS, HDR10, WiFi et 3 ports HDMI",
+    "priceCents": 399900,
+    "stock": 7
+  },
+  {
+    "name": "Televiseur Samsung 55\" Crystal UHD 4K DU7000",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "TV & Televiseurs",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Ecran 55\" 4K Crystal UHD, Tizen Smart TV, PurColor, HDR, assistant vocal integre",
+    "priceCents": 599900,
+    "stock": 5
+  },
+  {
+    "name": "Appareil photo Canon EOS 2000D + objectif 18-55mm",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Appareils photo",
+    "brand": "Canon",
+    "deviceType": "Appareil photo",
+    "compatibleModels": [],
+    "description": "Reflex 24.1 MP APS-C, video Full HD, WiFi/NFC, kit objectif EF-S 18-55mm IS II",
+    "priceCents": 499900,
+    "stock": 6
+  },
+  {
+    "name": "Camera d'action GoPro HERO11 Black",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Appareils photo",
+    "brand": "GoPro",
+    "deviceType": "Appareil photo",
+    "compatibleModels": [],
+    "description": "Capteur 27 MP, video 5.3K60, stabilisation HyperSmooth 5.0, etanche 10m",
+    "priceCents": 449900,
+    "stock": 8
+  },
+  {
+    "name": "Webcam Logitech C920 HD Pro Full HD 1080p",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Webcams",
+    "brand": "Logitech",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Full HD 1080p 30fps, autofocus, double micro stereo, clip universel, USB plug-and-play",
+    "priceCents": 89900,
+    "stock": 30
+  },
+  {
+    "name": "Haut-parleur Bluetooth JBL Charge 5",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Haut-parleurs & Enceintes",
+    "brand": "JBL",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Enceinte portable etanche IP67, son JBL Pro, autonomie 20h, powerbank integree",
+    "priceCents": 159900,
+    "stock": 21
+  },
+  {
+    "name": "Enceinte portable Anker Soundcore Motion 300",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Haut-parleurs & Enceintes",
+    "brand": "Anker",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Son Hi-Res 30W, Bluetooth 5.3, etanche IPX7, autonomie 13h, mode stereo",
+    "priceCents": 79900,
+    "stock": 26
+  },
+  {
+    "name": "Montre connectee Xiaomi Smart Band 8",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Objets connectes",
+    "brand": "Xiaomi",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Ecran AMOLED 1.62\", suivi cardiaque et SpO2, 150+ modes sport, autonomie 16 jours",
+    "priceCents": 39900,
+    "stock": 40
+  },
+  {
+    "name": "Ecouteurs sans fil Apple AirPods 2e generation",
+    "category": "Multimédia & Audio",
+    "categoryKey": "multimedia",
+    "subCategory": "Ecouteurs & Casques",
+    "brand": "Apple",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Ecouteurs Bluetooth avec puce H1, jusqu'a 24h d'autonomie avec boitier, Siri mains libres",
+    "priceCents": 149900,
+    "stock": 17
+  },
+  {
+    "name": "Caméra de surveillance IP Hikvision DS-2CD1043G0-I 4MP PoE",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Caméras IP",
+    "brand": "Hikvision",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Caméra IP tube (bullet) 4MP, vision nocturne IR 30m, PoE, étanche IP67, compatible NVR Hikvision et logiciel Hik-Connect.",
+    "priceCents": 64900,
+    "stock": 24
+  },
+  {
+    "name": "Caméra analogique Dahua HAC-HFW1200C 2MP HDCVI Full HD",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Caméras analogiques",
+    "brand": "Dahua",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Caméra bullet analogique 2MP 1080P HDCVI, IR 20m, boîtier métal IP67, sortie BNC compatible DVR HDCVI/AHD/TVI/CVBS.",
+    "priceCents": 17900,
+    "stock": 40
+  },
+  {
+    "name": "Enregistreur NVR Hikvision DS-7608NI-K1 8 canaux 4K",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Enregistreurs NVR",
+    "brand": "Hikvision",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "NVR 8 voies jusqu'à 8MP/4K, 1 baie HDD (jusqu'à 6To), sortie HDMI/VGA, accès distant Hik-Connect, décodage H.265+.",
+    "priceCents": 134900,
+    "stock": 12
+  },
+  {
+    "name": "Enregistreur DVR Dahua XVR1B08 8 canaux 1080P Penta-brid",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Enregistreurs DVR",
+    "brand": "Dahua",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "DVR hybride 8 canaux 1080P Penta-brid (HDCVI/AHD/TVI/CVBS/IP), 1 port SATA, HDMI/VGA, app DMSS pour supervision mobile.",
+    "priceCents": 77900,
+    "stock": 15
+  },
+  {
+    "name": "Caméra WiFi intérieure motorisée EZVIZ C6N 1080P",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Caméras IP",
+    "brand": "EZVIZ",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Caméra WiFi PT rotative 355°, Full HD 1080P, vision nocturne 10m, suivi de mouvement, audio bidirectionnel, slot microSD jusqu'à 256Go.",
+    "priceCents": 37900,
+    "stock": 30
+  },
+  {
+    "name": "Caméra IP extérieure Reolink RLC-810A 8MP PoE",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Caméras IP",
+    "brand": "Reolink",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Caméra bullet 8MP 4K PoE, détection intelligente personne/véhicule, IR 30m, étanche IP66, enregistrement sur carte SD ou NVR.",
+    "priceCents": 74900,
+    "stock": 18
+  },
+  {
+    "name": "Kit vidéosurveillance WiFi TP-Link Tapo C210 (4 caméras) + accessoires",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Kits de surveillance",
+    "brand": "TP-Link",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Pack 4 caméras Tapo C210 3MP orientables, WiFi, vision nocturne, détection de mouvement, supports et visserie inclus, app Tapo.",
+    "priceCents": 159900,
+    "stock": 9
+  },
+  {
+    "name": "Caméra WiFi extérieure Imou Bullet 2C 4MP",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Caméras IP",
+    "brand": "Imou",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Caméra bullet WiFi 4MP, détection humaine IA, sirène et projecteur, vision nocturne couleur, IP67, app Imou Life.",
+    "priceCents": 32900,
+    "stock": 26
+  },
+  {
+    "name": "Disque dur de surveillance WD Purple 2To SATA 3.5\"",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Accessoires",
+    "brand": "Western Digital",
+    "deviceType": null,
+    "compatibleModels": [
+      "DVR Dahua XVR",
+      "NVR Hikvision DS-7600",
+      "Enregistreurs DVR/NVR SATA"
+    ],
+    "description": "HDD 2To dédié vidéosurveillance, technologie AllFrame, fonctionnement 24/7, optimisé pour flux multi-caméras DVR/NVR.",
+    "priceCents": 77900,
+    "stock": 21
+  },
+  {
+    "name": "Switch PoE 8 ports Hikvision DS-3E0109P-E",
+    "category": "Sécurité & Surveillance",
+    "categoryKey": "securite",
+    "subCategory": "Accessoires",
+    "brand": "Hikvision",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Switch non manageable 8 ports PoE + 1 uplink, budget PoE 58W, alimente caméras IP jusqu'à 250m, plug-and-play pour NVR.",
+    "priceCents": 65900,
+    "stock": 14
+  },
+  {
+    "name": "PC portable gamer ASUS ROG Strix G16 i7-13650HX RTX 4060",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "ASUS",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "16\" FHD+ 165Hz, Intel Core i7-13650HX, 16 Go DDR5, SSD 512 Go, NVIDIA RTX 4060 8 Go, clavier RGB, Windows 11",
+    "priceCents": 1649900,
+    "stock": 7
+  },
+  {
+    "name": "PC portable gamer Lenovo Legion 5 Pro Ryzen 7 7745HX RTX 4070",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "Lenovo",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "16\" WQXGA 240Hz, AMD Ryzen 7 7745HX, 16 Go DDR5, SSD 1 To, NVIDIA RTX 4070 8 Go, refroidissement Legion ColdFront",
+    "priceCents": 1899900,
+    "stock": 5
+  },
+  {
+    "name": "PC portable gamer MSI Katana 15 i5-13420H RTX 4050",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "MSI",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "15.6\" FHD 144Hz, Intel Core i5-13420H, 16 Go DDR5, SSD 512 Go, NVIDIA RTX 4050 6 Go, clavier rétroéclairé rouge",
+    "priceCents": 1149000,
+    "stock": 9
+  },
+  {
+    "name": "PC portable gamer Acer Nitro 5 i5-12500H RTX 3050",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "Acer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "15.6\" FHD 144Hz, Intel Core i5-12500H, 16 Go DDR4, SSD 512 Go, NVIDIA RTX 3050 4 Go, double ventilateur",
+    "priceCents": 919900,
+    "stock": 12
+  },
+  {
+    "name": "PC portable gamer HP Victus 15 Ryzen 5 7535HS RTX 2050",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "HP",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "15.6\" FHD 144Hz, AMD Ryzen 5 7535HS, 16 Go DDR5, SSD 512 Go, NVIDIA RTX 2050 4 Go, idéal esport",
+    "priceCents": 829900,
+    "stock": 11
+  },
+  {
+    "name": "PC portable gamer Razer Blade 15 i7 RTX 4070 QHD 240Hz",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC portable gamer",
+    "brand": "Razer",
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "15.6\" QHD 240Hz, Intel Core i7-13800H, 16 Go DDR5, SSD 1 To, NVIDIA RTX 4070 8 Go, châssis aluminium CNC, Chroma RGB",
+    "priceCents": 2799900,
+    "stock": 3
+  },
+  {
+    "name": "PC bureau gamer HAMDI PC Ryzen 5 5600 RTX 4060",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC bureau gamer",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Montage sur mesure: AMD Ryzen 5 5600, 16 Go DDR4, SSD NVMe 500 Go, NVIDIA RTX 4060 8 Go, boîtier RGB, alim 650W",
+    "priceCents": 1350000,
+    "stock": 6
+  },
+  {
+    "name": "PC bureau gamer MSI MAG Infinite i5-13400F RTX 4060 Ti",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "PC bureau gamer",
+    "brand": "MSI",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Intel Core i5-13400F, 16 Go DDR5, SSD NVMe 1 To, NVIDIA RTX 4060 Ti 8 Go, boîtier ventilé ARGB, Windows 11",
+    "priceCents": 1690000,
+    "stock": 4
+  },
+  {
+    "name": "Moniteur gaming Samsung Odyssey G5 27\" QHD 165Hz incurvé",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "Moniteur gaming",
+    "brand": "Samsung",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "27\" VA incurvé 1000R, QHD 2560x1440, 165Hz, 1ms, FreeSync Premium, HDR10, DisplayPort/HDMI",
+    "priceCents": 289900,
+    "stock": 14
+  },
+  {
+    "name": "Moniteur gaming LG UltraGear 24GN60R 24\" FHD 144Hz",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "Moniteur gaming",
+    "brand": "LG",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "24\" IPS Full HD 1920x1080, 144Hz, 1ms, G-Sync Compatible, HDR10, dalle sans bordures",
+    "priceCents": 199000,
+    "stock": 18
+  },
+  {
+    "name": "Souris gaming Razer DeathAdder V3 30000 DPI",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "Accessoires gaming",
+    "brand": "Razer",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Souris filaire ergonomique, capteur Focus Pro 30K DPI, switchs optiques Gen-3, 59g, câble Speedflex",
+    "priceCents": 74900,
+    "stock": 25
+  },
+  {
+    "name": "Casque gaming HyperX Cloud II son surround 7.1",
+    "category": "Gaming",
+    "categoryKey": "gaming",
+    "subCategory": "Accessoires gaming",
+    "brand": "HyperX",
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Casque circum-aural, haut-parleurs 53mm, son virtuel 7.1, micro anti-bruit détachable, compatible PC/PS/Xbox",
+    "priceCents": 94900,
+    "stock": 21
+  },
+  {
+    "name": "Réparation soft — Installation Windows 10/11 + pilotes & logiciels",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation soft",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Formatage et installation Windows 10/11, mise à jour des pilotes, pack bureautique et antivirus inclus. Service à partir de 150 MAD.",
+    "priceCents": 15000,
+    "stock": 40
+  },
+  {
+    "name": "Réparation soft — Suppression virus & optimisation système",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation soft",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [],
+    "description": "Nettoyage des virus, malwares et logiciels indésirables, optimisation du démarrage et des performances. À partir de 100 MAD.",
+    "priceCents": 10000,
+    "stock": 45
+  },
+  {
+    "name": "Réparation soft — Récupération de données HDD / SSD",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation soft",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Récupération de fichiers sur disque dur ou SSD endommagé, formaté ou inaccessible. Diagnostic gratuit, tarif à partir de 300 MAD selon le volume.",
+    "priceCents": 30000,
+    "stock": 20
+  },
+  {
+    "name": "Réparation hard — Remplacement dalle / écran (main d'œuvre)",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation hard",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "HP Pavilion",
+      "Dell Inspiron",
+      "Lenovo IdeaPad",
+      "Acer Aspire",
+      "ASUS VivoBook"
+    ],
+    "description": "Pose et remplacement de dalle écran 14\" / 15.6\" fissurée ou défectueuse, calibrage inclus. Main d'œuvre à partir de 150 MAD (pièce non comprise).",
+    "priceCents": 15000,
+    "stock": 30
+  },
+  {
+    "name": "Réparation hard — Remplacement batterie & clavier (main d'œuvre)",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation hard",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Toshiba Satellite",
+      "HP EliteBook",
+      "Lenovo ThinkPad",
+      "MSI Modern"
+    ],
+    "description": "Démontage et remplacement de batterie ou de clavier de portable, test de charge et de touches. Main d'œuvre à partir de 120 MAD (pièce non comprise).",
+    "priceCents": 12000,
+    "stock": 35
+  },
+  {
+    "name": "Réparation électronique — Micro-soudure carte mère (BGA / reflow)",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation électronique",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Apple MacBook Pro",
+      "Dell Latitude",
+      "ASUS ROG",
+      "HP Omen"
+    ],
+    "description": "Réparation de carte mère par micro-soudure : reflow/reball chipset GPU, composants CMS, court-circuit. Diagnostic complet, à partir de 500 MAD.",
+    "priceCents": 50000,
+    "stock": 12
+  },
+  {
+    "name": "Réparation électronique — Remplacement connecteur de charge (DC Jack)",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Réparation électronique",
+    "brand": null,
+    "deviceType": "Ordinateur portable",
+    "compatibleModels": [
+      "Samsung Galaxy Book",
+      "Sony VAIO",
+      "Packard Bell EasyNote",
+      "Fujitsu Lifebook"
+    ],
+    "description": "Remplacement par soudure du connecteur d'alimentation (DC Jack) ou du port USB-C de charge défectueux, test complet. À partir de 200 MAD.",
+    "priceCents": 20000,
+    "stock": 18
+  },
+  {
+    "name": "Développement logiciel — Application de gestion sur mesure",
+    "category": "Services & Réparation",
+    "categoryKey": "services",
+    "subCategory": "Développement logiciel",
+    "brand": null,
+    "deviceType": null,
+    "compatibleModels": [],
+    "description": "Développement d'application de gestion sur mesure (stock, facturation, point de vente) avec formation et support. Devis à partir de 3000 MAD.",
+    "priceCents": 300000,
+    "stock": 5
+  }
+]

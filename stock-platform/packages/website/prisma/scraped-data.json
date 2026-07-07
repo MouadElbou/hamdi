@@ -1,0 +1,3166 @@
+[
+  {
+    "name": "Batterie HP 15 BS0xx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 15 BS0xx"
+    ],
+    "description": "Batterie de remplacement compatible HP 15 BS0xx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G1",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G1"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840 G1. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 650 G1",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 650 G1"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 650 G1. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS E410MA",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS E410MA"
+    ],
+    "description": "Batterie de remplacement compatible ASUS E410MA. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 15 CS0xxx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 15 CS0xxx"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 15 CS0xxx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP 250 G6",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 250 G6"
+    ],
+    "description": "Batterie de remplacement compatible HP 250 G6. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Notebook 15",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Notebook 15"
+    ],
+    "description": "Batterie de remplacement compatible HP Notebook 15. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 5 A517-51",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5 A517-51"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 5 A517-51. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 7480",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 7480"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 7480. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP 250 G7",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 250 G7"
+    ],
+    "description": "Batterie de remplacement compatible HP 250 G7. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad C340 14IWL",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad C340 14IWL"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad C340 14IWL. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 450 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 450 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G2",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G2"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840 G2. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion G7",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion G7"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion G7. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad Yoga 530",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad Yoga 530"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad Yoga 530. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 17-E",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 17-E"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 17-E. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 7490",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 7490"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 7490. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad 3 15ADA05",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15ADA05"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad 3 15ADA05. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G5",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G5"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840 G5. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 42000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion DV7",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion DV7"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion DV7. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 17-F",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 17-F"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 17-F. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Inspiron 15 5000",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Inspiron 15 5000"
+    ],
+    "description": "Batterie de remplacement compatible Dell Inspiron 15 5000. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS X751L",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS X751L"
+    ],
+    "description": "Batterie de remplacement compatible ASUS X751L. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Samsung R730",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Samsung",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Samsung R730"
+    ],
+    "description": "Batterie de remplacement compatible Samsung R730. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 450 G7",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G7"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 450 G7. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 5480",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 5480"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 5480. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS X75V",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS X75V"
+    ],
+    "description": "Batterie de remplacement compatible ASUS X75V. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion DV6",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion DV6"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion DV6. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 29000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 15S FQ1xxx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 15S FQ1xxx"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 15S FQ1xxx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 15 DW0xxx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 15 DW0xxx"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 15 DW0xxx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS X53S",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS X53S"
+    ],
+    "description": "Batterie de remplacement compatible ASUS X53S. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Sony VAIO SVE171G12M",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Sony",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Sony VAIO SVE171G12M"
+    ],
+    "description": "Batterie de remplacement compatible Sony VAIO SVE171G12M. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 37000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Vostro 15 3000",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Vostro 15 3000"
+    ],
+    "description": "Batterie de remplacement compatible Dell Vostro 15 3000. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo Yoga Slim 7 14ARE05",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo Yoga Slim 7 14ARE05"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo Yoga Slim 7 14ARE05. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad S145",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad S145"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad S145. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo Legion Y530 15ICH",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo Legion Y530 15ICH"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo Legion Y530 15ICH. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 35000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo G70-70",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo G70-70"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo G70-70. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 470 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 470 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 470 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 450 G2",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G2"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 450 G2. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 17 AK045NF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 17 AK045NF"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 17 AK045NF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS ZenBook 14 UX425E",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS ZenBook 14 UX425E"
+    ],
+    "description": "Batterie de remplacement compatible ASUS ZenBook 14 UX425E. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 45000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Swift 3 SF314-51",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Swift 3 SF314-51"
+    ],
+    "description": "Batterie de remplacement compatible Acer Swift 3 SF314-51. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad 330 171KB",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 330 171KB"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad 330 171KB. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 450 G6",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G6"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 450 G6. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS ZenBook 14 UX433F",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS ZenBook 14 UX433F"
+    ],
+    "description": "Batterie de remplacement compatible ASUS ZenBook 14 UX433F. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS A571G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS A571G"
+    ],
+    "description": "Batterie de remplacement compatible ASUS A571G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Toshiba Satellite C660",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Toshiba",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Toshiba Satellite C660"
+    ],
+    "description": "Batterie de remplacement compatible Toshiba Satellite C660. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie MSI CR70",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "MSI",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "MSI CR70"
+    ],
+    "description": "Batterie de remplacement compatible MSI CR70. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 820 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 820 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 820 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion G6",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion G6"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion G6. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 430 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 430 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 430 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 840 G6",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G6"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 840 G6. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 42000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 5580",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 5580"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 5580. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS ExpertBook B1 B1500C",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS ExpertBook B1 B1500C"
+    ],
+    "description": "Batterie de remplacement compatible ASUS ExpertBook B1 B1500C. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 45000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS VivoBook S14 S430UA",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS VivoBook S14 S430UA"
+    ],
+    "description": "Batterie de remplacement compatible ASUS VivoBook S14 S430UA. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS ZenBook UX330U",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS ZenBook UX330U"
+    ],
+    "description": "Batterie de remplacement compatible ASUS ZenBook UX330U. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Swift 3 SF314-41",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Swift 3 SF314-41"
+    ],
+    "description": "Batterie de remplacement compatible Acer Swift 3 SF314-41. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E5-575",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5-575"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E5-575. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire V3-371",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire V3-371"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire V3-371. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E5-771",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5-771"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E5-771. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie MSI GF65 Thin 9SEXR",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "MSI",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "MSI GF65 Thin 9SEXR"
+    ],
+    "description": "Batterie de remplacement compatible MSI GF65 Thin 9SEXR. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo IdeaPad C340 14API",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad C340 14API"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo IdeaPad C340 14API. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Lenovo G50-30",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo G50-30"
+    ],
+    "description": "Batterie de remplacement compatible Lenovo G50-30. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 850 G4",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 850 G4"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 850 G4. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 3510",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 3510"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 3510. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 45000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell XPS 13 P54G002",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell XPS 13 P54G002"
+    ],
+    "description": "Batterie de remplacement compatible Dell XPS 13 P54G002. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie ASUS X75A",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS X75A"
+    ],
+    "description": "Batterie de remplacement compatible ASUS X75A. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 7750G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 7750G"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 7750G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Packard Bell EasyNote LJ75",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Packard bell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Packard Bell EasyNote LJ75"
+    ],
+    "description": "Batterie de remplacement compatible Packard Bell EasyNote LJ75. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP 15 BW00xx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 15 BW00xx"
+    ],
+    "description": "Batterie de remplacement compatible HP 15 BW00xx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion X360 13 U101NF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion X360 13 U101NF"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion X360 13 U101NF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 45000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 15 CS0010NF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 15 CS0010NF"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 15 CS0010NF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 470 G7",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 470 G7"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 470 G7. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Notebook 14",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Notebook 14"
+    ],
+    "description": "Batterie de remplacement compatible HP Notebook 14. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 7280",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 7280"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 7280. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell XPS 13 9360",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell XPS 13 9360"
+    ],
+    "description": "Batterie de remplacement compatible Dell XPS 13 9360. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E5-772G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5-772G"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E5-772G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Spin 5 SP513-51",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Spin 5 SP513-51"
+    ],
+    "description": "Batterie de remplacement compatible Acer Spin 5 SP513-51. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Sony VAIO SVE171B11M",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Sony",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Sony VAIO SVE171B11M"
+    ],
+    "description": "Batterie de remplacement compatible Sony VAIO SVE171B11M. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 37000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Packard Bell EasyNote LE69KB",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Packard bell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Packard Bell EasyNote LE69KB"
+    ],
+    "description": "Batterie de remplacement compatible Packard Bell EasyNote LE69KB. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 450 G8",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G8"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 450 G8. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 45000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 14 BF0xx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 14 BF0xx"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 14 BF0xx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion DV7 3165EF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion DV7 3165EF"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion DV7 3165EF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion X360 14 BA023NF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion X360 14 BA023NF"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion X360 14 BA023NF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP ProBook 4530S",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 4530S"
+    ],
+    "description": "Batterie de remplacement compatible HP ProBook 4530S. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP 14S DQ1009NF",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 14S DQ1009NF"
+    ],
+    "description": "Batterie de remplacement compatible HP 14S DQ1009NF. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP EliteBook 850 G3",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 850 G3"
+    ],
+    "description": "Batterie de remplacement compatible HP EliteBook 850 G3. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 14 CE0xxx",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 14 CE0xxx"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 14 CE0xxx. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie HP Pavilion 15 CC",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 15 CC"
+    ],
+    "description": "Batterie de remplacement compatible HP Pavilion 15 CC. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 32000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell XPS 13 9370",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell XPS 13 9370"
+    ],
+    "description": "Batterie de remplacement compatible Dell XPS 13 9370. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 35000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude 3500",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 3500"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude 3500. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell Latitude E6430",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude E6430"
+    ],
+    "description": "Batterie de remplacement compatible Dell Latitude E6430. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Dell XPS 13 9350",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell XPS 13 9350"
+    ],
+    "description": "Batterie de remplacement compatible Dell XPS 13 9350. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 7740G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 7740G"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 7740G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E15 E5-571 38MU",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E15 E5-571 38MU"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E15 E5-571 38MU. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E1-771G 53238G1TMNII",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E1-771G 53238G1TMNII"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E1-771G 53238G1TMNII. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E5-573G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5-573G"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E5-573G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer TravelMate P277",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer TravelMate P277"
+    ],
+    "description": "Batterie de remplacement compatible Acer TravelMate P277. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 28000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E1-771G 53238G50MNII",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E1-771G 53238G50MNII"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E1-771G 53238G50MNII. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 7730ZG",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 7730ZG"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 7730ZG. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 5733Z P624G50MI",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5733Z P624G50MI"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 5733Z P624G50MI. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 7730G",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 7730G"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 7730G. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire ES 15 ES1-571 P1U0",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire ES 15 ES1-571 P1U0"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire ES 15 ES1-571 P1U0. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire S7-392",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire S7-392"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire S7-392. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 70000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Swift 1 SF113-31 P865",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Swift 1 SF113-31 P865"
+    ],
+    "description": "Batterie de remplacement compatible Acer Swift 1 SF113-31 P865. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 20000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer eMachines E732",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer eMachines E732"
+    ],
+    "description": "Batterie de remplacement compatible Acer eMachines E732. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Swift 3 SF316-51",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Swift 3 SF316-51"
+    ],
+    "description": "Batterie de remplacement compatible Acer Swift 3 SF316-51. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire E1-731 20204G50MNII",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E1-731 20204G50MNII"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire E1-731 20204G50MNII. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Batterie Acer Aspire 5252",
+    "category": "Batteries",
+    "categoryKey": "batteries",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5252"
+    ],
+    "description": "Batterie de remplacement compatible Acer Aspire 5252. Neuve, testée et garantie. Livraison partout au Maroc.",
+    "priceCents": 34000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson NEO15 X15I5 8TU512",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson NEO15 X15I5 8TU512"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson NEO15 X15I5 8TU512. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 23",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 23"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 23. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 440 G9",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 440 G9"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 440 G9. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 5 N20C5",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5 N20C5"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 5 N20C5. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Apple MacBook PRO 13 Retina A1502",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Apple",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Apple MacBook PRO 13 Retina A1502"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Apple MacBook PRO 13 Retina A1502. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 39000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 15 A315 44P",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 15 A315 44P"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 15 A315 44P. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Ordissimo Agathe",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Ordissimo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Ordissimo Agathe"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Ordissimo Agathe. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 450 G3",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G3"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 450 G3. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 52 35KN",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 52 35KN"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 52 35KN. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 1 15ALC7 82R4001WSB",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 1 15ALC7 82R4001WSB"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 1 15ALC7 82R4001WSB. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 15ADA05 81W1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15ADA05 81W1"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 15ADA05 81W1. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad S340 15API",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad S340 15API"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad S340 15API. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire Vero AV15 51 574G",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire Vero AV15 51 574G"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire Vero AV15 51 574G. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Sony Vaio PRO 13 SVP132A1CM",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Sony",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Sony Vaio PRO 13 SVP132A1CM"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Sony Vaio PRO 13 SVP132A1CM. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 650 G1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 650 G1"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 650 G1. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP EliteBook 830 G5",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 830 G5"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP EliteBook 830 G5. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 450 G7",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G7"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 450 G7. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 470 G5",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 470 G5"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 470 G5. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire A515 54",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire A515 54"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire A515 54. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson NEO15I3",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson NEO15I3"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson NEO15I3. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo V15 G4 AMN",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo V15 G4 AMN"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo V15 G4 AMN. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 1 15ALC7 82R4",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 1 15ALC7 82R4"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 1 15ALC7 82R4. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion ProtectSmart",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion ProtectSmart"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion ProtectSmart. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion DV7",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion DV7"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion DV7. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Latitude 3520",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 3520"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Latitude 3520. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire A314 N20Q1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire A314 N20Q1"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire A314 N20Q1. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 58",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 58"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 58. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo ThinkPad Helix",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo ThinkPad Helix"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo ThinkPad Helix. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 440 G8 4P5X2EC",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 440 G8 4P5X2EC"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 440 G8 4P5X2EC. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP 15S FQ1032NF",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 15S FQ1032NF"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP 15S FQ1032NF. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Fujitsu LifeBook A3510",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Fujitsu",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Fujitsu LifeBook A3510"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Fujitsu LifeBook A3510. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur ASUS VivoBook S14 S430U",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS VivoBook S14 S430U"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible ASUS VivoBook S14 S430U. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 52 N19C2",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 52 N19C2"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 52 N19C2. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E15",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E15"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E15. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson N17V3C8WH512",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson N17V3C8WH512"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson N17V3C8WH512. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson NEO1515 8BK1T",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson NEO1515 8BK1T"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson NEO1515 8BK1T. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur LG Gram 17Z90R",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "LG",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "LG Gram 17Z90R"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible LG Gram 17Z90R. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 15ADA05",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15ADA05"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 15ADA05. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 15ITL6",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15ITL6"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 15ITL6. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire Vero AV15 51 51EG",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire Vero AV15 51 51EG"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire Vero AV15 51 51EG. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 53 310A",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 53 310A"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 53 310A. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E17",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E17"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E17. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Panasonic ToughPad FZ G1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Panasonic",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Panasonic ToughPad FZ G1"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Panasonic ToughPad FZ G1. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Packard Bell EasyNote TE",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Packard Bell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Packard Bell EasyNote TE"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Packard Bell EasyNote TE. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Ordissimo Lucie 2",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Ordissimo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Ordissimo Lucie 2"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Ordissimo Lucie 2. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP EliteBook 840 G2",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G2"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP EliteBook 840 G2. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Latitude 3510",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 3510"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Latitude 3510. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 32",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 32"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 32. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 51K",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 51K"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 51K. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 51G",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 51G"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 51G. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 21",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 21"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 21. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson NEO14A 4WH128",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson NEO14A 4WH128"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson NEO14A 4WH128. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Thomson NEO14A 4WH64",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Thomson",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Thomson NEO14A 4WH64"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Thomson NEO14A 4WH64. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Sony Vaio SVE171G12M",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Sony",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Sony Vaio SVE171G12M"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Sony Vaio SVE171G12M. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Samsung R730",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Samsung",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Samsung R730"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Samsung R730. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur MSI Katana GF76 11UE",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "MSI",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "MSI Katana GF76 11UE"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible MSI Katana GF76 11UE. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 66000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Medion Akoya E16423",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Medion",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Medion Akoya E16423"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Medion Akoya E16423. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Notebook 15 FC0071NF",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Notebook 15 FC0071NF"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Notebook 15 FC0071NF. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP EliteBook 840 G3",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP EliteBook 840 G3"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP EliteBook 840 G3. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 450 G10",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G10"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 450 G10. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP 14S DQ1009NF",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 14S DQ1009NF"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP 14S DQ1009NF. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 450 G5",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G5"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 450 G5. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 640 G2",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 640 G2"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 640 G2. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Inspiron 15 5000",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Inspiron 15 5000"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Inspiron 15 5000. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Inspiron 16 5000 5620",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Inspiron 16 5000 5620"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Inspiron 16 5000 5620. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Apple MacBook PRO 13 2015 Retina",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Apple",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Apple MacBook PRO 13 2015 Retina"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Apple MacBook PRO 13 2015 Retina. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 39000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire Vero AV15 51 56GD",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire Vero AV15 51 56GD"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire Vero AV15 51 56GD. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire ES15",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire ES15"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire ES15. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A314 22 R1N9",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A314 22 R1N9"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A314 22 R1N9. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Toshiba Satellite PRO R50 C 15P",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Toshiba",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Toshiba Satellite PRO R50 C 15P"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Toshiba Satellite PRO R50 C 15P. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Packard Bell MS2397",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Packard Bell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Packard Bell MS2397"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Packard Bell MS2397. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 14ITL6",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 14ITL6"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 14ITL6. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo Yoga 530 14ARR",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo Yoga 530 14ARR"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo Yoga 530 14ARR. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion Gaming 15 EC0003NF",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion Gaming 15 EC0003NF"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion Gaming 15 EC0003NF. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 66000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP ProBook 450 G9",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP ProBook 450 G9"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP ProBook 450 G9. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP 250 G9 Notebook",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP 250 G9 Notebook"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP 250 G9 Notebook. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Inspiron 7706",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Inspiron 7706"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Inspiron 7706. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 49000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Vostro 15 3000",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Vostro 15 3000"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Vostro 15 3000. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Dell Latitude 3540",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Dell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Dell Latitude 3540"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Dell Latitude 3540. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Danew D Book 131",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Danew",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Danew D Book 131"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Danew D Book 131. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 55000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur ASUS VivoBook 16 X1605P",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "ASUS",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "ASUS VivoBook 16 X1605P"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible ASUS VivoBook 16 X1605P. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire V3 771G VA70",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire V3 771G VA70"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire V3 771G VA70. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire A315 510P 32E9",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire A315 510P 32E9"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire A315 510P 32E9. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Swift 3 SF314 51",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Swift 3 SF314 51"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Swift 3 SF314 51. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A314 22",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A314 22"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A314 22. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 52 54QM",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 52 54QM"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 52 54QM. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E5 573G",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5 573G"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E5 573G. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 56",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 56"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 56. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Packard Bell MS2290",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Packard Bell",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Packard Bell MS2290"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Packard Bell MS2290. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur MSI GF63 Thin 9RCX",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "MSI",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "MSI GF63 Thin 9RCX"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible MSI GF63 Thin 9RCX. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 38000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur MSI GL72 6QF 800FR",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "MSI",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "MSI GL72 6QF 800FR"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible MSI GL72 6QF 800FR. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad Slim 3 15AMN8",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad Slim 3 15AMN8"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad Slim 3 15AMN8. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 17ADA05",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 17ADA05"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 17ADA05. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 17ALC6",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 17ALC6"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 17ALC6. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad 3 15IML05",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad 3 15IML05"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad 3 15IML05. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Lenovo IdeaPad Gaming 3 15IHU6 82K1",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Lenovo",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Lenovo IdeaPad Gaming 3 15IHU6 82K1"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Lenovo IdeaPad Gaming 3 15IHU6 82K1. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 49000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion 17 F",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 17 F"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion 17 F. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion DV9500",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion DV9500"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion DV9500. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur HP Pavilion 17",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "HP",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "HP Pavilion 17"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible HP Pavilion 17. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 33000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer TravelMate P253 E B8304G50MNKS",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer TravelMate P253 E B8304G50MNKS"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer TravelMate P253 E B8304G50MNKS. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 21 069Z0",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 21 069Z0"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 21 069Z0. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E17 E5774G 39DE",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E17 E5774G 39DE"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E17 E5774G 39DE. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E5 771G 53W8",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5 771G 53W8"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E5 771G 53W8. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A317 53 33VX",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A317 53 33VX"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A317 53 33VX. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 54K 387D",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 54K 387D"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 54K 387D. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire One A114 31 C8FD",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire One A114 31 C8FD"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire One A114 31 C8FD. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E5 772 50A2",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5 772 50A2"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E5 772 50A2. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire E5 511G",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire E5 511G"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire E5 511G. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire VN7 792G 79A8",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire VN7 792G 79A8"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire VN7 792G 79A8. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 60000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire V3 372T 53LA",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire V3 372T 53LA"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire V3 372T 53LA. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 5 A515 51G 56AQ",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5 A515 51G 56AQ"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 5 A515 51G 56AQ. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire ES1 732 P2P8",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire ES1 732 P2P8"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire ES1 732 P2P8. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire ES1 523",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire ES1 523"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire ES1 523. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 3 A315 56 389S",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 3 A315 56 389S"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 3 A315 56 389S. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  },
+  {
+    "name": "Chargeur Acer Aspire 5 A515 44",
+    "category": "Chargeurs & Adaptateurs",
+    "categoryKey": "chargeurs",
+    "subCategory": null,
+    "brand": "Acer",
+    "deviceType": "PC portable",
+    "compatibleModels": [
+      "Acer Aspire 5 A515 44"
+    ],
+    "description": "Chargeur / adaptateur secteur compatible Acer Aspire 5 A515 44. Neuf, testé et garanti. Livraison partout au Maroc.",
+    "priceCents": 27000,
+    "stock": null
+  }
+]
