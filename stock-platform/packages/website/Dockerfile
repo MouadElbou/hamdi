@@ -12,6 +12,9 @@ RUN npm ci --workspace=@stock/shared --workspace=@stock/website --include-worksp
 FROM deps AS builder
 WORKDIR /app
 
+# Root tsconfig that every workspace tsconfig extends.
+COPY tsconfig.base.json ./
+
 # Copy shared source and build
 COPY packages/shared/ ./packages/shared/
 RUN npm run build -w @stock/shared
