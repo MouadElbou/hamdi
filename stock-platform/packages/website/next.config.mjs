@@ -3,9 +3,12 @@ const r2Host = /^https?:\/\//.test(R2_PUBLIC) ? new URL(R2_PUBLIC).hostname : ""
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // standalone is only useful for production deployment — skip it in dev
-  // to avoid stale production chunks conflicting with the dev compiler
-  ...(process.env.NODE_ENV === "production" ? { output: "standalone" } : {}),
+  // standalone is only for container/Docker deploys (Railway). Netlify and
+  // Vercel use their own adapters and break if "standalone" is set, so skip it
+  // there. Also skipped in dev to avoid stale production chunks.
+  ...(process.env.NODE_ENV === "production" && !process.env.NETLIFY && !process.env.VERCEL
+    ? { output: "standalone" }
+    : {}),
   transpilePackages: ["@stock/shared"],
   images: {
     remotePatterns: [

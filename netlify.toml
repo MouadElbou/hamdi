@@ -1,0 +1,12 @@
+# Netlify config for the HAMDI PC website (Next.js) inside the monorepo.
+# The app lives at stock-platform/packages/website; the workspace root is
+# stock-platform (npm workspaces resolves @stock/shared from there).
+[build]
+  base = "stock-platform/packages/website"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
