@@ -558,7 +558,33 @@ body {
 /* --- Tables --- */
 .table-wrapper {
   overflow-x: auto;
+  overflow-y: visible;
   border-radius: var(--radius-lg);
+  /* Firefox: always show a usable (not hair-thin) scrollbar. */
+  scrollbar-width: auto;
+  scrollbar-color: var(--accent, #f59e0b) rgba(255, 255, 255, 0.06);
+}
+
+/* Prominent, always-visible horizontal scrollbar so wide tables can be
+   scrolled to reveal the right-most columns (Total, Bénéfice, etc.). The
+   global 5px scrollbar was practically invisible on these wide tables. */
+.table-wrapper::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.55);
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.85);
+  background-clip: content-box;
 }
 
 .data-table {
