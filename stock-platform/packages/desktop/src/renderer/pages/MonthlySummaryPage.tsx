@@ -85,7 +85,7 @@ export function MonthlySummaryPage(): React.JSX.Element {
       )}
 
       <div className="card-table">
-        <div className="table-wrapper" style={{ maxHeight: 'calc(100vh - 260px)', overflowY: 'auto' }}>
+        <div className="table-wrapper">
           <table className="data-table">
             <thead>
               <tr>
