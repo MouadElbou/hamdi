@@ -3297,10 +3297,10 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
   safeHandle('purchases:delete', (_event, id: string) => {
     const now = new Date().toISOString();
     return db.transaction(() => {
-      // Block deletion if there are active sales referencing this lot
-      const activeSales = db.prepare('SELECT COUNT(*) as c FROM sale_lines WHERE lot_id = ? AND deleted_at IS NULL').get(id) as { c: number };
-      if (activeSales.c > 0) throw new Error('Impossible de supprimer: ce lot a des ventes actives');
-
+      // Note: purchases can be deleted even when they have sales. The purchase
+      // lot is soft-deleted (removed from the Achats list & stock), but the
+      // sale lines keep referencing it — every sales/finance query joins
+      // purchase_lots WITHOUT a deleted_at filter, so the ventes stay intact.
       const result = db.prepare('UPDATE purchase_lots SET deleted_at=?, updated_at=? WHERE id=? AND deleted_at IS NULL').run(now, now, id);
       if (result.changes === 0) throw new Error(`Purchase lot ${id} not found`);
       addToOutbox(db, 'purchase_lot', id, 'DELETE', { id });
