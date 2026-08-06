@@ -41,11 +41,23 @@ function SkeletonGrid() {
   );
 }
 
-export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: string }): React.JSX.Element {
+export function CatalogBrowser({
+  initialCategory = '',
+  initialSubCategory = '',
+  initialBrand = '',
+  initialSearch = '',
+}: {
+  initialCategory?: string;
+  initialSubCategory?: string;
+  initialBrand?: string;
+  initialSearch?: string;
+}): React.JSX.Element {
   const [items, setItems] = useState<CatalogItem[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(() => (initialCategory ? new Set([initialCategory]) : new Set()));
-  const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
+  const [selectedSubCategories, setSelectedSubCategories] = useState<Set<string>>(() => (initialSubCategory ? new Set([initialSubCategory]) : new Set()));
+  const [subCategoryOptions, setSubCategoryOptions] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<Set<string>>(() => (initialBrand ? new Set([initialBrand]) : new Set()));
   const [brandOptions, setBrandOptions] = useState<string[]>([]);
   const [priceMin, setPriceMin] = useState('');
   const [priceMax, setPriceMax] = useState('');
@@ -58,18 +70,22 @@ export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: str
   const topRef = useRef<HTMLDivElement>(null);
 
   const categoryParam = useMemo(() => Array.from(selectedCategories).join(','), [selectedCategories]);
+  const subCategoryParam = useMemo(() => Array.from(selectedSubCategories).join(','), [selectedSubCategories]);
   const brandParam = useMemo(() => Array.from(selectedBrands).join(','), [selectedBrands]);
 
-  // Brand options follow the selected categories.
+  // Brand / sub-category options follow the selected categories.
   useEffect(() => {
     const ctrl = new AbortController();
     const qs = categoryParam ? `?category=${encodeURIComponent(categoryParam)}` : '';
     fetch(`${getApiBase()}/stock/filters${qs}`, { signal: ctrl.signal })
       .then((r) => r.json())
-      .then((d: { brands?: string[] }) => {
+      .then((d: { brands?: string[]; subCategories?: string[] }) => {
         const brands = d.brands ?? [];
+        const subs = d.subCategories ?? [];
         setBrandOptions(brands);
+        setSubCategoryOptions(subs);
         setSelectedBrands((prev) => new Set([...prev].filter((b) => brands.includes(b))));
+        setSelectedSubCategories((prev) => new Set([...prev].filter((s) => subs.includes(s))));
       })
       .catch(() => { /* ignore */ });
     return () => ctrl.abort();
@@ -82,6 +98,7 @@ export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: str
       const p = new URLSearchParams({ inStockOnly: 'true', limit: '200', page: String(pg) });
       if (search) p.set('search', search);
       if (categoryParam) p.set('category', categoryParam);
+      if (subCategoryParam) p.set('subCategory', subCategoryParam);
       if (brandParam) p.set('brand', brandParam);
       return `${getApiBase()}/stock?${p.toString()}`;
     };
@@ -108,19 +125,20 @@ export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: str
     };
     const t = setTimeout(run, 300);
     return () => { clearTimeout(t); controller.abort(); };
-  }, [search, categoryParam, brandParam]);
+  }, [search, categoryParam, subCategoryParam, brandParam]);
 
   const toggle = (setter: React.Dispatch<React.SetStateAction<Set<string>>>) => (v: string) =>
     setter((prev) => { const n = new Set(prev); if (n.has(v)) n.delete(v); else n.add(v); return n; });
   const toggleCategory = useCallback(toggle(setSelectedCategories), []);
+  const toggleSubCategory = useCallback(toggle(setSelectedSubCategories), []);
   const toggleBrand = useCallback(toggle(setSelectedBrands), []);
 
   const clearFilters = useCallback(() => {
-    setSearch(''); setSelectedCategories(new Set()); setSelectedBrands(new Set());
+    setSearch(''); setSelectedCategories(new Set()); setSelectedSubCategories(new Set()); setSelectedBrands(new Set());
     setPriceMin(''); setPriceMax(''); setSortBy('default');
   }, []);
 
-  const hasFilters = !!(search || selectedCategories.size || selectedBrands.size || priceMin || priceMax || sortBy !== 'default');
+  const hasFilters = !!(search || selectedCategories.size || selectedSubCategories.size || selectedBrands.size || priceMin || priceMax || sortBy !== 'default');
 
   const filteredAndSorted = useMemo(() => {
     let result = [...items];
@@ -167,6 +185,16 @@ export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: str
           ))}
         </div>
       </div>
+      {subCategoryOptions.length > 0 && (
+        <div>
+          <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-xs mb-3">Sous-catégorie</h4>
+          <div className="space-y-0.5">
+            {subCategoryOptions.map((s) => (
+              <CheckRow key={s} label={s} checked={selectedSubCategories.has(s)} onToggle={() => toggleSubCategory(s)} />
+            ))}
+          </div>
+        </div>
+      )}
       {brandOptions.length > 0 && (
         <div>
           <h4 className="font-headline font-bold text-on-surface uppercase tracking-widest text-xs mb-3">Marque</h4>
@@ -196,7 +224,7 @@ export function CatalogBrowser({ initialCategory = '' }: { initialCategory?: str
   return (
     <div ref={topRef} className="grid lg:grid-cols-[270px_1fr] gap-8 lg:gap-10 py-12 scroll-mt-24">
       <button onClick={() => setFiltersOpen(true)} className="lg:hidden flex items-center gap-2 self-start bg-surface-container-lowest ghost-border rounded-xl px-5 py-3 font-headline font-bold text-sm text-primary">
-        {sym('filter_list', 'text-[20px]')} Filtres {selectedCategories.size + selectedBrands.size > 0 && <span className="ml-1 min-w-5 h-5 px-1 grid place-items-center rounded-full bg-primary text-white text-xs">{selectedCategories.size + selectedBrands.size}</span>}
+        {sym('filter_list', 'text-[20px]')} Filtres {selectedCategories.size + selectedSubCategories.size + selectedBrands.size > 0 && <span className="ml-1 min-w-5 h-5 px-1 grid place-items-center rounded-full bg-primary text-white text-xs">{selectedCategories.size + selectedSubCategories.size + selectedBrands.size}</span>}
       </button>
 
       <aside className="hidden lg:block">

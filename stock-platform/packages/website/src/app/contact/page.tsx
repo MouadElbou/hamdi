@@ -5,8 +5,19 @@ import {
   PhoneIcon,
   MapPinIcon,
 } from '@/components/icons';
+import { WaLineButtons } from '@/components/WhatsAppOrder';
+import { waLink, type WaLine } from '@/lib/whatsapp';
 
-const CONTACT_METHODS = [
+interface ContactMethod {
+  Icon: typeof PhoneIcon;
+  title: string;
+  lines: string[];
+  action?: { label: string; href: string };
+  /** Renders the two WhatsApp lines as pickable buttons instead of plain text. */
+  whatsapp?: boolean;
+}
+
+const CONTACT_METHODS: ContactMethod[] = [
   {
     Icon: PhoneIcon,
     title: 'Téléphone',
@@ -16,8 +27,8 @@ const CONTACT_METHODS = [
   {
     Icon: PhoneIcon,
     title: 'WhatsApp',
-    lines: ['+212 622 26 50 53', '+212 672 53 29 98'],
-    action: { label: 'Envoyer un message', href: 'https://wa.me/212622265053' },
+    lines: [],
+    whatsapp: true,
   },
   {
     Icon: MapPinIcon,
@@ -29,8 +40,17 @@ const CONTACT_METHODS = [
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState<string | null>(null);
 
   const [phoneError, setPhoneError] = useState('');
+
+  function sendTo(line: WaLine) {
+    if (!pending) return;
+    window.open(waLink(line.phone, pending), '_blank', 'noopener,noreferrer');
+    setPending(null);
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 5000);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -49,12 +69,10 @@ export default function ContactPage() {
     }
     setPhoneError('');
 
-    // Build WhatsApp message
+    // Build the WhatsApp message, then let the visitor choose which line it goes to.
     const text = `Bonjour, je suis ${name}.\nTéléphone: ${phone}\nSujet: ${subject}\n\n${message}`;
-    window.open(`https://wa.me/212622265053?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
-    setSubmitted(true);
+    setPending(text);
     form.reset();
-    setTimeout(() => setSubmitted(false), 5000);
   }
 
   return (
@@ -75,7 +93,7 @@ export default function ContactPage() {
       <section className="contact-methods">
         <div className="container">
           <div className="contact-methods-grid">
-            {CONTACT_METHODS.map(({ Icon, title, lines, action }) => (
+            {CONTACT_METHODS.map(({ Icon, title, lines, action, whatsapp }) => (
               <div key={title} className="contact-method-card">
                 <div className="contact-method-icon" aria-hidden="true">
                   <Icon size={24} />
@@ -84,14 +102,22 @@ export default function ContactPage() {
                 {lines.map((line) => (
                   <p key={line} className="contact-method-line">{line}</p>
                 ))}
-                <a
-                  href={action.href}
-                  className="contact-method-action"
-                  target={action.href.startsWith('http') ? '_blank' : undefined}
-                  rel={action.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                >
-                  {action.label}
-                </a>
+                {whatsapp && (
+                  <>
+                    <p className="contact-method-line">Deux lignes, une réponse rapide 7j/7.</p>
+                    <div style={{ marginTop: '1rem' }}><WaLineButtons compact /></div>
+                  </>
+                )}
+                {action && (
+                  <a
+                    href={action.href}
+                    className="contact-method-action"
+                    target={action.href.startsWith('http') ? '_blank' : undefined}
+                    rel={action.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  >
+                    {action.label}
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -168,6 +194,14 @@ export default function ContactPage() {
                 Envoyer via WhatsApp
               </button>
             </form>
+
+            {pending && (
+              <div className="contact-line-picker">
+                <p className="order-pop-title">Sur quelle ligne&nbsp;?</p>
+                <p className="order-pop-sub">Votre message est prêt — choisissez le numéro qui l&apos;ouvrira dans WhatsApp.</p>
+                <WaLineButtons onPick={sendTo} />
+              </div>
+            )}
           </div>
 
           <div className="contact-map-wrapper" id="contact-map">

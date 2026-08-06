@@ -82,6 +82,67 @@ export async function getCategorySummary(): Promise<Array<{ category: string; co
     .sort((a, b) => a.category.localeCompare(b.category, 'fr'));
 }
 
+export interface NavSubCategory { name: string; count: number }
+export interface NavCategory {
+  category: string;
+  count: number;
+  subCategories: NavSubCategory[];
+  brands: string[];
+}
+
+/**
+ * Category → sub-category tree that backs the header mega-menu.
+ *
+ * Scoped to what the catalogue actually shows (published + in stock) so the
+ * menu never advertises a sub-category that lands on an empty result page.
+ */
+export async function getNavTree(): Promise<NavCategory[]> {
+  const where: Prisma.ProductWhereInput = {
+    published: true,
+    OR: [{ stock: null }, { stock: { gt: 0 } }],
+  };
+
+  const [subGroups, brandGroups] = await Promise.all([
+    prisma.product.groupBy({ by: ['category', 'subCategory'], where, _count: { _all: true } }),
+    prisma.product.groupBy({ by: ['category', 'brand'], where, _count: { _all: true } }),
+  ]);
+
+  const byCategory = new Map<string, NavCategory>();
+  const get = (category: string): NavCategory => {
+    let entry = byCategory.get(category);
+    if (!entry) {
+      entry = { category, count: 0, subCategories: [], brands: [] };
+      byCategory.set(category, entry);
+    }
+    return entry;
+  };
+
+  for (const g of subGroups) {
+    const entry = get(g.category);
+    entry.count += g._count._all;
+    if (g.subCategory) entry.subCategories.push({ name: g.subCategory, count: g._count._all });
+  }
+
+  // Busiest brands first, capped — the menu shows them as quick-filter chips.
+  const brandsByCategory = new Map<string, Array<{ brand: string; count: number }>>();
+  for (const g of brandGroups) {
+    if (!g.brand) continue;
+    const list = brandsByCategory.get(g.category) ?? [];
+    list.push({ brand: g.brand, count: g._count._all });
+    brandsByCategory.set(g.category, list);
+  }
+
+  const byCount = (a: { count: number; name?: string; brand?: string }, b: typeof a) =>
+    b.count - a.count || (a.name ?? a.brand ?? '').localeCompare(b.name ?? b.brand ?? '', 'fr');
+
+  for (const entry of byCategory.values()) {
+    entry.subCategories.sort(byCount);
+    entry.brands = (brandsByCategory.get(entry.category) ?? []).sort(byCount).slice(0, 8).map((b) => b.brand);
+  }
+
+  return [...byCategory.values()].sort((a, b) => a.category.localeCompare(b.category, 'fr'));
+}
+
 /** Distinct filter values present in the catalogue (optionally within a category). */
 export async function getFilterOptions(category?: string): Promise<{ brands: string[]; deviceTypes: string[]; subCategories: string[] }> {
   const where: Prisma.ProductWhereInput = { published: true };

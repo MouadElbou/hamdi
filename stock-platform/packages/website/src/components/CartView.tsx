@@ -3,9 +3,8 @@
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
-
-// Real WhatsApp business line (the 0536… number is a landline, not WhatsApp).
-const WA_PHONE = process.env['NEXT_PUBLIC_STORE_PHONE'] ?? '212622265053';
+import { waLink, type WaLine } from '@/lib/whatsapp';
+import { WaLineButtons } from '@/components/WhatsAppOrder';
 
 const CAT_STYLE: Record<string, { icon: string; color: string }> = {
   'Écrans & Dalles': { icon: 'desktop_windows', color: '#0014bd' },
@@ -34,6 +33,7 @@ export function CartView(): React.JSX.Element {
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [sent, setSent] = useState(false);
+  const [pickLine, setPickLine] = useState(false);
 
   const { total, hasAsk } = useMemo(() => {
     let t = 0; let ask = false;
@@ -91,8 +91,14 @@ export function CartView(): React.JSX.Element {
     if (digits.length < 8 || digits.length > 15) errs.phone = 'Numéro de téléphone invalide';
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    const url = `https://wa.me/${WA_PHONE}?text=${encodeURIComponent(buildMessage())}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    // The shop runs two WhatsApp lines — let the customer pick before sending.
+    setSent(false);
+    setPickLine(true);
+  }
+
+  function sendTo(line: WaLine) {
+    window.open(waLink(line.phone, buildMessage()), '_blank', 'noopener,noreferrer');
+    setPickLine(false);
     setSent(true);
   }
 
@@ -164,6 +170,14 @@ export function CartView(): React.JSX.Element {
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span>
           Commander sur WhatsApp
         </button>
+
+        {pickLine && (
+          <div className="bg-surface-container-lowest ghost-border rounded-2xl p-5">
+            <p className="order-pop-title">Sur quelle ligne&nbsp;?</p>
+            <p className="order-pop-sub">Votre commande part avec tout le détail sur la ligne choisie.</p>
+            <WaLineButtons onPick={sendTo} />
+          </div>
+        )}
 
         {sent && (
           <div className="flex items-start gap-2.5 bg-whatsapp/10 border border-whatsapp/40 rounded-xl p-3.5 text-sm text-on-surface">

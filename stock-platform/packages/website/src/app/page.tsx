@@ -5,10 +5,12 @@ import type { CatalogItem } from '@/lib/api';
 import { BRANDS } from '@/lib/catalog-taxonomy';
 import { HomeProductCard } from '@/components/home/HomeProductCard';
 import { HomeInteractions } from '@/components/home/HomeInteractions';
+import { WaLineButtons } from '@/components/WhatsAppOrder';
+import { WA_PRIMARY, waLink } from '@/lib/whatsapp';
 
 export const dynamic = 'force-dynamic';
 
-const WA = 'https://wa.me/212622265053';
+const WA = waLink(WA_PRIMARY.phone);
 const cat = (label: string) => `/catalogue?category=${encodeURIComponent(label)}`;
 
 const COLLECTIONS = [
@@ -207,9 +209,10 @@ export default async function HomePage() {
               <h3 className="text-3xl lg:text-4xl font-black font-headline leading-[0.95] mb-4">EN 1 MESSAGE<br />WHATSAPP</h3>
               <p className="text-white/80">Pas de paiement en ligne compliqué. Envoyez le modèle de votre PC, on confirme prix &amp; dispo, et on livre.</p>
             </div>
-            <a className="mt-8 self-start bg-whatsapp text-white px-6 py-3.5 rounded-xl font-headline font-bold uppercase tracking-tight hover:brightness-95 transition flex items-center gap-2" href={WA} target="_blank" rel="noopener noreferrer">
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>chat</span> +212 622 265 053
-            </a>
+            <div className="mt-8 relative z-10">
+              <p className="font-label text-on-tertiary-container uppercase tracking-widest text-xs mb-2.5">Nos deux lignes</p>
+              <WaLineButtons />
+            </div>
           </div>
         </div>
       </section>
