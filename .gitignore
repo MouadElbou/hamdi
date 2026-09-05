@@ -25,3 +25,7 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Client accounting workbooks (never commit business data)
+COMPTA.xlsx
+~$*.xlsx

@@ -823,7 +823,10 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
           validateString(row.designation, 'Désignation');
           if (row.supplier) validateString(row.supplier, 'Fournisseur');
           validateString(row.boutique, 'Boutique');
-          validatePositive(row.initialQuantity, 'Quantité');
+          // Quantity 0 is legitimate in imported history (sold-out lots) — integer >= 0.
+          if (typeof row.initialQuantity !== 'number' || !Number.isInteger(row.initialQuantity) || row.initialQuantity < 0) {
+            throw new Error('Quantité invalide');
+          }
           if (row.purchaseUnitCost > 0) validatePositive(row.purchaseUnitCost, 'Coût unitaire');
           if (row.targetResalePrice != null) validatePositive(row.targetResalePrice, 'Prix de revente');
           if (row.blockPrice != null) validatePositive(row.blockPrice, 'Prix revendeur');
@@ -898,15 +901,18 @@ export function registerIpcHandlers(syncManager?: SyncManager | null): void {
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : 'Erreur inconnue';
           errors.push({ row: rowNum, message });
-          throw err;
+          // Skip the bad row and keep the rest — a single invalid row must
+          // never roll back (and silently discard) its whole chunk.
         }
       }
     });
 
     try {
       transaction();
-    } catch {
-      return { created: 0, errors };
+    } catch (err: unknown) {
+      // Transaction-level failure (e.g. commit error) — nothing was written.
+      const message = err instanceof Error ? err.message : 'Erreur inconnue';
+      return { created: 0, errors: [...errors, { row: 0, message }] };
     }
 
     return { created, errors };

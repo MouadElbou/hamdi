@@ -307,6 +307,10 @@ export class SyncManager {
   constructor(db: Database.Database) {
     this.db = db;
     this.ensureDesktopId();
+    // Purge queued ops for local-only entity types (older builds enqueued them;
+    // the server rejects every one with 'Unknown entity type', so they only
+    // clutter the queue and the conflicts/rejected listing).
+    this.db.prepare("DELETE FROM sync_outbox WHERE entity_type IN ('maintenance_service_type', 'expense_designation')").run();
   }
 
   start(): void {
@@ -406,17 +410,48 @@ export class SyncManager {
   }
 
   private async pushOutbox(): Promise<void> {
-    // Sort by entity priority so reference data (categories, suppliers, boutiques) syncs before entities that reference them
-    const pending = this.db.prepare(`
+    // Drain the whole outbox in batches of 50 per cycle instead of one batch per
+    // 30s interval (a 2000-op import would otherwise take ~20 minutes to drain).
+    // Hard cap of 200 rounds (10 000 ops) so a single sync cycle can never loop
+    // forever; anything beyond the cap drains on the next cycle.
+    const MAX_PUSH_ROUNDS = 200;
+    // Ops requeued as conflicts during this drain are excluded from later
+    // rounds, so a conflicted op gets at most ONE attempt per cycle — its next
+    // attempt then happens after a pull that may deliver the state that caused
+    // an ordering conflict (H7 spacing preserved despite the multi-round drain).
+    const deferredConflicts = new Set<string>();
+    for (let round = 0; round < MAX_PUSH_ROUNDS; round++) {
+      const settled = await this.pushBatch(deferredConflicts);
+      if (settled === null) return; // Outbox empty (or only deferred conflicts left) — done
+      // Refresh the pending count after each batch so the renderer's badge
+      // counts down during a long drain instead of sitting frozen.
+      const pending = this.db.prepare("SELECT COUNT(*) as count FROM sync_outbox WHERE status = 'pending'").get() as { count: number };
+      this.status.pendingOps = pending.count;
+      this.lastStatusCheck = Date.now();
+    }
+  }
+
+  /**
+   * Push one batch of up to 50 pending ops. Returns the number of ops settled
+   * (accepted or terminal), or null when the outbox has no pushable pending ops.
+   * Ops in `deferredConflicts` are skipped (conflict already retried this cycle);
+   * ops requeued as conflicts by this batch are added to it.
+   */
+  private async pushBatch(deferredConflicts: Set<string>): Promise<number | null> {
+    // Sort by entity priority so reference data (categories, suppliers, boutiques) syncs before entities that reference them.
+    // Over-select by the number of deferred conflicts (they sort first, having
+    // the oldest created_at) so the filter below still leaves a full batch.
+    const candidates = this.db.prepare(`
       SELECT *, CASE entity_type
         WHEN 'category' THEN 0 WHEN 'sub_category' THEN 0 WHEN 'supplier' THEN 0 WHEN 'boutique' THEN 0 WHEN 'client' THEN 0 WHEN 'employee' THEN 0 WHEN 'battery_tariff' THEN 0 WHEN 'category_alias' THEN 0
         WHEN 'sale_line' THEN 2 WHEN 'sale_return_line' THEN 2 WHEN 'customer_order_line' THEN 2 WHEN 'monthly_summary_line' THEN 2 WHEN 'commercial_document_line' THEN 2
         WHEN 'customer_credit_payment' THEN 3 WHEN 'supplier_credit_payment' THEN 3 WHEN 'salary_payment' THEN 3 WHEN 'zakat_advance' THEN 3
         ELSE 1
       END AS priority
-      FROM sync_outbox WHERE status = 'pending' ORDER BY priority ASC, created_at ASC, id ASC LIMIT 50
-    `).all() as Array<Record<string, unknown>>;
-    if (pending.length === 0) return;
+      FROM sync_outbox WHERE status = 'pending' ORDER BY priority ASC, created_at ASC, id ASC LIMIT ?
+    `).all(50 + deferredConflicts.size) as Array<Record<string, unknown>>;
+    const pending = candidates.filter((op) => !deferredConflicts.has(op['id'] as string)).slice(0, 50);
+    if (pending.length === 0) return null;
 
     const desktopId = this.getDesktopId();
     const apiKey = getSyncApiKey();
@@ -436,7 +471,8 @@ export class SyncManager {
       method: 'POST',
       headers,
       body: JSON.stringify({ desktopId, operations }),
-      signal: AbortSignal.timeout(15_000),
+      // 45s: the Railway backend can cold-start slower than 15s
+      signal: AbortSignal.timeout(45_000),
     });
 
     if (!response.ok) throw new Error(`Push failed: ${response.status}`);
@@ -457,20 +493,26 @@ export class SyncManager {
     const markTerminal = this.db.prepare("UPDATE sync_outbox SET status = ?, synced_at = datetime('now'), detail = ? WHERE id = ?");
     const requeueConflict = this.db.prepare("UPDATE sync_outbox SET status = 'pending', retry_count = retry_count + 1, detail = ? WHERE id = ?");
     const getRetry = this.db.prepare("SELECT retry_count FROM sync_outbox WHERE id = ?");
+    let settled = 0;
     this.db.transaction(() => {
       for (const r of result.results) {
         if (r.result === 'accepted') {
           markSynced.run(r.operationId);
+          settled++;
         } else if (r.result === 'conflict') {
           const row = getRetry.get(r.operationId) as { retry_count: number } | undefined;
           if ((row?.retry_count ?? 0) < MAX_CONFLICT_RETRIES) {
             requeueConflict.run(r.detail ?? null, r.operationId);
+            // One conflict attempt per cycle: exclude from this drain's later rounds.
+            deferredConflicts.add(r.operationId);
           } else {
             markTerminal.run('conflict', r.detail ?? null, r.operationId);
+            settled++;
           }
         } else {
           // 'rejected' or any unknown status → terminal, but recorded (not silent).
           markTerminal.run('rejected', r.detail ?? null, r.operationId);
+          settled++;
         }
       }
     })();
@@ -479,6 +521,8 @@ export class SyncManager {
     this.db.prepare("DELETE FROM sync_outbox WHERE status = 'synced' AND synced_at < datetime('now', '-7 days')").run();
     // Cleanup dismissed conflict entries older than 30 days
     this.db.prepare("DELETE FROM sync_outbox WHERE status = 'dismissed' AND created_at < datetime('now', '-30 days')").run();
+
+    return settled;
   }
 
   private async pullUpdates(): Promise<void> {
@@ -507,7 +551,8 @@ export class SyncManager {
       });
       const response = await fetch(`${getSyncServerUrl()}/api/sync/pull?${params.toString()}`, {
         headers: pullHeaders,
-        signal: AbortSignal.timeout(15_000),
+        // 45s: the Railway backend can cold-start slower than 15s
+        signal: AbortSignal.timeout(45_000),
       });
 
       if (!response.ok) throw new Error(`Pull failed: ${response.status}`);
@@ -672,6 +717,11 @@ export class SyncManager {
   }
 }
 
+// Entity types the server has no model for (absent from its ENTITY_TYPE_MAP):
+// pushing them yields a permanent 'Unknown entity type' rejection, so they stay
+// local-only and must never enter the outbox.
+const LOCAL_ONLY_ENTITY_TYPES = new Set(['maintenance_service_type', 'expense_designation']);
+
 // Helper to add operations to the outbox
 export function addToOutbox(
   db: Database.Database,
@@ -680,6 +730,7 @@ export function addToOutbox(
   operation: 'CREATE' | 'UPDATE' | 'DELETE',
   payload: unknown,
 ): void {
+  if (LOCAL_ONLY_ENTITY_TYPES.has(entityType)) return;
   if (!TABLE_MAP[entityType]) {
     throw new Error(`[SYNC] addToOutbox: unknown entity type "${entityType}"`);
   }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { Modal } from '../components/Modal.js';
 import { EditIcon, TrashIcon } from '../components/Icons.js';
@@ -9,79 +9,13 @@ import { SearchableSelect } from '../components/SearchableSelect.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
 import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
+import { FIELD_LABELS, listSheets, parsePurchaseSheet, pickDefaultSheet } from '../excel-import.js';
+import type { ParsedRow, ParsedSheet, PurchaseField } from '../excel-import.js';
 
-interface ExcelRow {
-  date: string;
-  category: string;
-  designation: string;
-  supplier?: string;
-  boutique: string;
-  initialQuantity: number;
-  purchaseUnitCost: number;
-  targetResalePrice: number | null;
-  blockPrice: number | null;
-  sellingPrice: number | null;
-  subCategory: string | null;
-  barcode?: string;
-}
-
-interface ParsedRow {
-  index: number;
-  data: ExcelRow | null;
-  error: string | null;
-  raw: Record<string, unknown>;
-}
-
-function pick(obj: Record<string, unknown>, keys: string[]): unknown {
-  for (const k of keys) {
-    for (const actual of Object.keys(obj)) {
-      if (actual.toLowerCase().trim() === k.toLowerCase().trim()) {
-        const v = obj[actual];
-        if (v !== undefined && v !== null && String(v).trim() !== '') return v;
-      }
-    }
-  }
-  return undefined;
-}
-
-function toISODate(v: unknown): string | null {
-  if (!v) return null;
-  if (v instanceof Date) {
-    const y = v.getFullYear();
-    const m = String(v.getMonth() + 1).padStart(2, '0');
-    const d = String(v.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-  const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-  const match = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})$/);
-  if (match) {
-    const d = match[1].padStart(2, '0');
-    const mo = match[2].padStart(2, '0');
-    let y = match[3];
-    if (y.length === 2) y = `20${y}`;
-    return `${y}-${mo}-${d}`;
-  }
-  const parsed = new Date(s);
-  if (!isNaN(parsed.getTime())) {
-    return toISODate(parsed);
-  }
-  return null;
-}
-
-function toNumber(v: unknown): number | null {
-  if (v === undefined || v === null || v === '') return null;
-  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
-  const cleaned = String(v).replace(/\s/g, '').replace(',', '.');
-  const n = Number(cleaned);
-  return Number.isFinite(n) ? n : null;
-}
-
-function toCents(v: unknown): number | null {
-  const n = toNumber(v);
-  if (n === null) return null;
-  return Math.round(n * 100);
-}
+// Rows sent per IPC call so a big import never blocks in one giant payload.
+const IMPORT_CHUNK_SIZE = 400;
+// Max preview rows rendered in the DOM (errors shown first).
+const IMPORT_PREVIEW_LIMIT = 300;
 
 export function PurchasesPage(): React.JSX.Element {
   const { categories, suppliers, boutiques, subCategories, addCategory, addSupplier, addBoutique, addSubCategory } = useReferenceData();
@@ -99,9 +33,17 @@ export function PurchasesPage(): React.JSX.Element {
   const { addToast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const importWbRef = useRef<XLSX.WorkBook | null>(null);
   const [showImport, setShowImport] = useState(false);
-  const [importPreview, setImportPreview] = useState<ParsedRow[]>([]);
+  const [importSheets, setImportSheets] = useState<string[]>([]);
+  const [importSheet, setImportSheet] = useState('');
+  const [importResult, setImportResult] = useState<ParsedSheet | null>(null);
+  const [importDefaultBoutique, setImportDefaultBoutique] = useState('');
+  const [importProgress, setImportProgress] = useState<{ done: number; total: number } | null>(null);
   const [importing, setImporting] = useState(false);
+  // Index of the first valid row NOT yet committed — lets a retry after a failed
+  // chunk resume where it stopped instead of duplicating the committed chunks.
+  const [importResumeIndex, setImportResumeIndex] = useState(0);
   const [form, setForm] = useState({
     date: todayLocal(), category: '', subCategory: '', designation: '',
     supplier: '', boutique: '', initialQuantity: '', purchaseUnitCost: '', targetResalePrice: '', sellingPrice: '', barcode: '',
@@ -201,56 +143,10 @@ export function PurchasesPage(): React.JSX.Element {
     }
   };
 
-  const parseExcelRow = (raw: Record<string, unknown>, idx: number): ParsedRow => {
-    const dateVal = pick(raw, ['date', 'Date']);
-    const category = pick(raw, ['category', 'categorie', 'catégorie', 'Catégorie', 'Categorie']);
-    const designation = pick(raw, ['designation', 'désignation', 'Désignation', 'Designation', 'produit', 'Produit', 'nom', 'Nom']);
-    const supplier = pick(raw, ['supplier', 'fournisseur', 'Fournisseur']);
-    const boutique = pick(raw, ['boutique', 'Boutique', 'magasin', 'Magasin']);
-    const qty = pick(raw, ['quantity', 'quantité', 'quantite', 'Quantité', 'Quantite', 'qte', 'Qte', 'qty']);
-    const puc = pick(raw, ['purchaseUnitCost', 'prix achat', 'Prix achat', 'prix d\'achat', 'Prix d\'achat', 'pa', 'PA', 'cout', 'coût', 'Coût', 'prix achat unitaire', 'Prix achat unitaire']);
-    const resale = pick(raw, ['targetResalePrice', 'prix revendeur', 'Prix revendeur', 'prix de vente revendeur', 'Prix de vente revendeur', 'pv revendeur', 'PV Revendeur', 'prix bloc', 'Prix bloc']);
-    const selling = pick(raw, ['sellingPrice', 'prix vente', 'Prix vente', 'prix de vente public', 'Prix de vente public', 'prix vente public', 'Prix vente public', 'pvp', 'PVP', 'pv', 'PV']);
-    const subCat = pick(raw, ['subCategory', 'sous-categorie', 'sous-catégorie', 'Sous-catégorie', 'Sous-categorie', 'sous categorie', 'Sous categorie']);
-    const barcode = pick(raw, ['barcode', 'code-barres', 'Code-barres', 'code barres', 'Code barres', 'codebarre', 'Codebarre', 'cb', 'CB', 'ean', 'EAN']);
-
-    const date = toISODate(dateVal);
-    if (!date) return { index: idx, data: null, error: 'Date invalide ou manquante', raw };
-
-    const cat = category ? String(category).trim() : '';
-    if (!cat) return { index: idx, data: null, error: 'Catégorie manquante', raw };
-
-    const desig = designation ? String(designation).trim() : '';
-    if (!desig) return { index: idx, data: null, error: 'Désignation manquante', raw };
-
-    const bout = boutique ? String(boutique).trim() : '';
-    if (!bout) return { index: idx, data: null, error: 'Boutique manquante', raw };
-
-    const qtyNum = toNumber(qty);
-    if (qtyNum === null || qtyNum <= 0 || !Number.isInteger(qtyNum)) {
-      return { index: idx, data: null, error: 'Quantité invalide (entier positif requis)', raw };
-    }
-
-    const pucCents = toCents(puc);
-    if (pucCents === null || pucCents < 0) {
-      return { index: idx, data: null, error: 'Prix d\'achat invalide', raw };
-    }
-
-    const data: ExcelRow = {
-      date,
-      category: cat,
-      designation: desig,
-      supplier: supplier ? String(supplier).trim() : undefined,
-      boutique: bout,
-      initialQuantity: qtyNum,
-      purchaseUnitCost: pucCents,
-      targetResalePrice: toCents(resale),
-      blockPrice: null,
-      sellingPrice: toCents(selling),
-      subCategory: subCat ? String(subCat).trim() : null,
-      barcode: barcode ? String(barcode).trim() : undefined,
-    };
-    return { index: idx, data, error: null, raw };
+  const runSheetParse = (wb: XLSX.WorkBook, sheetName: string, defaultBoutique: string) => {
+    const result = parsePurchaseSheet(wb, sheetName, defaultBoutique ? { defaultBoutique } : undefined);
+    setImportResult(result);
+    setImportResumeIndex(0);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,19 +155,18 @@ export function PurchasesPage(): React.JSX.Element {
     try {
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-      const sheetName = wb.SheetNames[0];
-      if (!sheetName) {
+      const sheets = listSheets(wb);
+      const chosen = pickDefaultSheet(sheets);
+      if (!chosen) {
         addToast('Fichier Excel vide', 'error');
         return;
       }
-      const sheet = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '', raw: false });
-      if (rows.length === 0) {
-        addToast('Aucune ligne trouvée dans le fichier', 'error');
-        return;
-      }
-      const parsed = rows.map((r, i) => parseExcelRow(r, i + 2));
-      setImportPreview(parsed);
+      importWbRef.current = wb;
+      setImportSheets(sheets);
+      setImportSheet(chosen);
+      setImportDefaultBoutique('');
+      setImportProgress(null);
+      runSheetParse(wb, chosen, '');
       setShowImport(true);
     } catch (err) {
       console.error('[Excel parse]', err);
@@ -279,50 +174,114 @@ export function PurchasesPage(): React.JSX.Element {
     }
   };
 
+  const handleImportSheetChange = (name: string) => {
+    setImportSheet(name);
+    setImportDefaultBoutique('');
+    const wb = importWbRef.current;
+    if (wb) runSheetParse(wb, name, '');
+  };
+
+  const handleDefaultBoutiqueChange = (name: string) => {
+    setImportDefaultBoutique(name);
+    const wb = importWbRef.current;
+    if (wb) runSheetParse(wb, importSheet, name);
+  };
+
+  const importStats = useMemo(() => {
+    const rows = importResult?.rows ?? [];
+    const valid = rows.filter(r => r.data !== null).length;
+    return { total: rows.length, valid, errors: rows.length - valid };
+  }, [importResult]);
+
+  // Never render thousands of DOM rows: errors first, capped.
+  const importDisplayRows = useMemo(() => {
+    const rows = importResult?.rows ?? [];
+    const errs = rows.filter(r => r.error !== null);
+    const oks = rows.filter(r => r.error === null);
+    return [...errs, ...oks].slice(0, IMPORT_PREVIEW_LIMIT);
+  }, [importResult]);
+
+  const importHasBoutiqueCol = importResult ? importResult.columnMap.some(c => c.field === 'boutique') : true;
+
+  const rawCell = (row: ParsedRow, field: PurchaseField): string => {
+    const col = importResult?.columnMap.find(c => c.field === field);
+    if (!col) return '—';
+    const v = row.raw[col.columnIndex];
+    if (v === null || v === undefined) return '—';
+    const s = String(v).trim();
+    return s === '' ? '—' : s;
+  };
+
+  const resetImportState = () => {
+    setShowImport(false);
+    setImportResult(null);
+    setImportSheets([]);
+    setImportSheet('');
+    setImportDefaultBoutique('');
+    setImportProgress(null);
+    setImportResumeIndex(0);
+    importWbRef.current = null;
+  };
+
   const handleConfirmImport = async () => {
     if (importing) return;
-    const validRows = importPreview.filter(p => p.data !== null).map(p => p.data!);
+    const validRows = (importResult?.rows ?? []).filter(p => p.data !== null).map(p => p.data!);
     if (validRows.length === 0) {
       addToast('Aucune ligne valide à importer', 'error');
       return;
     }
     setImporting(true);
+    setImportProgress({ done: importResumeIndex, total: validRows.length });
+    let created = 0;
+    const errors: Array<{ row: number; message: string }> = [];
+    // Start after the chunks already committed by a previous, interrupted run.
+    let i = importResumeIndex;
     try {
-      const result = await window.api.purchases.importExcel({
-        rows: validRows.map(r => ({
-          date: r.date,
-          category: r.category,
-          designation: r.designation,
-          supplier: r.supplier,
-          boutique: r.boutique,
-          initialQuantity: r.initialQuantity,
-          purchaseUnitCost: r.purchaseUnitCost,
-          targetResalePrice: r.targetResalePrice,
-          blockPrice: null,
-          sellingPrice: r.sellingPrice,
-          subCategory: r.subCategory,
-          barcode: r.barcode,
-        })),
-      }) as { created: number; errors: Array<{ row: number; message: string }> };
-      if (result.errors.length > 0) {
-        addToast(`${result.created} créé(s), ${result.errors.length} erreur(s)`, 'warning');
-      } else {
-        addToast(`${result.created} achat(s) importé(s) avec succès`, 'success');
+      for (; i < validRows.length; i += IMPORT_CHUNK_SIZE) {
+        const chunk = validRows.slice(i, i + IMPORT_CHUNK_SIZE);
+        const result = await window.api.purchases.importExcel({
+          rows: chunk.map(r => ({
+            date: r.date,
+            category: r.category,
+            designation: r.designation,
+            supplier: r.supplier,
+            boutique: r.boutique,
+            initialQuantity: r.initialQuantity,
+            purchaseUnitCost: r.purchaseUnitCost,
+            targetResalePrice: r.targetResalePrice,
+            blockPrice: null,
+            sellingPrice: r.sellingPrice,
+            subCategory: r.subCategory,
+            barcode: r.barcode,
+          })),
+        });
+        created += result.created;
+        for (const err of result.errors) errors.push({ row: err.row + i, message: err.message });
+        setImportProgress({ done: Math.min(i + IMPORT_CHUNK_SIZE, validRows.length), total: validRows.length });
       }
-      setShowImport(false);
-      setImportPreview([]);
+      if (errors.length > 0) {
+        addToast(`${created} créé(s), ${errors.length} erreur(s)`, 'warning');
+      } else {
+        addToast(`${created} achat(s) importé(s) avec succès`, 'success');
+      }
+      resetImportState();
       load();
     } catch (err) {
-      addToast((err as Error).message || 'Erreur lors de l\'import', 'error');
+      const message = (err as Error).message || 'Erreur lors de l\'import';
+      // The chunk at `i` did not commit — remember it so the retry button
+      // resumes there instead of re-sending (and duplicating) earlier chunks.
+      setImportResumeIndex(i);
+      addToast(created > 0 ? `${created} créé(s) avant l'erreur — ${message}` : message, 'error');
+      if (created > 0) load();
     } finally {
       setImporting(false);
+      setImportProgress(null);
     }
   };
 
   const handleCloseImport = () => {
     if (importing) return;
-    setShowImport(false);
-    setImportPreview([]);
+    resetImportState();
   };
 
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
@@ -485,23 +444,54 @@ export function PurchasesPage(): React.JSX.Element {
       </Modal>
 
       <Modal open={showImport} onClose={handleCloseImport} title="Importer depuis Excel" width="960px">
+        {importSheets.length > 1 && (
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label>Feuille à importer</label>
+            <select value={importSheet} onChange={e => handleImportSheetChange(e.target.value)} disabled={importing}>
+              {importSheets.map(name => <option key={name} value={name}>{name}</option>)}
+            </select>
+          </div>
+        )}
+        {importResult && !importHasBoutiqueCol && (
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label>Boutique par défaut (aucune colonne boutique détectée)</label>
+            <select value={importDefaultBoutique} onChange={e => handleDefaultBoutiqueChange(e.target.value)} required disabled={importing}>
+              <option value="">— Choisir une boutique —</option>
+              {boutiques.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
+            </select>
+          </div>
+        )}
         <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
-          {importPreview.length === 0 ? (
+          {!importResult ? (
             <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
           ) : (
             <>
-              <div style={{ marginBottom: 12, display: 'flex', gap: 16, fontSize: 13 }}>
-                <span><strong>Total:</strong> {importPreview.length}</span>
+              <div style={{ marginBottom: 12, display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap' }}>
+                <span><strong>Total:</strong> {importStats.total}</span>
                 <span style={{ color: '#0a7f2e' }}>
-                  <strong>Valides:</strong> {importPreview.filter(p => p.data !== null).length}
+                  <strong>Valides:</strong> {importStats.valid}
                 </span>
                 <span style={{ color: '#c02626' }}>
-                  <strong>Erreurs:</strong> {importPreview.filter(p => p.error !== null).length}
+                  <strong>Erreurs:</strong> {importStats.errors}
+                </span>
+                <span style={{ color: '#666' }}>
+                  <strong>Lignes vides ignorées:</strong> {importResult.skippedEmpty}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: '#555', marginBottom: 8 }}>
-                Colonnes attendues: Date, Catégorie, Désignation, Fournisseur, Boutique, Quantité, Prix achat, Prix revendeur, Prix vente, Code-barres, Sous-catégorie (noms flexibles).
+              <div style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>
+                En-têtes détectés à la ligne {importResult.headerRowIndex + 1}.
               </div>
+              <div style={{ fontSize: 12, color: '#555', marginBottom: 8 }}>
+                {importResult.columnMap.length > 0 ? (
+                  <>Colonnes reconnues: {importResult.columnMap.map(c => `${FIELD_LABELS[c.field]} ← « ${c.header} »`).join(' · ')}</>
+                ) : (
+                  <>Aucune colonne reconnue. Colonnes attendues: Date, Catégorie, Désignation, Fournisseur, Boutique, Quantité, Prix achat, Prix revendeur, Prix vente, Code-barres, Sous-catégorie (noms flexibles). Essayez une autre feuille.</>
+                )}
+              </div>
+              {importResult.rows.length === 0 ? (
+                <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
+              ) : (
+                <>
               <table className="data-table" style={{ fontSize: 12 }}>
                 <thead>
                   <tr>
@@ -519,18 +509,18 @@ export function PurchasesPage(): React.JSX.Element {
                   </tr>
                 </thead>
                 <tbody>
-                  {importPreview.map(row => (
+                  {importDisplayRows.map(row => (
                     <tr key={row.index} style={row.error ? { background: '#fdecec' } : {}}>
                       <td className="col-mono">{row.index}</td>
-                      <td>{row.data?.date || '—'}</td>
-                      <td>{row.data?.category || '—'}</td>
-                      <td>{row.data?.designation || '—'}</td>
-                      <td>{row.data?.supplier || '—'}</td>
-                      <td>{row.data?.boutique || '—'}</td>
-                      <td className="text-right col-mono">{row.data?.initialQuantity ?? '—'}</td>
-                      <td className="text-right col-mono">{row.data ? fm(row.data.purchaseUnitCost) : '—'}</td>
-                      <td className="text-right col-mono">{row.data?.targetResalePrice ? fm(row.data.targetResalePrice) : '—'}</td>
-                      <td className="text-right col-mono">{row.data?.sellingPrice ? fm(row.data.sellingPrice) : '—'}</td>
+                      <td>{row.data ? row.data.date : rawCell(row, 'date')}</td>
+                      <td>{row.data ? row.data.category : rawCell(row, 'category')}</td>
+                      <td>{row.data ? row.data.designation : rawCell(row, 'designation')}</td>
+                      <td>{row.data ? (row.data.supplier || '—') : rawCell(row, 'supplier')}</td>
+                      <td>{row.data ? row.data.boutique : rawCell(row, 'boutique')}</td>
+                      <td className="text-right col-mono">{row.data ? row.data.initialQuantity : rawCell(row, 'quantity')}</td>
+                      <td className="text-right col-mono">{row.data ? fm(row.data.purchaseUnitCost) : rawCell(row, 'purchasePrice')}</td>
+                      <td className="text-right col-mono">{row.data ? (row.data.targetResalePrice != null ? fm(row.data.targetResalePrice) : '—') : rawCell(row, 'resalePrice')}</td>
+                      <td className="text-right col-mono">{row.data ? (row.data.sellingPrice != null ? fm(row.data.sellingPrice) : '—') : rawCell(row, 'sellingPrice')}</td>
                       <td>
                         {row.error ? (
                           <span style={{ color: '#c02626' }}>{row.error}</span>
@@ -542,8 +532,18 @@ export function PurchasesPage(): React.JSX.Element {
                   ))}
                 </tbody>
               </table>
+              {importStats.total > importDisplayRows.length && (
+                <div style={{ fontSize: 12, color: '#555', marginTop: 8 }}>
+                  … et {importStats.total - importDisplayRows.length} autres lignes non affichées
+                </div>
+              )}
+                </>
+              )}
             </>
           )}
+        </div>
+        <div style={{ fontSize: 12, color: '#8a6d1a', marginTop: 8 }}>
+          Chaque import ajoute de nouvelles lignes : importer deux fois le même fichier créera des doublons.
         </div>
         <div className="form-actions">
           <button type="button" className="btn btn-cancel" onClick={handleCloseImport} disabled={importing}>Annuler</button>
@@ -551,9 +551,13 @@ export function PurchasesPage(): React.JSX.Element {
             type="button"
             className="btn btn-primary"
             onClick={handleConfirmImport}
-            disabled={importing || importPreview.filter(p => p.data !== null).length === 0}
+            disabled={importing || importStats.valid === 0}
           >
-            {importing ? 'Import en cours…' : `Importer ${importPreview.filter(p => p.data !== null).length} ligne(s)`}
+            {importing && importProgress
+              ? `Importation… ${importProgress.done} / ${importProgress.total}`
+              : importResumeIndex > 0
+                ? `Reprendre l'importation (${importStats.valid - importResumeIndex} restante(s))`
+                : `Importer ${importStats.valid} ligne(s)`}
           </button>
         </div>
       </Modal>

@@ -37,7 +37,9 @@ const CORS_ORIGINS = process.env['CORS_ORIGINS']
 
 const prisma = new PrismaClient();
 
-const app = Fastify({ logger: true, bodyLimit: 1_048_576 }); // 1MB global
+// trustProxy: behind Railway's edge proxy request.ip is the proxy address unless
+// X-Forwarded-For is honored — without it every desktop shares one rate-limit bucket.
+const app = Fastify({ logger: true, bodyLimit: 1_048_576, trustProxy: true }); // 1MB global
 
 // ─── CORS (B-C2) — whitelist in production ─────────────────────────
 await app.register(cors, {
@@ -82,7 +84,9 @@ await app.register(fastifyJwt, {
 });
 
 // ─── Rate limiting (B-C4) ──────────────────────────────────────────
-const RATE_LIMIT_MAX = parseInt(process.env['RATE_LIMIT_MAX'] ?? '100', 10);
+// Default sized for the desktop sync drain: a large Excel import can push ~40
+// batches plus up to 20 pull rounds inside one minute from a single desktop.
+const RATE_LIMIT_MAX = parseInt(process.env['RATE_LIMIT_MAX'] ?? '300', 10);
 const RATE_LIMIT_WINDOW_MS = parseInt(process.env['RATE_LIMIT_WINDOW_MS'] ?? '60000', 10);
 
 const rateLimitState = new Map<string, { count: number; resetAt: number }>();
