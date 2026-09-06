@@ -129,8 +129,8 @@ function createTables(): void {
       ref_number TEXT NOT NULL,
       date TEXT NOT NULL,
       designation TEXT NOT NULL,
-      initial_quantity INTEGER NOT NULL CHECK(initial_quantity > 0),
-      purchase_unit_cost INTEGER NOT NULL CHECK(purchase_unit_cost > 0),
+      initial_quantity INTEGER NOT NULL CHECK(initial_quantity >= 0),
+      purchase_unit_cost INTEGER NOT NULL CHECK(purchase_unit_cost >= 0),
       target_resale_price INTEGER,
       block_price INTEGER,
       category_id TEXT NOT NULL REFERENCES categories(id),
@@ -763,6 +763,62 @@ function runMigrations(): void {
   // Add barcode to purchase_lots
   addCol('purchase_lots', 'barcode', 'TEXT');
   try { db.exec(`CREATE INDEX IF NOT EXISTS idx_purchase_lots_barcode ON purchase_lots(barcode) WHERE barcode IS NOT NULL AND deleted_at IS NULL`); } catch { /* index may already exist */ }
+
+  // Relax purchase_lots CHECK constraints from > 0 to >= 0: imported purchase
+  // history legitimately contains sold-out lots (initial_quantity 0) and
+  // zero-cost lines (purchase_unit_cost 0). SQLite cannot ALTER a CHECK, so
+  // rebuild the table once while the old strict constraint is still present.
+  // Runs AFTER the addCol migrations above so the live table always carries the
+  // full evolved column set that the explicit column lists below rely on.
+  const plSchemaSql = (db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='purchase_lots'").get() as { sql: string } | undefined)?.sql ?? '';
+  if (plSchemaSql.includes('initial_quantity > 0')) {
+    const PL_COLS = 'id, ref_number, date, designation, initial_quantity, purchase_unit_cost, target_resale_price, block_price, category_id, supplier_id, boutique_id, version, origin_desktop_id, created_at, updated_at, deleted_at, sub_category_id, selling_price, barcode';
+    // Child tables (sale_lines, …) reference purchase_lots(id); FK enforcement
+    // must be off while the table is dropped/renamed. PRAGMA foreign_keys is a
+    // no-op inside a transaction, so toggle it outside.
+    db.pragma('foreign_keys = OFF');
+    try {
+      db.transaction(() => {
+        db.exec(`
+          CREATE TABLE _purchase_lots_new (
+            id TEXT PRIMARY KEY,
+            ref_number TEXT NOT NULL,
+            date TEXT NOT NULL,
+            designation TEXT NOT NULL,
+            initial_quantity INTEGER NOT NULL CHECK(initial_quantity >= 0),
+            purchase_unit_cost INTEGER NOT NULL CHECK(purchase_unit_cost >= 0),
+            target_resale_price INTEGER,
+            block_price INTEGER,
+            category_id TEXT NOT NULL REFERENCES categories(id),
+            supplier_id TEXT NOT NULL REFERENCES suppliers(id),
+            boutique_id TEXT NOT NULL REFERENCES boutiques(id),
+            version INTEGER NOT NULL DEFAULT 1,
+            origin_desktop_id TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            deleted_at TEXT,
+            sub_category_id TEXT REFERENCES sub_categories(id),
+            selling_price INTEGER,
+            barcode TEXT
+          );
+        `);
+        db.exec(`INSERT INTO _purchase_lots_new (${PL_COLS}) SELECT ${PL_COLS} FROM purchase_lots;`);
+        db.exec('DROP TABLE purchase_lots;');
+        db.exec('ALTER TABLE _purchase_lots_new RENAME TO purchase_lots;');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_date ON purchase_lots(date);');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_category ON purchase_lots(category_id);');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_supplier ON purchase_lots(supplier_id);');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_boutique ON purchase_lots(boutique_id);');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_deleted ON purchase_lots(deleted_at) WHERE deleted_at IS NULL;');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_purchase_lots_barcode ON purchase_lots(barcode) WHERE barcode IS NOT NULL AND deleted_at IS NULL;');
+      })();
+    } catch (err) {
+      try { db.exec('DROP TABLE IF EXISTS _purchase_lots_new'); } catch { /* ignore */ }
+      throw err;
+    } finally {
+      db.pragma('foreign_keys = ON');
+    }
+  }
 
   // Dismiss stale rejected outbox entries for entity types not supported by the backend
   // (maintenance_service_type and expense_designation are desktop-only reference data)
