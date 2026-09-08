@@ -45,13 +45,42 @@ export interface ColumnMatch {
   header: string;
 }
 
+export interface IgnoredColumn {
+  /** Original header text of the column that was matched but then discarded. */
+  header: string;
+  /** French, user-facing explanation. */
+  reason: string;
+  /** Which field the header had matched before being discarded (lets the UI say what the rows lose). */
+  field?: PurchaseField;
+}
+
 export interface ParsedSheet {
   /** 0-based index of the detected header row within the grid returned by sheet_to_json. */
   headerRowIndex: number;
   columnMap: ColumnMatch[];
+  /** Data rows in file order (never reordered). */
   rows: ParsedRow[];
-  /** Rows whose mapped business fields were all empty (summary/filler rows) — skipped silently. */
+  /**
+   * Rows whose mapped business fields were all empty (summary/filler rows)
+   * sitting BETWEEN data rows — skipped silently. Trailing blank rows below the
+   * last data row (formatted-but-empty filler) are not counted.
+   */
   skippedEmpty: number;
+  /**
+   * Rows that reached the boutique check with a blank/placeholder boutique cell
+   * (or with no boutique column at all). Counted whether or not a default was
+   * applied, so the dialog can say "N ligne(s) sans boutique".
+   */
+  missingBoutiqueRows: number;
+  /** Rows whose boutique was filled in from options.defaultBoutique. */
+  defaultBoutiqueApplied: number;
+  /** Header-matched columns that were dropped because their content was not what the header claimed. */
+  ignoredColumns: IgnoredColumn[];
+}
+
+export interface ErrorSummaryEntry {
+  error: string;
+  count: number;
 }
 
 export const FIELD_LABELS: Record<PurchaseField, string> = {
@@ -81,7 +110,7 @@ const HEADER_SYNONYMS: Array<[PurchaseField, string[]]> = [
   ['resalePrice', ['pv rev', 'pv revendeur', 'prix revendeur', 'prix rev', 'prix de vente revendeur', 'prix bloc']],
   ['sellingPrice', ['pv', 'pvp', 'pv pub', 'prix vente', 'prix de vente', 'prix vente public', 'prix de vente public', 'pv unit']],
   ['subCategory', ['sous categorie', 'sous-categorie', 'sous cat']],
-  ['barcode', ['code barres', 'code-barres', 'codebarre', 'cb', 'ean', 'barcode', 'code barre']],
+  ['barcode', ['code barres', 'code-barres', 'codebarre', 'codebarres', 'cb', 'ean', 'barcode', 'code barre', 'code-barre']],
 ];
 
 /** lowercase, strip accents, collapse whitespace (incl. \r\n), trim, drop trailing colons. */
@@ -176,10 +205,62 @@ export function clampSheetRange(sheet: XLSX.WorkSheet): void {
   sheet['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: maxRow, c: maxCol } });
 }
 
+/**
+ * Excel writes a dimension like "A3:I43" when rows 1-2 are truly empty, and
+ * sheet_to_json then iterates from that first row — so grid row 0 would be
+ * Excel row 3 and every displayed row number would be off by two. Anchor the
+ * range at A1 so grid indices always equal Excel's own row numbers.
+ */
+export function anchorSheetRangeAtA1(sheet: XLSX.WorkSheet): void {
+  const ref = sheet['!ref'] as string | undefined;
+  if (!ref) return;
+  let range: XLSX.Range;
+  try {
+    range = XLSX.utils.decode_range(ref);
+  } catch {
+    return;
+  }
+  if (range.s.r === 0 && range.s.c === 0) return;
+  sheet['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: range.e });
+}
+
 // ─── Value coercion ─────────────────────────────────────────────────
 
 function isBlank(v: unknown): boolean {
   return v === null || v === undefined || String(v).trim() === '';
+}
+
+// Filler tokens hand-typed sheets use for "nothing here". Compared after
+// normalizeHeader (lowercase, accents stripped, trimmed), so "N/A", "Aucun "
+// and "—" all match. Numeric 0 is covered too (String(0) === '0').
+// Deliberately NOT "x" / "na": supplier codes are 1–3 letter codes (F5, AB,
+// MC…), so a supplier genuinely named "X" or "NA" must survive.
+const PLACEHOLDER_TOKENS: ReadonlySet<string> = new Set([
+  '0', '-', '—', '–', '_', 'n/a', 'aucun', 'aucune', 'null', 'none',
+]);
+
+/** Blank, numeric 0, or a filler token ("-", "n/a", "aucun"…) — i.e. "no value" for optional text cells. */
+export function isPlaceholder(v: unknown): boolean {
+  if (isBlank(v)) return true;
+  if (typeof v === 'number') return v === 0;
+  return PLACEHOLDER_TOKENS.has(normalizeHeader(v));
+}
+
+/** Human-readable rendering of a raw sheet cell for the preview (never Date.toString()). */
+export function formatRawCell(v: unknown): string {
+  if (v === null || v === undefined) return '—';
+  if (v instanceof Date) {
+    if (isNaN(v.getTime())) return '—';
+    const d = String(v.getDate()).padStart(2, '0');
+    const m = String(v.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}/${v.getFullYear()}`;
+  }
+  if (typeof v === 'number') {
+    if (!Number.isFinite(v)) return String(v);
+    return v.toLocaleString('fr-FR', { useGrouping: false, maximumFractionDigits: 6 });
+  }
+  const s = String(v).trim();
+  return s === '' ? '—' : s;
 }
 
 /** Excel serial date (1900 epoch) → ISO string; null when out of plausible range. */
@@ -264,27 +345,110 @@ const BUSINESS_FIELDS: PurchaseField[] = [
   'date', 'category', 'designation', 'supplier', 'boutique', 'quantity', 'purchasePrice', 'resalePrice', 'sellingPrice',
 ];
 
+// ─── Column sanity checks ───────────────────────────────────────────
+
+const ROW_NUMBER_MIN_SAMPLES = 10;
+const ROW_NUMBER_ALIGNED_RATIO = 0.95;
+const ROW_NUMBER_REASON = 'contient des numéros de ligne, pas des codes-barres';
+
+/** Plain integer as a number or as un-padded digits ("12" yes, "0012" no — that is a code). */
+function plainInteger(v: unknown): number | null {
+  if (typeof v === 'number') return Number.isInteger(v) ? v : null;
+  const s = String(v ?? '').trim();
+  return /^(0|[1-9]\d*)$/.test(s) ? Number(s) : null;
+}
+
+/**
+ * True when the column's integer cells are the sheet's own row counter: each
+ * value equals its position below the header (1, 2, 3… — the hand-typed habit)
+ * or its Excel row number (=ROW()). Alignment with the grid position, not
+ * adjacency, so blank cells, "TOTAL" footers and gaps cost nothing, while
+ * sequential internal codes (1001, 1002…), padded codes ("0001") and real
+ * numeric barcodes (EAN) never match.
+ */
+function looksLikeRowNumbers(grid: unknown[][], headerRowIndex: number, columnIndex: number): boolean {
+  let integers = 0;
+  let fromHeader = 0;
+  let excelRow = 0;
+  for (let r = headerRowIndex + 1; r < grid.length; r++) {
+    const n = plainInteger(grid[r]?.[columnIndex]);
+    if (n === null) continue;
+    integers++;
+    if (n === r - headerRowIndex) fromHeader++;
+    if (n === r + 1) excelRow++;
+  }
+  if (integers < ROW_NUMBER_MIN_SAMPLES) return false;
+  return Math.max(fromHeader, excelRow) >= integers * ROW_NUMBER_ALIGNED_RATIO;
+}
+
+/**
+ * Drop a "code-barres" column whose cells are really the sheet's row numbers
+ * (a common layout in hand-made sheets) so hundreds of lots don't get barcodes
+ * 1, 2, 3… Returns the surviving column map and what was discarded.
+ */
+function dropRowNumberBarcode(
+  grid: unknown[][],
+  headerRowIndex: number,
+  columnMap: ColumnMatch[]
+): { columnMap: ColumnMatch[]; ignoredColumns: IgnoredColumn[] } {
+  const barcodeCol = columnMap.find(c => c.field === 'barcode');
+  if (!barcodeCol) return { columnMap, ignoredColumns: [] };
+  if (!looksLikeRowNumbers(grid, headerRowIndex, barcodeCol.columnIndex)) return { columnMap, ignoredColumns: [] };
+  return {
+    columnMap: columnMap.filter(c => c.field !== 'barcode'),
+    ignoredColumns: [{ header: barcodeCol.header, reason: ROW_NUMBER_REASON, field: 'barcode' }],
+  };
+}
+
+// ─── Error summary ──────────────────────────────────────────────────
+
+/** Distinct error messages with their occurrence count, most frequent first (ties keep first-seen order). */
+export function summarizeErrors(rows: ParsedRow[]): ErrorSummaryEntry[] {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    if (row.error === null) continue;
+    counts.set(row.error, (counts.get(row.error) ?? 0) + 1);
+  }
+  return Array.from(counts, ([error, count]) => ({ error, count })).sort((a, b) => b.count - a.count);
+}
+
+// ─── Sheet parsing ──────────────────────────────────────────────────
+
 export function parsePurchaseSheet(
   wb: XLSX.WorkBook,
   sheetName: string,
   options?: { defaultBoutique?: string }
 ): ParsedSheet {
   const sheet = wb.Sheets[sheetName];
-  if (!sheet) return { headerRowIndex: 0, columnMap: [], rows: [], skippedEmpty: 0 };
+  if (!sheet) {
+    return {
+      headerRowIndex: 0, columnMap: [], rows: [], skippedEmpty: 0,
+      missingBoutiqueRows: 0, defaultBoutiqueApplied: 0, ignoredColumns: [],
+    };
+  }
 
   clampSheetRange(sheet);
+  anchorSheetRangeAtA1(sheet);
   // raw:true keeps genuine date cells as Date objects (cellDates:true at read
   // time) instead of US-ordered display text ("7/24/16"); blankrows:true keeps
   // grid row indices equal to the sheet's real row numbers.
   const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: null, raw: true, blankrows: true });
-  const { headerRowIndex, columnMap } = detectHeaderRow(grid);
+  const detected = detectHeaderRow(grid);
+  const headerRowIndex = detected.headerRowIndex;
+  const { columnMap, ignoredColumns } = dropRowNumberBarcode(grid, headerRowIndex, detected.columnMap);
 
   const colIndex = new Map<PurchaseField, number>();
   for (const c of columnMap) colIndex.set(c.field, c.columnIndex);
   const defaultBoutique = options?.defaultBoutique?.trim() || '';
+  const hasBoutiqueCol = colIndex.has('boutique');
 
   const rows: ParsedRow[] = [];
   let skippedEmpty = 0;
+  // Blank rows seen since the last data row: only counted once another data
+  // row follows, so the formatted-but-empty tail of a sheet is not reported.
+  let trailingBlank = 0;
+  let missingBoutiqueRows = 0;
+  let defaultBoutiqueApplied = 0;
 
   for (let r = headerRowIndex + 1; r < grid.length; r++) {
     const raw = grid[r] ?? [];
@@ -296,26 +460,37 @@ export function parsePurchaseSheet(
     // Summary/filler rows (only a row number and/or a computed total in
     // unmapped columns) carry no business data at all — skip silently.
     if (BUSINESS_FIELDS.every(f => isBlank(cell(f)))) {
-      skippedEmpty++;
+      trailingBlank++;
       continue;
     }
+    skippedEmpty += trailingBlank;
+    trailingBlank = 0;
 
     const index = r + 1;
 
     const date = toISODate(cell('date'));
     if (!date) { rows.push({ index, data: null, error: 'Date invalide ou manquante', raw }); continue; }
 
-    const cat = isBlank(cell('category')) ? '' : String(cell('category')).trim();
+    // A category cell of "0" / "-" is filler, not a category to auto-create.
+    const cat = isPlaceholder(cell('category')) ? '' : String(cell('category')).trim();
     if (!cat) { rows.push({ index, data: null, error: 'Catégorie manquante', raw }); continue; }
 
     const desig = isBlank(cell('designation')) ? '' : String(cell('designation')).trim();
     if (!desig) { rows.push({ index, data: null, error: 'Désignation manquante', raw }); continue; }
 
+    // A blank or placeholder boutique cell ("0", "-", "n/a"…) counts as
+    // missing — never create a boutique literally named "0". The default,
+    // when set, fills in per row, whether the column exists or not.
     let bout = '';
-    if (colIndex.has('boutique')) {
-      bout = isBlank(cell('boutique')) ? '' : String(cell('boutique')).trim();
+    const boutCell = cell('boutique');
+    if (hasBoutiqueCol && !isPlaceholder(boutCell)) {
+      bout = String(boutCell).trim();
     } else {
-      bout = defaultBoutique;
+      missingBoutiqueRows++;
+      if (defaultBoutique) {
+        bout = defaultBoutique;
+        defaultBoutiqueApplied++;
+      }
     }
     if (!bout) { rows.push({ index, data: null, error: 'Boutique manquante', raw }); continue; }
 
@@ -333,9 +508,12 @@ export function parsePurchaseSheet(
 
     const resaleCents = toCents(cell('resalePrice'));
     const sellingCents = toCents(cell('sellingPrice'));
-    const supplier = isBlank(cell('supplier')) ? '' : String(cell('supplier')).trim();
-    const subCat = isBlank(cell('subCategory')) ? '' : String(cell('subCategory')).trim();
-    const barcode = isBlank(cell('barcode')) ? '' : String(cell('barcode')).trim();
+    // Placeholder supplier ("0", "-") → undefined so the handler applies its own
+    // default. Same for sub-category and barcode: a column of 0 / "-" must not
+    // create a sub-category named "0" or give hundreds of lots barcode "0".
+    const supplier = isPlaceholder(cell('supplier')) ? '' : String(cell('supplier')).trim();
+    const subCat = isPlaceholder(cell('subCategory')) ? '' : String(cell('subCategory')).trim();
+    const barcode = isPlaceholder(cell('barcode')) ? '' : String(cell('barcode')).trim();
 
     const data: ExcelRow = {
       date,
@@ -355,5 +533,5 @@ export function parsePurchaseSheet(
     rows.push({ index, data, error: null, raw });
   }
 
-  return { headerRowIndex, columnMap, rows, skippedEmpty };
+  return { headerRowIndex, columnMap, rows, skippedEmpty, missingBoutiqueRows, defaultBoutiqueApplied, ignoredColumns };
 }

@@ -9,13 +9,20 @@ import { SearchableSelect } from '../components/SearchableSelect.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
 import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
-import { FIELD_LABELS, listSheets, parsePurchaseSheet, pickDefaultSheet } from '../excel-import.js';
+import { FIELD_LABELS, formatRawCell, listSheets, parsePurchaseSheet, pickDefaultSheet, summarizeErrors } from '../excel-import.js';
 import type { ParsedRow, ParsedSheet, PurchaseField } from '../excel-import.js';
 
 // Rows sent per IPC call so a big import never blocks in one giant payload.
 const IMPORT_CHUNK_SIZE = 400;
-// Max preview rows rendered in the DOM (errors shown first).
+// Max preview rows rendered in the DOM, in file order, after the Toutes/Erreurs filter.
 const IMPORT_PREVIEW_LIMIT = 300;
+type ImportPreviewFilter = 'all' | 'errors';
+
+/** "2026-01-31" → "31/01/2026" for the preview (same shape formatRawCell gives raw Date cells). */
+const isoToFr = (iso: string): string => {
+  const [y, m, d] = iso.split('-');
+  return y && m && d ? `${d}/${m}/${y}` : iso;
+};
 
 export function PurchasesPage(): React.JSX.Element {
   const { categories, suppliers, boutiques, subCategories, addCategory, addSupplier, addBoutique, addSubCategory } = useReferenceData();
@@ -39,6 +46,7 @@ export function PurchasesPage(): React.JSX.Element {
   const [importSheet, setImportSheet] = useState('');
   const [importResult, setImportResult] = useState<ParsedSheet | null>(null);
   const [importDefaultBoutique, setImportDefaultBoutique] = useState('');
+  const [importPreviewFilter, setImportPreviewFilter] = useState<ImportPreviewFilter>('all');
   const [importProgress, setImportProgress] = useState<{ done: number; total: number } | null>(null);
   const [importing, setImporting] = useState(false);
   // Index of the first valid row NOT yet committed — lets a retry after a failed
@@ -193,23 +201,32 @@ export function PurchasesPage(): React.JSX.Element {
     return { total: rows.length, valid, errors: rows.length - valid };
   }, [importResult]);
 
-  // Never render thousands of DOM rows: errors first, capped.
-  const importDisplayRows = useMemo(() => {
+  const importErrorSummary = useMemo(() => summarizeErrors(importResult?.rows ?? []), [importResult]);
+
+  // Rows stay in file order (row numbers keep climbing, nothing looks "skipped").
+  // Never render thousands of DOM rows: the filtered list is capped.
+  const importFilteredRows = useMemo(() => {
     const rows = importResult?.rows ?? [];
-    const errs = rows.filter(r => r.error !== null);
-    const oks = rows.filter(r => r.error === null);
-    return [...errs, ...oks].slice(0, IMPORT_PREVIEW_LIMIT);
-  }, [importResult]);
+    return importPreviewFilter === 'errors' ? rows.filter(r => r.error !== null) : rows;
+  }, [importResult, importPreviewFilter]);
+  const importDisplayRows = useMemo(() => importFilteredRows.slice(0, IMPORT_PREVIEW_LIMIT), [importFilteredRows]);
 
   const importHasBoutiqueCol = importResult ? importResult.columnMap.some(c => c.field === 'boutique') : true;
+  // Offer a default whenever at least one row would need it, not only when the column is absent.
+  const importNeedsDefaultBoutique = importResult !== null && (!importHasBoutiqueCol || importResult.missingBoutiqueRows > 0);
+
+  // Summary entry text. The boutique error names its fix (the default select above)
+  // and says "vide ou 0" so a visible "0" cell no longer reads as a contradiction.
+  const importErrorLabel = (error: string, count: number): string => {
+    if (error !== 'Boutique manquante') return `${error} × ${count}`;
+    const hint = importNeedsDefaultBoutique && !importDefaultBoutique ? ' → choisissez une « Boutique par défaut » ci-dessus' : '';
+    return `Boutique manquante (cellule vide ou 0) × ${count}${hint}`;
+  };
 
   const rawCell = (row: ParsedRow, field: PurchaseField): string => {
     const col = importResult?.columnMap.find(c => c.field === field);
     if (!col) return '—';
-    const v = row.raw[col.columnIndex];
-    if (v === null || v === undefined) return '—';
-    const s = String(v).trim();
-    return s === '' ? '—' : s;
+    return formatRawCell(row.raw[col.columnIndex]);
   };
 
   const resetImportState = () => {
@@ -218,6 +235,7 @@ export function PurchasesPage(): React.JSX.Element {
     setImportSheets([]);
     setImportSheet('');
     setImportDefaultBoutique('');
+    setImportPreviewFilter('all');
     setImportProgress(null);
     setImportResumeIndex(0);
     importWbRef.current = null;
@@ -447,80 +465,119 @@ export function PurchasesPage(): React.JSX.Element {
         {importSheets.length > 1 && (
           <div className="form-group" style={{ marginBottom: 12 }}>
             <label>Feuille à importer</label>
-            <select value={importSheet} onChange={e => handleImportSheetChange(e.target.value)} disabled={importing}>
+            {/* Locked once a chunk has been committed: re-parsing resets the resume point and would duplicate those rows. */}
+            <select value={importSheet} onChange={e => handleImportSheetChange(e.target.value)} disabled={importing || importResumeIndex > 0}>
               {importSheets.map(name => <option key={name} value={name}>{name}</option>)}
             </select>
           </div>
         )}
-        {importResult && !importHasBoutiqueCol && (
+        {importResult && importNeedsDefaultBoutique && (
           <div className="form-group" style={{ marginBottom: 12 }}>
-            <label>Boutique par défaut (aucune colonne boutique détectée)</label>
-            <select value={importDefaultBoutique} onChange={e => handleDefaultBoutiqueChange(e.target.value)} required disabled={importing}>
+            <label>Boutique par défaut</label>
+            <select value={importDefaultBoutique} onChange={e => handleDefaultBoutiqueChange(e.target.value)} required disabled={importing || importResumeIndex > 0}>
               <option value="">— Choisir une boutique —</option>
               {boutiques.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
             </select>
+            <div style={{ fontSize: 12, color: importDefaultBoutique ? '#555' : '#c02626', marginTop: 4 }}>
+              {importDefaultBoutique
+                ? `${importResult.missingBoutiqueRows} ligne(s) sans boutique dans le fichier utiliseront « ${importDefaultBoutique} ».`
+                : `${importResult.missingBoutiqueRows} ligne(s) n'ont pas de boutique dans le fichier (cellule vide ou 0) : choisissez ici la boutique à leur attribuer pour corriger ces erreurs.`}
+              {!importHasBoutiqueCol && ' Aucune colonne boutique détectée.'}
+            </div>
           </div>
         )}
-        <div style={{ maxHeight: '60vh', overflow: 'auto' }}>
-          {!importResult ? (
-            <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
-          ) : (
-            <>
-              <div style={{ marginBottom: 12, display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap' }}>
-                <span><strong>Total:</strong> {importStats.total}</span>
-                <span style={{ color: '#0a7f2e' }}>
-                  <strong>Valides:</strong> {importStats.valid}
-                </span>
-                <span style={{ color: '#c02626' }}>
-                  <strong>Erreurs:</strong> {importStats.errors}
-                </span>
+        {importResult && (
+          <>
+            <div style={{ marginBottom: 8, display: 'flex', gap: 16, fontSize: 13, flexWrap: 'wrap' }}>
+              <span><strong>Total:</strong> {importStats.total}</span>
+              <span style={{ color: '#0a7f2e' }}>
+                <strong>Valides:</strong> {importStats.valid}
+              </span>
+              <span style={{ color: '#c02626' }}>
+                <strong>Erreurs:</strong> {importStats.errors}
+              </span>
+              {importResult.skippedEmpty > 0 && (
                 <span style={{ color: '#666' }}>
                   <strong>Lignes vides ignorées:</strong> {importResult.skippedEmpty}
                 </span>
+              )}
+            </div>
+            {importErrorSummary.length > 0 && (
+              <div style={{ fontSize: 12, color: '#c02626', marginBottom: 8 }}>
+                Détail des erreurs: {importErrorSummary.map(e => importErrorLabel(e.error, e.count)).join(' · ')}
               </div>
-              <div style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>
-                En-têtes détectés à la ligne {importResult.headerRowIndex + 1}.
-              </div>
-              <div style={{ fontSize: 12, color: '#555', marginBottom: 8 }}>
-                {importResult.columnMap.length > 0 ? (
-                  <>Colonnes reconnues: {importResult.columnMap.map(c => `${FIELD_LABELS[c.field]} ← « ${c.header} »`).join(' · ')}</>
-                ) : (
-                  <>Aucune colonne reconnue. Colonnes attendues: Date, Catégorie, Désignation, Fournisseur, Boutique, Quantité, Prix achat, Prix revendeur, Prix vente, Code-barres, Sous-catégorie (noms flexibles). Essayez une autre feuille.</>
-                )}
-              </div>
-              {importResult.rows.length === 0 ? (
-                <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
+            )}
+            <div style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>
+              En-têtes détectés à la ligne {importResult.headerRowIndex + 1}.
+            </div>
+            <div style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>
+              {importResult.columnMap.length > 0 ? (
+                <>Colonnes reconnues: {[
+                  ...importResult.columnMap.map(c => `${FIELD_LABELS[c.field]} ← « ${c.header} »`),
+                  ...(importResult.defaultBoutiqueApplied > 0
+                    ? [`${FIELD_LABELS.boutique} ← boutique par défaut (${importResult.defaultBoutiqueApplied} ligne(s))`]
+                    : []),
+                ].join(' · ')}</>
               ) : (
-                <>
+                <>Aucune colonne reconnue. Colonnes attendues: Date, Catégorie, Désignation, Fournisseur, Boutique, Quantité, Prix achat, Prix revendeur, Prix vente, Code-barres, Sous-catégorie (noms flexibles). Essayez une autre feuille.</>
+              )}
+            </div>
+            {importResult.ignoredColumns.map(ic => (
+              <div key={ic.header} style={{ fontSize: 12, color: '#8a6d1a', marginBottom: 4 }}>
+                Colonne « {ic.header} » ignorée: {ic.reason}
+                {ic.field === 'barcode' && ' — les achats seront importés sans code-barres'}
+              </div>
+            ))}
+            {importResult.rows.length > 0 && (
+              // Kept outside the scroll box so the view switch never scrolls out of sight.
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', margin: '8px 0', fontSize: 12, color: '#555' }}>
+                <span>Afficher :</span>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${importPreviewFilter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => setImportPreviewFilter('all')}
+                >
+                  Toutes ({importStats.total})
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${importPreviewFilter === 'errors' ? 'btn-primary' : 'btn-secondary'}`}
+                  onClick={() => setImportPreviewFilter('errors')}
+                >
+                  Erreurs seulement ({importStats.errors})
+                </button>
+              </div>
+            )}
+          </>
+        )}
+        {/* table-wrapper: prominent horizontal scrollbar for the wide preview; the sticky <th> sticks inside this box. */}
+        <div className="table-wrapper" style={{ maxHeight: '60vh', overflow: 'auto' }}>
+          {!importResult || importResult.rows.length === 0 ? (
+            <p style={{ padding: 16, color: '#666' }}>Aucune donnée à afficher.</p>
+          ) : importFilteredRows.length === 0 ? (
+            <p style={{ padding: 16, color: '#666' }}>Aucune ligne en erreur.</p>
+          ) : (
+            <>
               <table className="data-table" style={{ fontSize: 12 }}>
                 <thead>
                   <tr>
                     <th>#</th>
+                    <th>Statut</th>
                     <th>Date</th>
                     <th>Catégorie</th>
                     <th>Désignation</th>
-                    <th>Fournisseur</th>
+                    {isAdmin && <th>Fournisseur</th>}
                     <th>Boutique</th>
                     <th className="text-right">Qté</th>
                     <th className="text-right">PA</th>
                     <th className="text-right">PV Rev.</th>
                     <th className="text-right">PV Pub.</th>
-                    <th>Statut</th>
                   </tr>
                 </thead>
                 <tbody>
                   {importDisplayRows.map(row => (
                     <tr key={row.index} style={row.error ? { background: '#fdecec' } : {}}>
                       <td className="col-mono">{row.index}</td>
-                      <td>{row.data ? row.data.date : rawCell(row, 'date')}</td>
-                      <td>{row.data ? row.data.category : rawCell(row, 'category')}</td>
-                      <td>{row.data ? row.data.designation : rawCell(row, 'designation')}</td>
-                      <td>{row.data ? (row.data.supplier || '—') : rawCell(row, 'supplier')}</td>
-                      <td>{row.data ? row.data.boutique : rawCell(row, 'boutique')}</td>
-                      <td className="text-right col-mono">{row.data ? row.data.initialQuantity : rawCell(row, 'quantity')}</td>
-                      <td className="text-right col-mono">{row.data ? fm(row.data.purchaseUnitCost) : rawCell(row, 'purchasePrice')}</td>
-                      <td className="text-right col-mono">{row.data ? (row.data.targetResalePrice != null ? fm(row.data.targetResalePrice) : '—') : rawCell(row, 'resalePrice')}</td>
-                      <td className="text-right col-mono">{row.data ? (row.data.sellingPrice != null ? fm(row.data.sellingPrice) : '—') : rawCell(row, 'sellingPrice')}</td>
                       <td>
                         {row.error ? (
                           <span style={{ color: '#c02626' }}>{row.error}</span>
@@ -528,16 +585,24 @@ export function PurchasesPage(): React.JSX.Element {
                           <span style={{ color: '#0a7f2e' }}>OK</span>
                         )}
                       </td>
+                      <td className="col-mono">{row.data ? isoToFr(row.data.date) : rawCell(row, 'date')}</td>
+                      <td>{row.data ? row.data.category : rawCell(row, 'category')}</td>
+                      <td>{row.data ? row.data.designation : rawCell(row, 'designation')}</td>
+                      {isAdmin && <td>{row.data ? (row.data.supplier || '—') : rawCell(row, 'supplier')}</td>}
+                      <td>{row.data ? row.data.boutique : rawCell(row, 'boutique')}</td>
+                      <td className="text-right col-mono">{row.data ? row.data.initialQuantity : rawCell(row, 'quantity')}</td>
+                      <td className="text-right col-mono">{row.data ? fm(row.data.purchaseUnitCost) : rawCell(row, 'purchasePrice')}</td>
+                      <td className="text-right col-mono">{row.data ? (row.data.targetResalePrice != null ? fm(row.data.targetResalePrice) : '—') : rawCell(row, 'resalePrice')}</td>
+                      <td className="text-right col-mono">{row.data ? (row.data.sellingPrice != null ? fm(row.data.sellingPrice) : '—') : rawCell(row, 'sellingPrice')}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {importStats.total > importDisplayRows.length && (
-                <div style={{ fontSize: 12, color: '#555', marginTop: 8 }}>
-                  … et {importStats.total - importDisplayRows.length} autres lignes non affichées
+              {importFilteredRows.length > importDisplayRows.length && (
+                <div style={{ fontSize: 12, color: '#555', margin: '8px 0' }}>
+                  Aperçu limité à {IMPORT_PREVIEW_LIMIT} lignes — les {importFilteredRows.length - importDisplayRows.length} autres lignes sont bien comptées ci-dessus
+                  {importPreviewFilter === 'all' ? ' et seront importées si elles sont valides.' : '.'}
                 </div>
-              )}
-                </>
               )}
             </>
           )}
@@ -545,6 +610,11 @@ export function PurchasesPage(): React.JSX.Element {
         <div style={{ fontSize: 12, color: '#8a6d1a', marginTop: 8 }}>
           Chaque import ajoute de nouvelles lignes : importer deux fois le même fichier créera des doublons.
         </div>
+        {importStats.errors > 0 && (
+          <div style={{ fontSize: 12, color: '#c02626', marginTop: 4 }}>
+            {importStats.errors} ligne(s) en erreur ne seront pas importées.
+          </div>
+        )}
         <div className="form-actions">
           <button type="button" className="btn btn-cancel" onClick={handleCloseImport} disabled={importing}>Annuler</button>
           <button
