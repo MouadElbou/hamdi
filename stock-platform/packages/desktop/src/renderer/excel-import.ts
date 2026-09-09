@@ -164,23 +164,15 @@ function detectHeaderRow(grid: unknown[][]): { headerRowIndex: number; columnMap
 
 // ─── Range clamp ────────────────────────────────────────────────────
 
-// Above this many declared cells, recompute the real used range from the
-// actual cell keys. Sheets with stray formatting can declare ranges like
-// A1:XFD8282 (~135M cells) which would freeze sheet_to_json.
-const RANGE_CLAMP_THRESHOLD = 100_000;
-
-/** Shrink an absurdly large declared !ref to the sheet's real used range. */
+/**
+ * Recompute !ref from the sheet's real cells, ignoring the stored dimension.
+ * The declared range is unreliable in both directions: stray formatting can
+ * bloat it to A1:XFD8282 (~135M cells, which freezes sheet_to_json), and a
+ * file saved by another tool or after column edits can declare a range
+ * NARROWER than the data — sheet_to_json then silently drops every column
+ * past it (the client's PA column vanished that way).
+ */
 export function clampSheetRange(sheet: XLSX.WorkSheet): void {
-  const ref = sheet['!ref'] as string | undefined;
-  if (!ref) return;
-  let declared: XLSX.Range;
-  try {
-    declared = XLSX.utils.decode_range(ref);
-  } catch {
-    return;
-  }
-  const declaredCells = (declared.e.r - declared.s.r + 1) * (declared.e.c - declared.s.c + 1);
-  if (declaredCells <= RANGE_CLAMP_THRESHOLD) return;
   let maxRow = 0;
   let maxCol = 0;
   let found = false;
@@ -279,6 +271,28 @@ function calendarValid(iso: string): string | null {
   const d = new Date(iso + 'T00:00:00Z');
   if (isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== iso) return null;
   return iso;
+}
+
+/**
+ * Case/accent-insensitive name canonicalizer: returns the spelling already in
+ * use — existing reference data first, then the first spelling met in this
+ * file — so "tayret" lands in the existing "TAYRET" instead of creating a
+ * second boutique/category/supplier.
+ */
+function makeCanonicalizer(known: readonly string[] | undefined): (name: string) => string {
+  const seen = new Map<string, string>();
+  for (const k of known ?? []) {
+    const key = normalizeHeader(k);
+    if (key && !seen.has(key)) seen.set(key, k.trim());
+  }
+  return (name: string) => {
+    const key = normalizeHeader(name);
+    if (!key) return name;
+    const hit = seen.get(key);
+    if (hit !== undefined) return hit;
+    seen.set(key, name);
+    return name;
+  };
 }
 
 export function toISODate(v: unknown): string | null {
@@ -417,7 +431,12 @@ export function summarizeErrors(rows: ParsedRow[]): ErrorSummaryEntry[] {
 export function parsePurchaseSheet(
   wb: XLSX.WorkBook,
   sheetName: string,
-  options?: { defaultBoutique?: string }
+  options?: {
+    defaultBoutique?: string;
+    applyDefaultBoutiqueToAll?: boolean;
+    /** Existing reference names: file spellings that differ only by case/accents map onto them. */
+    known?: { boutiques?: string[]; categories?: string[]; suppliers?: string[] };
+  }
 ): ParsedSheet {
   const sheet = wb.Sheets[sheetName];
   if (!sheet) {
@@ -440,6 +459,12 @@ export function parsePurchaseSheet(
   const colIndex = new Map<PurchaseField, number>();
   for (const c of columnMap) colIndex.set(c.field, c.columnIndex);
   const defaultBoutique = options?.defaultBoutique?.trim() || '';
+  // Override even the boutiques written in the file (e.g. the shop moved and
+  // every historical line should land in the new boutique).
+  const applyDefaultToAll = !!defaultBoutique && !!options?.applyDefaultBoutiqueToAll;
+  const canonBoutique = makeCanonicalizer(options?.known?.boutiques);
+  const canonCategory = makeCanonicalizer(options?.known?.categories);
+  const canonSupplier = makeCanonicalizer(options?.known?.suppliers);
   const hasBoutiqueCol = colIndex.has('boutique');
 
   const rows: ParsedRow[] = [];
@@ -472,7 +497,7 @@ export function parsePurchaseSheet(
     if (!date) { rows.push({ index, data: null, error: 'Date invalide ou manquante', raw }); continue; }
 
     // A category cell of "0" / "-" is filler, not a category to auto-create.
-    const cat = isPlaceholder(cell('category')) ? '' : String(cell('category')).trim();
+    const cat = isPlaceholder(cell('category')) ? '' : canonCategory(String(cell('category')).trim());
     if (!cat) { rows.push({ index, data: null, error: 'Catégorie manquante', raw }); continue; }
 
     const desig = isBlank(cell('designation')) ? '' : String(cell('designation')).trim();
@@ -481,16 +506,13 @@ export function parsePurchaseSheet(
     // A blank or placeholder boutique cell ("0", "-", "n/a"…) counts as
     // missing — never create a boutique literally named "0". The default,
     // when set, fills in per row, whether the column exists or not.
-    let bout = '';
     const boutCell = cell('boutique');
-    if (hasBoutiqueCol && !isPlaceholder(boutCell)) {
-      bout = String(boutCell).trim();
-    } else {
-      missingBoutiqueRows++;
-      if (defaultBoutique) {
-        bout = defaultBoutique;
-        defaultBoutiqueApplied++;
-      }
+    const fileBoutique = hasBoutiqueCol && !isPlaceholder(boutCell) ? canonBoutique(String(boutCell).trim()) : '';
+    if (!fileBoutique) missingBoutiqueRows++;
+    let bout = fileBoutique;
+    if (defaultBoutique && (!fileBoutique || applyDefaultToAll)) {
+      bout = defaultBoutique;
+      defaultBoutiqueApplied++;
     }
     if (!bout) { rows.push({ index, data: null, error: 'Boutique manquante', raw }); continue; }
 
@@ -511,7 +533,7 @@ export function parsePurchaseSheet(
     // Placeholder supplier ("0", "-") → undefined so the handler applies its own
     // default. Same for sub-category and barcode: a column of 0 / "-" must not
     // create a sub-category named "0" or give hundreds of lots barcode "0".
-    const supplier = isPlaceholder(cell('supplier')) ? '' : String(cell('supplier')).trim();
+    const supplier = isPlaceholder(cell('supplier')) ? '' : canonSupplier(String(cell('supplier')).trim());
     const subCat = isPlaceholder(cell('subCategory')) ? '' : String(cell('subCategory')).trim();
     const barcode = isPlaceholder(cell('barcode')) ? '' : String(cell('barcode')).trim();
 

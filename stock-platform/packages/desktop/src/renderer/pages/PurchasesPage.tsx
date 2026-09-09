@@ -46,6 +46,7 @@ export function PurchasesPage(): React.JSX.Element {
   const [importSheet, setImportSheet] = useState('');
   const [importResult, setImportResult] = useState<ParsedSheet | null>(null);
   const [importDefaultBoutique, setImportDefaultBoutique] = useState('');
+  const [importApplyBoutiqueToAll, setImportApplyBoutiqueToAll] = useState(false);
   const [importPreviewFilter, setImportPreviewFilter] = useState<ImportPreviewFilter>('all');
   const [importProgress, setImportProgress] = useState<{ done: number; total: number } | null>(null);
   const [importing, setImporting] = useState(false);
@@ -151,8 +152,16 @@ export function PurchasesPage(): React.JSX.Element {
     }
   };
 
-  const runSheetParse = (wb: XLSX.WorkBook, sheetName: string, defaultBoutique: string) => {
-    const result = parsePurchaseSheet(wb, sheetName, defaultBoutique ? { defaultBoutique } : undefined);
+  const runSheetParse = (wb: XLSX.WorkBook, sheetName: string, defaultBoutique: string, applyToAll: boolean) => {
+    const result = parsePurchaseSheet(wb, sheetName, {
+      defaultBoutique: defaultBoutique || undefined,
+      applyDefaultBoutiqueToAll: applyToAll,
+      known: {
+        boutiques: boutiques.map(b => b.name),
+        categories: categories.map(c => c.name),
+        suppliers: suppliers.map(s => s.code),
+      },
+    });
     setImportResult(result);
     setImportResumeIndex(0);
   };
@@ -173,8 +182,9 @@ export function PurchasesPage(): React.JSX.Element {
       setImportSheets(sheets);
       setImportSheet(chosen);
       setImportDefaultBoutique('');
+      setImportApplyBoutiqueToAll(false);
       setImportProgress(null);
-      runSheetParse(wb, chosen, '');
+      runSheetParse(wb, chosen, '', false);
       setShowImport(true);
     } catch (err) {
       console.error('[Excel parse]', err);
@@ -185,14 +195,21 @@ export function PurchasesPage(): React.JSX.Element {
   const handleImportSheetChange = (name: string) => {
     setImportSheet(name);
     setImportDefaultBoutique('');
+    setImportApplyBoutiqueToAll(false);
     const wb = importWbRef.current;
-    if (wb) runSheetParse(wb, name, '');
+    if (wb) runSheetParse(wb, name, '', false);
   };
 
   const handleDefaultBoutiqueChange = (name: string) => {
     setImportDefaultBoutique(name);
     const wb = importWbRef.current;
-    if (wb) runSheetParse(wb, importSheet, name);
+    if (wb) runSheetParse(wb, importSheet, name, importApplyBoutiqueToAll);
+  };
+
+  const handleApplyBoutiqueToAllChange = (checked: boolean) => {
+    setImportApplyBoutiqueToAll(checked);
+    const wb = importWbRef.current;
+    if (wb) runSheetParse(wb, importSheet, importDefaultBoutique, checked);
   };
 
   const importStats = useMemo(() => {
@@ -235,6 +252,7 @@ export function PurchasesPage(): React.JSX.Element {
     setImportSheets([]);
     setImportSheet('');
     setImportDefaultBoutique('');
+    setImportApplyBoutiqueToAll(false);
     setImportPreviewFilter('all');
     setImportProgress(null);
     setImportResumeIndex(0);
@@ -471,19 +489,32 @@ export function PurchasesPage(): React.JSX.Element {
             </select>
           </div>
         )}
-        {importResult && importNeedsDefaultBoutique && (
+        {importResult && (
           <div className="form-group" style={{ marginBottom: 12 }}>
             <label>Boutique par défaut</label>
             <select value={importDefaultBoutique} onChange={e => handleDefaultBoutiqueChange(e.target.value)} required disabled={importing || importResumeIndex > 0}>
               <option value="">— Choisir une boutique —</option>
               {boutiques.map(b => <option key={b.id} value={b.name}>{b.name}</option>)}
             </select>
-            <div style={{ fontSize: 12, color: importDefaultBoutique ? '#555' : '#c02626', marginTop: 4 }}>
-              {importDefaultBoutique
-                ? `${importResult.missingBoutiqueRows} ligne(s) sans boutique dans le fichier utiliseront « ${importDefaultBoutique} ».`
-                : `${importResult.missingBoutiqueRows} ligne(s) n'ont pas de boutique dans le fichier (cellule vide ou 0) : choisissez ici la boutique à leur attribuer pour corriger ces erreurs.`}
+            <div style={{ fontSize: 12, color: importNeedsDefaultBoutique && !importDefaultBoutique ? '#c02626' : '#555', marginTop: 4 }}>
+              {importApplyBoutiqueToAll && importDefaultBoutique
+                ? `Toutes les lignes utiliseront « ${importDefaultBoutique} » (la boutique indiquée dans le fichier est remplacée).`
+                : importResult.missingBoutiqueRows === 0
+                  ? 'Toutes les lignes ont déjà une boutique dans le fichier.'
+                  : importDefaultBoutique
+                    ? `${importResult.missingBoutiqueRows} ligne(s) sans boutique dans le fichier utiliseront « ${importDefaultBoutique} » ; les autres gardent la boutique du fichier.`
+                    : `${importResult.missingBoutiqueRows} ligne(s) n'ont pas de boutique dans le fichier (cellule vide ou 0) : choisissez ici la boutique à leur attribuer pour corriger ces erreurs.`}
               {!importHasBoutiqueCol && ' Aucune colonne boutique détectée.'}
             </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 13, textTransform: 'none', letterSpacing: 0, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={importApplyBoutiqueToAll}
+                disabled={!importDefaultBoutique || importing || importResumeIndex > 0}
+                onChange={e => handleApplyBoutiqueToAllChange(e.target.checked)}
+              />
+              Appliquer cette boutique à toutes les lignes (remplacer la boutique indiquée dans le fichier)
+            </label>
           </div>
         )}
         {importResult && (
