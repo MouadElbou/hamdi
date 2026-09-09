@@ -9,7 +9,7 @@ import { SearchableSelect } from '../components/SearchableSelect.js';
 import { useReferenceData } from '../components/ReferenceDataContext.js';
 import { useAuth } from '../components/AuthContext.js';
 import { parseCents, parsePositiveInt, todayLocal } from '../utils.js';
-import { FIELD_LABELS, formatRawCell, listSheets, parsePurchaseSheet, pickDefaultSheet, summarizeErrors } from '../excel-import.js';
+import { FIELD_LABELS, formatRawCell, isPlaceholder, listSheets, parsePurchaseSheet, pickDefaultSheet, summarizeErrors } from '../excel-import.js';
 import type { ParsedRow, ParsedSheet, PurchaseField } from '../excel-import.js';
 
 // Rows sent per IPC call so a big import never blocks in one giant payload.
@@ -153,15 +153,40 @@ export function PurchasesPage(): React.JSX.Element {
     }
   };
 
+  // The import never asks the user to pick a boutique up front: it starts with
+  // the one used last time (persisted), else the first known one, else a name
+  // the import handler will create. The selector stays editable.
+  const DEFAULT_BOUTIQUE_KEY = 'purchases.import.defaultBoutique';
+  const knownNames = () => ({
+    boutiques: boutiques.map(b => b.name),
+    categories: categories.map(c => c.name),
+    suppliers: suppliers.map(s => s.code),
+  });
+  // Order of preference: the boutique chosen last time, the one the file
+  // itself uses most, the first real (non-placeholder) known boutique, and
+  // finally a name the import handler will create.
+  const pickInitialBoutique = (probe: ParsedSheet | null): string => {
+    let remembered = '';
+    try { remembered = localStorage.getItem(DEFAULT_BOUTIQUE_KEY) ?? ''; } catch { /* storage unavailable */ }
+    if (remembered && boutiques.some(b => b.name === remembered)) return remembered;
+    const counts = new Map<string, number>();
+    for (const row of probe?.rows ?? []) {
+      const name = row.data?.boutique;
+      if (name && !isPlaceholder(name)) counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+    const fromFile = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+    if (fromFile) return fromFile;
+    return boutiques.find(b => !isPlaceholder(b.name))?.name ?? 'Boutique principale';
+  };
+  const rememberBoutique = (name: string) => {
+    try { if (name) localStorage.setItem(DEFAULT_BOUTIQUE_KEY, name); } catch { /* storage unavailable */ }
+  };
+
   const runSheetParse = (wb: XLSX.WorkBook, sheetName: string, defaultBoutique: string, applyToAll: boolean) => {
     const result = parsePurchaseSheet(wb, sheetName, {
       defaultBoutique: defaultBoutique || undefined,
       applyDefaultBoutiqueToAll: applyToAll,
-      known: {
-        boutiques: boutiques.map(b => b.name),
-        categories: categories.map(c => c.name),
-        suppliers: suppliers.map(s => s.code),
-      },
+      known: knownNames(),
     });
     setImportResult(result);
     setImportResumeIndex(0);
@@ -183,10 +208,11 @@ export function PurchasesPage(): React.JSX.Element {
       setImportFileInfo({ name: file.name, modified: new Date(file.lastModified), size: file.size });
       setImportSheets(sheets);
       setImportSheet(chosen);
-      setImportDefaultBoutique('');
+      const initialBoutique = pickInitialBoutique(parsePurchaseSheet(wb, chosen, { known: knownNames() }));
+      setImportDefaultBoutique(initialBoutique);
       setImportApplyBoutiqueToAll(false);
       setImportProgress(null);
-      runSheetParse(wb, chosen, '', false);
+      runSheetParse(wb, chosen, initialBoutique, false);
       setShowImport(true);
     } catch (err) {
       console.error('[Excel parse]', err);
@@ -196,14 +222,16 @@ export function PurchasesPage(): React.JSX.Element {
 
   const handleImportSheetChange = (name: string) => {
     setImportSheet(name);
-    setImportDefaultBoutique('');
-    setImportApplyBoutiqueToAll(false);
     const wb = importWbRef.current;
-    if (wb) runSheetParse(wb, name, '', false);
+    const initialBoutique = pickInitialBoutique(wb ? parsePurchaseSheet(wb, name, { known: knownNames() }) : null);
+    setImportDefaultBoutique(initialBoutique);
+    setImportApplyBoutiqueToAll(false);
+    if (wb) runSheetParse(wb, name, initialBoutique, false);
   };
 
   const handleDefaultBoutiqueChange = (name: string) => {
     setImportDefaultBoutique(name);
+    rememberBoutique(name);
     const wb = importWbRef.current;
     if (wb) runSheetParse(wb, importSheet, name, importApplyBoutiqueToAll);
   };
@@ -514,7 +542,7 @@ export function PurchasesPage(): React.JSX.Element {
                 : importResult.missingBoutiqueRows === 0
                   ? 'Toutes les lignes ont déjà une boutique dans le fichier.'
                   : importDefaultBoutique
-                    ? `${importResult.missingBoutiqueRows} ligne(s) sans boutique dans le fichier utiliseront « ${importDefaultBoutique} » ; les autres gardent la boutique du fichier.`
+                    ? `${importResult.missingBoutiqueRows} ligne(s) sans boutique dans le fichier utiliseront « ${importDefaultBoutique} » ; les autres gardent la boutique du fichier. Vous pouvez changer la boutique ci-dessus.`
                     : `${importResult.missingBoutiqueRows} ligne(s) n'ont pas de boutique dans le fichier (cellule vide ou 0) : choisissez ici la boutique à leur attribuer pour corriger ces erreurs.`}
               {!importHasBoutiqueCol && ' Aucune colonne boutique détectée.'}
             </div>
