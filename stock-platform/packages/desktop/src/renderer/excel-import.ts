@@ -54,6 +54,19 @@ export interface IgnoredColumn {
   field?: PurchaseField;
 }
 
+/**
+ * A recognized column whose cells are empty on (almost) every data row, or
+ * that holds formulas without a cached value — the two ways a column "exists"
+ * in Excel yet is invisible to the importer (stale copy, uncalculated file).
+ */
+export interface ColumnDiagnostic {
+  field: PurchaseField;
+  header: string;
+  dataRows: number;
+  emptyRows: number;
+  formulaWithoutValue: number;
+}
+
 export interface ParsedSheet {
   /** 0-based index of the detected header row within the grid returned by sheet_to_json. */
   headerRowIndex: number;
@@ -76,6 +89,8 @@ export interface ParsedSheet {
   defaultBoutiqueApplied: number;
   /** Header-matched columns that were dropped because their content was not what the header claimed. */
   ignoredColumns: IgnoredColumn[];
+  /** Required columns that read as empty, or any column holding uncalculated formulas. */
+  columnDiagnostics: ColumnDiagnostic[];
 }
 
 export interface ErrorSummaryEntry {
@@ -442,7 +457,7 @@ export function parsePurchaseSheet(
   if (!sheet) {
     return {
       headerRowIndex: 0, columnMap: [], rows: [], skippedEmpty: 0,
-      missingBoutiqueRows: 0, defaultBoutiqueApplied: 0, ignoredColumns: [],
+      missingBoutiqueRows: 0, defaultBoutiqueApplied: 0, ignoredColumns: [], columnDiagnostics: [],
     };
   }
 
@@ -475,6 +490,11 @@ export function parsePurchaseSheet(
   let missingBoutiqueRows = 0;
   let defaultBoutiqueApplied = 0;
 
+  // Per-column emptiness tallies over real data rows, for the diagnostics.
+  const REQUIRED_FIELDS = new Set<PurchaseField>(['date', 'category', 'designation', 'quantity', 'purchasePrice']);
+  const colStats = new Map<PurchaseField, { dataRows: number; emptyRows: number; formulaWithoutValue: number }>();
+  for (const field of colIndex.keys()) colStats.set(field, { dataRows: 0, emptyRows: 0, formulaWithoutValue: 0 });
+
   for (let r = headerRowIndex + 1; r < grid.length; r++) {
     const raw = grid[r] ?? [];
     const cell = (field: PurchaseField): unknown => {
@@ -490,6 +510,18 @@ export function parsePurchaseSheet(
     }
     skippedEmpty += trailingBlank;
     trailingBlank = 0;
+
+    for (const [field, idx] of colIndex) {
+      const st = colStats.get(field);
+      if (!st) continue;
+      st.dataRows++;
+      if (isBlank(raw[idx])) {
+        st.emptyRows++;
+        // A formula cell with no cached result: the file was saved without recalculation.
+        const obj = sheet[XLSX.utils.encode_cell({ r, c: idx })] as XLSX.CellObject | undefined;
+        if (obj && obj.f !== undefined && (obj.v === undefined || obj.v === null)) st.formulaWithoutValue++;
+      }
+    }
 
     const index = r + 1;
 
@@ -555,5 +587,15 @@ export function parsePurchaseSheet(
     rows.push({ index, data, error: null, raw });
   }
 
-  return { headerRowIndex, columnMap, rows, skippedEmpty, missingBoutiqueRows, defaultBoutiqueApplied, ignoredColumns };
+  const columnDiagnostics: ColumnDiagnostic[] = [];
+  for (const [field, st] of colStats) {
+    if (st.dataRows < 10) continue;
+    const mostlyEmpty = st.emptyRows / st.dataRows >= 0.9;
+    // An optional column that is simply unused in this file is not a problem.
+    if (st.formulaWithoutValue === 0 && (!mostlyEmpty || !REQUIRED_FIELDS.has(field))) continue;
+    const header = columnMap.find(c => c.field === field)?.header ?? FIELD_LABELS[field];
+    columnDiagnostics.push({ field, header, dataRows: st.dataRows, emptyRows: st.emptyRows, formulaWithoutValue: st.formulaWithoutValue });
+  }
+
+  return { headerRowIndex, columnMap, rows, skippedEmpty, missingBoutiqueRows, defaultBoutiqueApplied, ignoredColumns, columnDiagnostics };
 }

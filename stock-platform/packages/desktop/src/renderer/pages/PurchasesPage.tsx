@@ -43,6 +43,7 @@ export function PurchasesPage(): React.JSX.Element {
   const importWbRef = useRef<XLSX.WorkBook | null>(null);
   const [showImport, setShowImport] = useState(false);
   const [importSheets, setImportSheets] = useState<string[]>([]);
+  const [importFileInfo, setImportFileInfo] = useState<{ name: string; modified: Date; size: number } | null>(null);
   const [importSheet, setImportSheet] = useState('');
   const [importResult, setImportResult] = useState<ParsedSheet | null>(null);
   const [importDefaultBoutique, setImportDefaultBoutique] = useState('');
@@ -179,6 +180,7 @@ export function PurchasesPage(): React.JSX.Element {
         return;
       }
       importWbRef.current = wb;
+      setImportFileInfo({ name: file.name, modified: new Date(file.lastModified), size: file.size });
       setImportSheets(sheets);
       setImportSheet(chosen);
       setImportDefaultBoutique('');
@@ -253,6 +255,7 @@ export function PurchasesPage(): React.JSX.Element {
     setImportSheet('');
     setImportDefaultBoutique('');
     setImportApplyBoutiqueToAll(false);
+    setImportFileInfo(null);
     setImportPreviewFilter('all');
     setImportProgress(null);
     setImportResumeIndex(0);
@@ -480,6 +483,15 @@ export function PurchasesPage(): React.JSX.Element {
       </Modal>
 
       <Modal open={showImport} onClose={handleCloseImport} title="Importer depuis Excel" width="960px">
+        {importFileInfo && (
+          <div style={{ fontSize: 12, color: '#555', marginBottom: 10 }}>
+            Fichier : <strong>{importFileInfo.name}</strong>
+            {' · enregistré le '}{importFileInfo.modified.toLocaleDateString('fr-FR')}
+            {' à '}{importFileInfo.modified.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            {' · '}{(importFileInfo.size / 1048576).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} Mo
+            {' — vérifiez que c\'est bien la dernière version enregistrée (fermez Excel avant d\'importer).'}
+          </div>
+        )}
         {importSheets.length > 1 && (
           <div className="form-group" style={{ marginBottom: 12 }}>
             <label>Feuille à importer</label>
@@ -557,6 +569,14 @@ export function PurchasesPage(): React.JSX.Element {
               <div key={ic.header} style={{ fontSize: 12, color: '#8a6d1a', marginBottom: 4 }}>
                 Colonne « {ic.header} » ignorée: {ic.reason}
                 {ic.field === 'barcode' && ' — les achats seront importés sans code-barres'}
+              </div>
+            ))}
+            {importResult.columnDiagnostics.map(d => (
+              <div key={d.field} style={{ fontSize: 12, color: '#c02626', marginBottom: 4 }}>
+                ⚠ La colonne « {d.header} » ({FIELD_LABELS[d.field]}) est vide sur {d.emptyRows} des {d.dataRows} lignes.{' '}
+                {d.formulaWithoutValue > 0
+                  ? `Elle contient ${d.formulaWithoutValue} formule(s) sans valeur calculée : ouvrez le fichier dans Excel, appuyez sur F9, enregistrez (Ctrl+S), puis réessayez.`
+                  : 'Vérifiez que les valeurs sont bien dans cette colonne du fichier importé, et que vous importez la dernière version enregistrée (fermez Excel avant).'}
               </div>
             ))}
             {importResult.rows.length > 0 && (
